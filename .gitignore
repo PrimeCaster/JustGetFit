@@ -1,0 +1,73 @@
+# ==============================================================================
+# SECRETS, CREDENTIALS & SENSITIVE INFORMATION (CRITICAL)
+# ==============================================================================
+# Environment files containing API keys or tokens
+.env
+.env.*
+.env.local
+*.env
+# Allow only the dummy example template
+!.env.example
+
+# Local machine SDK paths & private properties
+local.properties
+secrets.properties
+*.properties.local
+
+# Android Keystores & private signing certificates
+*.keystore
+*.jks
+*.p12
+*.key
+*.pem
+*.pk8
+debug.keystore
+release.keystore
+
+# Google Services / Firebase API credential files
+google-services.json
+*credentials*.json
+*secret*.json
+*-credentials.json
+
+# ==============================================================================
+# IDE, AGENT & WORKSPACE METADATA
+# ==============================================================================
+# Agentic & AI Studio internal logs/transcripts/pbtxt
+.aistudio/
+.antigravity/
+
+# VS Code & Android Studio / IntelliJ project configs
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ==============================================================================
+# BUILD OUTPUTS & CACHES
+# ==============================================================================
+# Gradle build outputs
+.gradle/
+.kotlin/
+build/
+*/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Binary Android packages
+*.apk
+*.aab
+*.ap_
+
+# Log and diagnostic files
+*.log
+*.dump
+*.tmp
