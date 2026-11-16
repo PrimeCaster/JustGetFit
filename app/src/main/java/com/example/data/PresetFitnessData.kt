@@ -1173,13 +1173,13 @@ object PresetFitnessData {
     )
 
     val gymMachinesCatalog = listOf(
-        // Free Weights & Dumbbells Option
+        // Free Weights Option (Dumbbells, Barbells, Kettlebells)
         GymMachineInfo(
-            machineName = "Free Dumbbells",
-            everydayAlias = "Dumbbells / Free Weights",
-            targetMuscle = "Full Body & All Muscle Groups",
+            machineName = "Free Weights",
+            everydayAlias = "Dumbbells / Barbells / Kettlebells",
+            targetMuscle = "Full Body & Targeted Muscle Groups",
             category = ExerciseCategory.ARMS,
-            tip = "Versatile free-weight dumbbells for progressive overload, unilateral stability, and full range of motion."
+            tip = "Versatile free-weight dumbbells, barbells, and kettlebells for progressive overload, unilateral stability, and full range of motion."
         ),
         // Upper Body – Chest & Pushing
         GymMachineInfo(

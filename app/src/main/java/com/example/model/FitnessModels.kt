@@ -44,11 +44,15 @@ data class GymMachineInfo(
     val tip: String = "Maintain smooth controlled cadence through full range of motion."
 ) {
     val dropdownLabel: String
-        get() = "$machineName ($everydayAlias) ($targetMuscle)"
+        get() = if (machineName.equals("Not Selected", ignoreCase = true) || machineName.isBlank()) {
+            "<Machine Not Selected>"
+        } else {
+            "<$machineName><$everydayAlias><$targetMuscle>"
+        }
 
     fun toStrengthExercise(): StrengthExercise {
         return StrengthExercise(
-            name = "$machineName ($everydayAlias)",
+            name = if (machineName.equals("Not Selected", ignoreCase = true)) "Exercise Not Selected" else "$machineName ($everydayAlias)",
             category = category,
             equipmentType = EquipmentType.GYM_MACHINE,
             defaultRestSeconds = defaultRestSeconds,
@@ -93,7 +97,22 @@ data class ExerciseLog(
     val exercise: StrengthExercise,
     val gymMachine: GymMachineInfo? = null,
     val sets: MutableList<WorkoutSet> = mutableListOf()
-)
+) {
+    val isMachineSelected: Boolean
+        get() = gymMachine != null &&
+                !gymMachine.machineName.equals("Not Selected", ignoreCase = true) &&
+                gymMachine.machineName.isNotBlank()
+
+    val isExerciseSelected: Boolean
+        get() = !exercise.name.equals("Exercise Not Selected", ignoreCase = true) &&
+                exercise.name.isNotBlank()
+
+    val displayMachineName: String
+        get() = if (isMachineSelected) gymMachine!!.dropdownLabel else "<Machine Not Selected>"
+
+    val displayExerciseName: String
+        get() = if (isExerciseSelected) exercise.name else "<Exercise Not Selected>"
+}
 
 data class WorkoutSession(
     val id: String = UUID.randomUUID().toString(),

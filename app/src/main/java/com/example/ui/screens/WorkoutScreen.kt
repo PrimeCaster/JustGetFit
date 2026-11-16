@@ -329,6 +329,8 @@ fun WorkoutScreen(
             0 -> StrengthWorkoutLoggingTab(
                 workout = activeWorkout,
                 selectedDate = selectedWorkoutDate,
+                gymMachinesCatalog = gymMachinesCatalog,
+                exerciseCatalog = exerciseCatalog,
                 onSelectDate = { dateStr -> repository.selectWorkoutDate(dateStr) },
                 onShiftDate = { delta ->
                     val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, delta)
@@ -357,8 +359,17 @@ fun WorkoutScreen(
                     editingExerciseIndex = null
                     showAddExerciseDialog = true
                 },
-                onAddCardioClick = {
-                    selectedTabIndex = 1
+                onLogSetWithDropdowns = { machine, exercise, weight, reps, rpe ->
+                    repository.logStrengthSetWithDropdowns(machine, exercise, weight, reps, rpe)
+                    activeMotivationalToast = if (machine != null && exercise != null) {
+                        "Logged ${exercise.name} set on ${machine.machineName}!"
+                    } else if (machine == null && exercise == null) {
+                        "Logged set with <Machine Not Selected> and <Exercise Not Selected>."
+                    } else if (machine == null) {
+                        "Logged set with <Machine Not Selected>."
+                    } else {
+                        "Logged set with <Exercise Not Selected>."
+                    }
                 },
                 onEditExerciseClick = { exIdx ->
                     editingExerciseIndex = exIdx
@@ -422,14 +433,14 @@ fun WorkoutScreen(
                         newExercise = finalExercise,
                         newGymMachine = finalMachine
                     )
-                    activeMotivationalToast = "Updated to ${finalExercise.name} on ${finalMachine.machineName}!"
+                    activeMotivationalToast = "Updated exercise log!"
                 } else {
                     repository.addExerciseAndMachineToWorkout(
                         exercise = finalExercise,
                         gymMachine = finalMachine,
                         initialSets = initialSets
                     )
-                    activeMotivationalToast = "Logged ${finalExercise.name} on ${finalMachine.machineName} (${finalMachine.everydayAlias})!"
+                    activeMotivationalToast = "Logged ${finalExercise.name} in workout!"
                 }
                 showAddExerciseDialog = false
                 editingExerciseIndex = null
@@ -661,7 +672,7 @@ private fun AddOrEditExerciseMachineDialog(
     gymMachinesCatalog: List<GymMachineInfo>,
     exerciseCatalog: List<StrengthExercise>,
     onDismiss: () -> Unit,
-    onSave: (StrengthExercise, GymMachineInfo, List<WorkoutSet>?) -> Unit
+    onSave: (StrengthExercise, GymMachineInfo?, List<WorkoutSet>?) -> Unit
 ) {
     // Mode states: Dropdown vs Manual
     var isManualMachine by remember {
@@ -879,7 +890,7 @@ private fun AddOrEditExerciseMachineDialog(
                                     Column(modifier = Modifier.weight(1f)) {
                                         if (selectedMachine != null) {
                                             Text(
-                                                text = "${selectedMachine!!.machineName} (${selectedMachine!!.everydayAlias}) (${selectedMachine!!.targetMuscle})",
+                                                text = selectedMachine!!.dropdownLabel,
                                                 fontSize = 12.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 color = MaterialTheme.colorScheme.onSurface,
@@ -892,9 +903,10 @@ private fun AddOrEditExerciseMachineDialog(
                                             )
                                         } else {
                                             Text(
-                                                text = "Select Gym Machine from dropdown...",
+                                                text = "<-- None: Machine Not Selected -->",
                                                 fontSize = 12.sp,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = CoralPrimary
                                             )
                                         }
                                     }
@@ -976,6 +988,27 @@ private fun AddOrEditExerciseMachineDialog(
                                                 .fillMaxWidth()
                                                 .heightIn(max = 190.dp)
                                         ) {
+                                            item {
+                                                Surface(
+                                                    onClick = {
+                                                        selectedMachine = null
+                                                        machineDropdownExpanded = false
+                                                    },
+                                                    color = if (selectedMachine == null) CoralPrimary.copy(alpha = 0.15f) else Color.Transparent,
+                                                    shape = RoundedCornerShape(6.dp),
+                                                    modifier = Modifier.fillMaxWidth()
+                                                ) {
+                                                    Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp)) {
+                                                        Text(
+                                                            text = "<-- None: Machine Not Selected -->",
+                                                            fontSize = 11.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = CoralPrimary
+                                                        )
+                                                    }
+                                                }
+                                                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                            }
                                             items(filteredMachines) { machine ->
                                                 val isSelected = selectedMachine?.machineName == machine.machineName
                                                 Surface(
@@ -994,7 +1027,7 @@ private fun AddOrEditExerciseMachineDialog(
                                                     ) {
                                                         Column(modifier = Modifier.weight(1f)) {
                                                             Text(
-                                                                text = "${machine.machineName} (${machine.everydayAlias}) (${machine.targetMuscle})",
+                                                                text = machine.dropdownLabel,
                                                                 fontSize = 11.sp,
                                                                 fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
                                                                 color = if (isSelected) CoralPrimary else MaterialTheme.colorScheme.onSurface
@@ -1179,9 +1212,10 @@ private fun AddOrEditExerciseMachineDialog(
                                             )
                                         } else {
                                             Text(
-                                                text = "Select Exercise movement from dropdown...",
+                                                text = "<-- None: Exercise Not Selected -->",
+                                                fontWeight = FontWeight.SemiBold,
                                                 fontSize = 12.sp,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                color = CoralPrimary
                                             )
                                         }
                                     }
@@ -1263,6 +1297,27 @@ private fun AddOrEditExerciseMachineDialog(
                                                 .fillMaxWidth()
                                                 .heightIn(max = 190.dp)
                                         ) {
+                                            item {
+                                                Surface(
+                                                    onClick = {
+                                                        selectedExercise = null
+                                                        exerciseDropdownExpanded = false
+                                                    },
+                                                    color = if (selectedExercise == null) CoralPrimary.copy(alpha = 0.15f) else Color.Transparent,
+                                                    shape = RoundedCornerShape(6.dp),
+                                                    modifier = Modifier.fillMaxWidth()
+                                                ) {
+                                                    Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp)) {
+                                                        Text(
+                                                            text = "<-- None: Exercise Not Selected -->",
+                                                            fontSize = 11.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = CoralPrimary
+                                                        )
+                                                    }
+                                                }
+                                                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                            }
                                             items(filteredExercises) { exercise ->
                                                 val isSelected = selectedExercise?.name == exercise.name
                                                 Surface(
@@ -1572,8 +1627,8 @@ private fun AddOrEditExerciseMachineDialog(
 
                 Button(
                     onClick = {
-                        if (isBothSelected) {
-                            val finalMachine = if (isManualMachine) {
+                        val finalMachine: GymMachineInfo? = if (isManualMachine) {
+                            if (manualMachineName.isNotBlank()) {
                                 GymMachineInfo(
                                     machineName = manualMachineName.trim(),
                                     everydayAlias = manualMachineAlias.ifBlank { manualMachineName.trim() },
@@ -1581,50 +1636,64 @@ private fun AddOrEditExerciseMachineDialog(
                                     category = manualMachineCategory,
                                     tip = "Custom gym machine logged manually."
                                 )
-                            } else {
-                                selectedMachine!!
-                            }
+                            } else null
+                        } else {
+                            selectedMachine
+                        }
 
-                            val finalExercise = if (isManualExercise) {
+                        val finalExercise = if (isManualExercise) {
+                            if (manualExerciseName.isNotBlank()) {
                                 StrengthExercise(
                                     name = manualExerciseName.trim(),
                                     category = manualExerciseCategory,
-                                    equipmentType = if (finalMachine.machineName.contains("Dumbbell", ignoreCase = true)) EquipmentType.DUMBBELL else EquipmentType.GYM_MACHINE,
+                                    equipmentType = if (finalMachine?.machineName?.contains("Free Weights", ignoreCase = true) == true) EquipmentType.DUMBBELL else EquipmentType.GYM_MACHINE,
                                     techniqueTip = "Custom exercise logged manually.",
                                     encouragingCue = "Great work pushing through this movement!"
                                 )
                             } else {
-                                selectedExercise!!
+                                StrengthExercise(
+                                    name = "Exercise Not Selected",
+                                    category = finalMachine?.category ?: ExerciseCategory.CHEST,
+                                    techniqueTip = "Exercise not selected in dropdown.",
+                                    encouragingCue = "Remember to select an exercise!"
+                                )
                             }
-
-                            val sets = if (!isEditing) {
-                                (1..initialSetsCount).map { sNum ->
-                                    WorkoutSet(
-                                        setNumber = sNum,
-                                        weightKg = initialWeightKg,
-                                        reps = initialReps,
-                                        rpe = 8,
-                                        isCompleted = false
-                                    )
-                                }
-                            } else null
-
-                            onSave(finalExercise, finalMachine, sets)
+                        } else {
+                            selectedExercise ?: StrengthExercise(
+                                name = "Exercise Not Selected",
+                                category = finalMachine?.category ?: ExerciseCategory.CHEST,
+                                techniqueTip = "Exercise not selected in dropdown.",
+                                encouragingCue = "Remember to select an exercise!"
+                            )
                         }
+
+                        val sets = if (!isEditing) {
+                            (1..initialSetsCount).map { sNum ->
+                                WorkoutSet(
+                                    setNumber = sNum,
+                                    weightKg = initialWeightKg,
+                                    reps = initialReps,
+                                    rpe = 8,
+                                    isCompleted = false
+                                )
+                            }
+                        } else null
+
+                        onSave(finalExercise, finalMachine, sets)
                     },
-                    enabled = isBothSelected,
+                    enabled = true,
                     modifier = Modifier
                         .weight(1.5f)
                         .height(44.dp)
                         .bounceClick { },
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isBothSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = if (isBothSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                        containerColor = if (isBothSelected) MaterialTheme.colorScheme.primary else CoralPrimary,
+                        contentColor = PureWhite
                     )
                 ) {
                     Text(
-                        text = if (isEditing) "Save Changes" else "Log Exercise",
+                        text = if (isEditing) "Save Changes" else if (isBothSelected) "Log Exercise" else "Log (Unselected)",
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp
                     )
@@ -1640,6 +1709,8 @@ private fun AddOrEditExerciseMachineDialog(
 private fun StrengthWorkoutLoggingTab(
     workout: WorkoutSession,
     selectedDate: String,
+    gymMachinesCatalog: List<GymMachineInfo>,
+    exerciseCatalog: List<StrengthExercise>,
     onSelectDate: (String) -> Unit,
     onShiftDate: (Int) -> Unit,
     onOpenDatePicker: () -> Unit,
@@ -1648,7 +1719,7 @@ private fun StrengthWorkoutLoggingTab(
     onEditSet: (Int, Int, WorkoutSet) -> Unit,
     onDeleteExercise: (Int) -> Unit,
     onAddExerciseClick: () -> Unit,
-    onAddCardioClick: () -> Unit = {},
+    onLogSetWithDropdowns: (GymMachineInfo?, StrengthExercise?, Double, Int, Int) -> Unit,
     onEditExerciseClick: (Int) -> Unit,
     onFinishWorkout: () -> Unit
 ) {
@@ -1792,29 +1863,17 @@ private fun StrengthWorkoutLoggingTab(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Cardio Equipment Shortcut Button
-                    OutlinedButton(
-                        onClick = onAddCardioClick,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp)
-                            .bounceClick(onClick = onAddCardioClick),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, AquaAccent.copy(alpha = 0.6f))
-                    ) {
-                        Icon(imageVector = Icons.Default.Speed, contentDescription = null, tint = AquaAccent, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "+ Add Cardio Machine Session",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = AquaAccent
-                        )
-                    }
                 }
             }
+        }
+
+        // Two Dropdowns Under Strength Sets (Gym Machine Selection with Free Weights + Type of Exercise)
+        item {
+            StrengthSetsDropdownLoggerCard(
+                gymMachinesCatalog = gymMachinesCatalog,
+                exerciseCatalog = exerciseCatalog,
+                onLogSetWithDropdowns = onLogSetWithDropdowns
+            )
         }
 
         // Empty state when viewing a forgotten day with no workout yet logged
@@ -1884,6 +1943,550 @@ private fun StrengthWorkoutLoggingTab(
     }
 }
 
+// --- TWO DROPDOWNS UNDER STRENGTH SETS COMPOSABLE ---
+
+@Composable
+private fun StrengthSetsDropdownLoggerCard(
+    gymMachinesCatalog: List<GymMachineInfo>,
+    exerciseCatalog: List<StrengthExercise>,
+    onLogSetWithDropdowns: (GymMachineInfo?, StrengthExercise?, Double, Int, Int) -> Unit
+) {
+    var selectedMachine by remember { mutableStateOf<GymMachineInfo?>(null) }
+    var machineDropdownExpanded by remember { mutableStateOf(false) }
+    var machineSearchQuery by remember { mutableStateOf("") }
+
+    var selectedExercise by remember { mutableStateOf<StrengthExercise?>(null) }
+    var exerciseDropdownExpanded by remember { mutableStateOf(false) }
+    var exerciseSearchQuery by remember { mutableStateOf("") }
+
+    var weightKg by remember { mutableDoubleStateOf(40.0) }
+    var reps by remember { mutableIntStateOf(10) }
+    var rpe by remember { mutableIntStateOf(8) }
+
+    val hasMachine = selectedMachine != null
+    val hasExercise = selectedExercise != null
+    val isBothSelected = hasMachine && hasExercise
+
+    val filteredMachines = remember(machineSearchQuery, gymMachinesCatalog) {
+        if (machineSearchQuery.isBlank()) gymMachinesCatalog
+        else gymMachinesCatalog.filter {
+            it.machineName.contains(machineSearchQuery, ignoreCase = true) ||
+            it.everydayAlias.contains(machineSearchQuery, ignoreCase = true) ||
+            it.targetMuscle.contains(machineSearchQuery, ignoreCase = true)
+        }
+    }
+
+    val filteredExercises = remember(exerciseSearchQuery, exerciseCatalog, selectedMachine) {
+        var baseList = exerciseCatalog
+        if (selectedMachine != null && selectedMachine!!.category != ExerciseCategory.ARMS) {
+            val matching = baseList.filter { it.category == selectedMachine!!.category }
+            val other = baseList.filter { it.category != selectedMachine!!.category }
+            baseList = matching + other
+        }
+        if (exerciseSearchQuery.isBlank()) baseList
+        else baseList.filter {
+            it.name.contains(exerciseSearchQuery, ignoreCase = true) ||
+            it.category.displayName.contains(exerciseSearchQuery, ignoreCase = true)
+        }
+    }
+
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(
+            1.dp,
+            if (isBothSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+            else MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
+        ),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.FitnessCenter,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Strength Sets Entry",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                if (isBothSelected) {
+                    Box(
+                        modifier = Modifier
+                            .background(MintPrimary.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text("✓ Both Selected", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MintPrimary)
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .background(CoralPrimary.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = if (!hasMachine && !hasExercise) "Both Unselected" else if (!hasMachine) "Machine Unselected" else "Exercise Unselected",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CoralPrimary
+                        )
+                    }
+                }
+            }
+
+            // 1. Gym Machine Dropdown
+            Text(
+                text = "1. GYM MACHINE SELECTION (FORMAT: <TECHNICAL><EVERYDAY><MUSCLES>)",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Surface(
+                onClick = { machineDropdownExpanded = !machineDropdownExpanded },
+                shape = RoundedCornerShape(10.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                border = BorderStroke(
+                    1.dp,
+                    if (hasMachine) MaterialTheme.colorScheme.primary else CoralPrimary.copy(alpha = 0.5f)
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        if (selectedMachine != null) {
+                            Text(
+                                text = selectedMachine!!.dropdownLabel,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 2
+                            )
+                        } else {
+                            Text(
+                                text = "<-- None: Machine Not Selected -->",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = CoralPrimary
+                            )
+                        }
+                    }
+                    Icon(
+                        imageVector = if (machineDropdownExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                        contentDescription = "Toggle Gym Machine Dropdown",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            // Expandable Gym Machine Dropdown Menu
+            AnimatedVisibility(visible = machineDropdownExpanded) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        OutlinedTextField(
+                            value = machineSearchQuery,
+                            onValueChange = { machineSearchQuery = it },
+                            placeholder = { Text("Search machine (e.g. Free Weights, press)...", fontSize = 11.sp) },
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp)) },
+                            trailingIcon = {
+                                if (machineSearchQuery.isNotBlank()) {
+                                    IconButton(onClick = { machineSearchQuery = "" }, modifier = Modifier.size(20.dp)) {
+                                        Icon(Icons.Default.Close, contentDescription = "Clear", modifier = Modifier.size(14.dp))
+                                    }
+                                }
+                            },
+                            singleLine = true,
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth().height(48.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp)) {
+                            // Unselected / None Option
+                            item {
+                                Surface(
+                                    onClick = {
+                                        selectedMachine = null
+                                        machineDropdownExpanded = false
+                                    },
+                                    color = if (selectedMachine == null) CoralPrimary.copy(alpha = 0.15f) else Color.Transparent,
+                                    shape = RoundedCornerShape(6.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp)) {
+                                        Text(
+                                            text = "<-- None: Machine Not Selected -->",
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = CoralPrimary
+                                        )
+                                    }
+                                }
+                                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                            }
+
+                            // Gym Machines + Free Weights in specified format
+                            items(filteredMachines) { machine ->
+                                val isSelected = selectedMachine?.machineName == machine.machineName
+                                Surface(
+                                    onClick = {
+                                        selectedMachine = machine
+                                        machineDropdownExpanded = false
+                                    },
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.18f) else Color.Transparent,
+                                    shape = RoundedCornerShape(6.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = machine.dropdownLabel,
+                                            fontSize = 11.sp,
+                                            fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
+                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        if (isSelected) {
+                                            Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                                        }
+                                    }
+                                }
+                                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 2. Type of Exercise Dropdown
+            Text(
+                text = "2. TYPE OF EXERCISE SELECTION",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Surface(
+                onClick = { exerciseDropdownExpanded = !exerciseDropdownExpanded },
+                shape = RoundedCornerShape(10.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                border = BorderStroke(
+                    1.dp,
+                    if (hasExercise) MaterialTheme.colorScheme.secondary else CoralPrimary.copy(alpha = 0.5f)
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        if (selectedExercise != null) {
+                            Text(
+                                text = "${selectedExercise!!.name} (${selectedExercise!!.category.displayName})",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1
+                            )
+                        } else {
+                            Text(
+                                text = "<-- None: Exercise Not Selected -->",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = CoralPrimary
+                            )
+                        }
+                    }
+                    Icon(
+                        imageVector = if (exerciseDropdownExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                        contentDescription = "Toggle Exercise Dropdown",
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+
+            // Expandable Exercise Dropdown Menu
+            AnimatedVisibility(visible = exerciseDropdownExpanded) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        OutlinedTextField(
+                            value = exerciseSearchQuery,
+                            onValueChange = { exerciseSearchQuery = it },
+                            placeholder = { Text("Search exercise (e.g. bench press, squat, curl)...", fontSize = 11.sp) },
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(16.dp)) },
+                            trailingIcon = {
+                                if (exerciseSearchQuery.isNotBlank()) {
+                                    IconButton(onClick = { exerciseSearchQuery = "" }, modifier = Modifier.size(20.dp)) {
+                                        Icon(Icons.Default.Close, contentDescription = "Clear", modifier = Modifier.size(14.dp))
+                                    }
+                                }
+                            },
+                            singleLine = true,
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth().height(48.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp)) {
+                            // Unselected / None Option
+                            item {
+                                Surface(
+                                    onClick = {
+                                        selectedExercise = null
+                                        exerciseDropdownExpanded = false
+                                    },
+                                    color = if (selectedExercise == null) CoralPrimary.copy(alpha = 0.15f) else Color.Transparent,
+                                    shape = RoundedCornerShape(6.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp)) {
+                                        Text(
+                                            text = "<-- None: Exercise Not Selected -->",
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = CoralPrimary
+                                        )
+                                    }
+                                }
+                                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                            }
+
+                            items(filteredExercises) { ex ->
+                                val isSelected = selectedExercise?.name == ex.name
+                                Surface(
+                                    onClick = {
+                                        selectedExercise = ex
+                                        exerciseDropdownExpanded = false
+                                    },
+                                    color = if (isSelected) MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f) else Color.Transparent,
+                                    shape = RoundedCornerShape(6.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = ex.name,
+                                                fontSize = 11.sp,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                color = if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface
+                                            )
+                                            Text(
+                                                text = "${ex.category.displayName} • ${ex.equipmentType.displayName}",
+                                                fontSize = 9.sp,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                        if (isSelected) {
+                                            Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(16.dp))
+                                        }
+                                    }
+                                }
+                                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Steppers for Weight & Reps & RPE
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Weight Stepper
+                Card(
+                    modifier = Modifier.weight(1.2f),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(vertical = 6.dp, horizontal = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Weight", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            IconButton(onClick = { if (weightKg >= 2.5) weightKg -= 2.5 }, modifier = Modifier.size(24.dp)) {
+                                Text("-", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Text(
+                                text = "%.1f kg".format(weightKg),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            IconButton(onClick = { weightKg += 2.5 }, modifier = Modifier.size(24.dp)) {
+                                Text("+", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+
+                // Reps Stepper
+                Card(
+                    modifier = Modifier.weight(1f),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(vertical = 6.dp, horizontal = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Reps", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            IconButton(onClick = { if (reps > 1) reps-- }, modifier = Modifier.size(24.dp)) {
+                                Text("-", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Text(
+                                text = "$reps",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            IconButton(onClick = { reps++ }, modifier = Modifier.size(24.dp)) {
+                                Text("+", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+
+                // RPE
+                Card(
+                    modifier = Modifier.weight(1f),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(vertical = 6.dp, horizontal = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("RPE", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            IconButton(onClick = { if (rpe > 6) rpe-- }, modifier = Modifier.size(24.dp)) {
+                                Text("-", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Text(
+                                text = "$rpe/10",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            IconButton(onClick = { if (rpe < 10) rpe++ }, modifier = Modifier.size(24.dp)) {
+                                Text("+", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Dual Selection Validation Banner
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isBothSelected) MintPrimary.copy(alpha = 0.12f) else CoralPrimary.copy(alpha = 0.12f)
+                ),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, if (isBothSelected) MintPrimary.copy(alpha = 0.6f) else CoralPrimary.copy(alpha = 0.6f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = if (isBothSelected) Icons.Default.CheckCircle else Icons.Default.Warning,
+                        contentDescription = null,
+                        tint = if (isBothSelected) MintPrimary else CoralPrimary,
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = when {
+                            isBothSelected -> "✓ Ready to log: ${selectedExercise!!.name} on ${selectedMachine!!.machineName}"
+                            !hasMachine && !hasExercise -> "⚠️ Both not selected — Logged data will show <Machine Not Selected> & <Exercise Not Selected>"
+                            !hasMachine -> "⚠️ Gym machine not selected — Logged data will show <Machine Not Selected>"
+                            else -> "⚠️ Exercise not selected — Logged data will show <Exercise Not Selected>"
+                        },
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (isBothSelected) MintPrimary else CoralPrimary
+                    )
+                }
+            }
+
+            // Log Button
+            Button(
+                onClick = {
+                    onLogSetWithDropdowns(selectedMachine, selectedExercise, weightKg, reps, rpe)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .bounceClick { },
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "+ Log Strength Set",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun ExerciseLoggingCard(
     exerciseLog: ExerciseLog,
@@ -1909,47 +2512,87 @@ private fun ExerciseLoggingCard(
                         .weight(1f)
                         .clickable { onEditClick() }
                 ) {
-                    // Exercise Movement Name
+                    // Exercise Movement Name (Shows <Exercise Not Selected> if not selected)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = exerciseLog.exercise.name,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Box(
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                        ) {
+                        if (exerciseLog.isExerciseSelected) {
                             Text(
-                                text = exerciseLog.exercise.category.displayName,
-                                fontSize = 9.sp,
+                                text = exerciseLog.displayExerciseName,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.onSurface
                             )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = exerciseLog.exercise.category.displayName,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .background(CoralPrimary.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                                    .border(1.dp, CoralPrimary, RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Warning, contentDescription = null, tint = CoralPrimary, modifier = Modifier.size(13.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "Exercise: <Exercise Not Selected>",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = CoralPrimary
+                                    )
+                                }
+                            }
                         }
                     }
 
                     Spacer(modifier = Modifier.height(3.dp))
 
-                    // Dedicated Gym Machine Display
+                    // Dedicated Gym Machine Display (Format: <Technical><Everyday><Muscles> or <Machine Not Selected>)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.PrecisionManufacturing,
-                            contentDescription = null,
-                            tint = CoralPrimary,
-                            modifier = Modifier.size(13.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = exerciseLog.gymMachine?.dropdownLabel ?: "Guided Station (${exerciseLog.exercise.category.displayName})",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = CoralPrimary,
-                            maxLines = 2
-                        )
+                        if (exerciseLog.isMachineSelected) {
+                            Icon(
+                                imageVector = Icons.Default.PrecisionManufacturing,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(13.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = exerciseLog.displayMachineName,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 2
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .background(CoralPrimary.copy(alpha = 0.12f), RoundedCornerShape(6.dp))
+                                    .border(1.dp, CoralPrimary.copy(alpha = 0.8f), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Warning, contentDescription = null, tint = CoralPrimary, modifier = Modifier.size(12.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "Machine: <Machine Not Selected>",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = CoralPrimary
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -2514,6 +3157,49 @@ private fun CardioMachineLoggingTab(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Prominent Cardio Machine Section Header
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), RoundedCornerShape(10.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "+ Add Cardio Machine",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Record treadmill, cycle, elliptical, rowing & climber with live ACSM calories",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+
         // Equipment Selector Carousel
         item {
             Text(
@@ -2889,7 +3575,7 @@ private fun CardioMachineLoggingTab(
                     ) {
                         Icon(imageVector = Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Save Cardio Equipment Session", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text("+ Add Cardio Machine Session", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

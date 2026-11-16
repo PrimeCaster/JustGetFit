@@ -351,7 +351,7 @@ class FitnessRepository(
 
     fun addExerciseAndMachineToWorkout(
         exercise: StrengthExercise,
-        gymMachine: GymMachineInfo,
+        gymMachine: GymMachineInfo?,
         initialSets: List<WorkoutSet>? = null
     ) {
         val session = _activeWorkout.value
@@ -368,7 +368,7 @@ class FitnessRepository(
         syncActiveWorkoutToHistory(session.copy(exercises = (session.exercises + newLog).toMutableList()))
     }
 
-    fun editExerciseAndMachineInWorkout(exerciseIndex: Int, newExercise: StrengthExercise, newGymMachine: GymMachineInfo) {
+    fun editExerciseAndMachineInWorkout(exerciseIndex: Int, newExercise: StrengthExercise, newGymMachine: GymMachineInfo?) {
         val session = _activeWorkout.value
         val updated = session.exercises.mapIndexed { idx, log ->
             if (idx == exerciseIndex) {
@@ -379,6 +379,66 @@ class FitnessRepository(
             } else log
         }.toMutableList()
         syncActiveWorkoutToHistory(session.copy(exercises = updated))
+    }
+
+    fun logStrengthSetWithDropdowns(
+        machine: GymMachineInfo?,
+        exercise: StrengthExercise?,
+        weightKg: Double,
+        reps: Int,
+        rpe: Int = 8
+    ) {
+        val session = _activeWorkout.value
+        val finalExercise = exercise ?: StrengthExercise(
+            name = "Exercise Not Selected",
+            category = machine?.category ?: ExerciseCategory.CHEST,
+            techniqueTip = "Exercise movement was not selected in dropdown.",
+            encouragingCue = "Remember to select your exercise from the dropdown!"
+        )
+        val finalMachine = machine
+
+        val updatedExercises = session.exercises.toMutableList()
+        val existingIndex = updatedExercises.indexOfFirst { log ->
+            val matchEx = log.exercise.name.equals(finalExercise.name, ignoreCase = true)
+            val matchMach = (log.gymMachine == null && finalMachine == null) ||
+                    (log.gymMachine?.machineName != null && log.gymMachine.machineName.equals(finalMachine?.machineName, ignoreCase = true))
+            matchEx && matchMach
+        }
+
+        if (existingIndex >= 0) {
+            val existingLog = updatedExercises[existingIndex]
+            val newSet = WorkoutSet(
+                setNumber = existingLog.sets.size + 1,
+                weightKg = weightKg,
+                reps = reps,
+                rpe = rpe,
+                isCompleted = true
+            )
+            val updatedSets = (existingLog.sets + newSet).toMutableList()
+            updatedExercises[existingIndex] = existingLog.copy(sets = updatedSets)
+        } else {
+            val newSet = WorkoutSet(
+                setNumber = 1,
+                weightKg = weightKg,
+                reps = reps,
+                rpe = rpe,
+                isCompleted = true
+            )
+            val newLog = ExerciseLog(
+                exercise = finalExercise,
+                gymMachine = finalMachine,
+                sets = mutableListOf(newSet)
+            )
+            updatedExercises.add(newLog)
+        }
+
+        var volume = 0.0
+        updatedExercises.forEach { ex ->
+            ex.sets.filter { it.isCompleted }.forEach { s ->
+                volume += s.weightKg * s.reps
+            }
+        }
+        syncActiveWorkoutToHistory(session.copy(exercises = updatedExercises, totalVolumeKg = volume))
     }
 
     fun addExerciseToWorkout(exercise: StrengthExercise) {
