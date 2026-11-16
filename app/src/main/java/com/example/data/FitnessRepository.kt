@@ -268,13 +268,18 @@ class FitnessRepository(
         return cueToReturn
     }
 
-    fun updateSetValues(exerciseIndex: Int, setIndex: Int, weight: Double, reps: Int, rpe: Int) {
+    fun updateSetValues(exerciseIndex: Int, setIndex: Int, weight: Double, reps: Int, rpe: Int, isCompleted: Boolean? = null) {
         val session = _activeWorkout.value
         val updatedExercises = session.exercises.mapIndexed { eIdx, exLog ->
             if (eIdx == exerciseIndex) {
                 val updatedSets = exLog.sets.mapIndexed { sIdx, set ->
                     if (sIdx == setIndex) {
-                        set.copy(weightKg = weight, reps = reps, rpe = rpe)
+                        set.copy(
+                            weightKg = weight,
+                            reps = reps,
+                            rpe = rpe,
+                            isCompleted = isCompleted ?: set.isCompleted
+                        )
                     } else set
                 }.toMutableList()
                 exLog.copy(sets = updatedSets)
@@ -415,6 +420,18 @@ class FitnessRepository(
                     (it.stepsTaken + (session.distanceKm * 1250).toInt())
                 } else it.stepsTaken
             )
+        }
+    }
+
+    fun updateCardioSession(session: CardioSession) {
+        _cardioSessions.update { list ->
+            list.map { if (it.id == session.id) session else it }
+        }
+    }
+
+    fun deleteCardioSession(sessionId: String) {
+        _cardioSessions.update { list ->
+            list.filter { it.id != sessionId }
         }
     }
 

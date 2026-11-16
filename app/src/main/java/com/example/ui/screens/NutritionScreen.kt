@@ -502,6 +502,7 @@ fun NutritionScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .clickable { editingMealEntry = entry }
                                     .padding(vertical = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
@@ -515,7 +516,7 @@ fun NutritionScreen(
                                                 "(${entry.numberOfServings}x)",
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = CoralPrimary
+                                                color = MaterialTheme.colorScheme.secondary
                                             )
                                         }
                                     }
@@ -533,13 +534,13 @@ fun NutritionScreen(
                                         onClick = { editingMealEntry = entry },
                                         modifier = Modifier.size(28.dp)
                                     ) {
-                                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit Meal", tint = MintPrimary, modifier = Modifier.size(16.dp))
+                                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit Meal", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                                     }
                                     IconButton(
                                         onClick = { repository.removeMealEntry(entry.id) },
                                         modifier = Modifier.size(28.dp)
                                     ) {
-                                        Icon(imageVector = Icons.Default.DeleteOutline, contentDescription = "Delete", tint = Slate600, modifier = Modifier.size(16.dp))
+                                        Icon(imageVector = Icons.Default.DeleteOutline, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
                                     }
                                 }
                             }
@@ -848,6 +849,9 @@ fun EditMealDialog(
     onDelete: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    var foodNameInput by remember { mutableStateOf(meal.foodItem.name) }
+    var selectedCategory by remember { mutableStateOf(meal.mealCategory) }
+    var servingUnitInput by remember { mutableStateOf(meal.foodItem.servingUnit) }
     var servingsInput by remember { mutableStateOf(String.format(java.util.Locale.US, "%.2f", meal.numberOfServings)) }
     var caloriesOverride by remember { mutableStateOf(meal.totalCalories.toString()) }
     var proteinOverride by remember { mutableStateOf(String.format(java.util.Locale.US, "%.1f", meal.totalProtein)) }
@@ -860,10 +864,9 @@ fun EditMealDialog(
             Column {
                 Text("Edit Meal Entry", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    text = "${meal.foodItem.name} (${meal.mealCategory.title})",
-                    fontSize = 12.sp,
-                    color = CoralPrimary,
-                    fontWeight = FontWeight.SemiBold
+                    text = "Update food name, meal category, servings or macros anytime",
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },
@@ -874,7 +877,35 @@ fun EditMealDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Servings Stepper
+                // Food Name Field
+                OutlinedTextField(
+                    value = foodNameInput,
+                    onValueChange = { foodNameInput = it },
+                    label = { Text("Food Item Name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Meal Category Filter Chips
+                Text("MEAL CATEGORY", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    MealCategory.values().forEach { category ->
+                        FilterChip(
+                            selected = selectedCategory == category,
+                            onClick = { selectedCategory = category },
+                            label = { Text(category.title, fontSize = 10.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        )
+                    }
+                }
+
+                // Serving Multiplier Stepper
                 Text("SERVING MULTIPLIER", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -902,22 +933,31 @@ fun EditMealDialog(
                     }
                 }
 
-                OutlinedTextField(
-                    value = servingsInput,
-                    onValueChange = { input ->
-                        servingsInput = input
-                        input.toDoubleOrNull()?.let { updated ->
-                            caloriesOverride = (meal.foodItem.caloriesPerServing * updated).toInt().toString()
-                            proteinOverride = String.format(java.util.Locale.US, "%.1f", meal.foodItem.proteinGrams * updated)
-                            carbsOverride = String.format(java.util.Locale.US, "%.1f", meal.foodItem.carbsGrams * updated)
-                            fatOverride = String.format(java.util.Locale.US, "%.1f", meal.foodItem.fatGrams * updated)
-                        }
-                    },
-                    label = { Text("Servings (e.g., 1.5)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = servingsInput,
+                        onValueChange = { input ->
+                            servingsInput = input
+                            input.toDoubleOrNull()?.let { updated ->
+                                caloriesOverride = (meal.foodItem.caloriesPerServing * updated).toInt().toString()
+                                proteinOverride = String.format(java.util.Locale.US, "%.1f", meal.foodItem.proteinGrams * updated)
+                                carbsOverride = String.format(java.util.Locale.US, "%.1f", meal.foodItem.carbsGrams * updated)
+                                fatOverride = String.format(java.util.Locale.US, "%.1f", meal.foodItem.fatGrams * updated)
+                            }
+                        },
+                        label = { Text("Servings") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                    OutlinedTextField(
+                        value = servingUnitInput,
+                        onValueChange = { servingUnitInput = it },
+                        label = { Text("Serving Unit") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
 
                 HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
 
@@ -962,7 +1002,7 @@ fun EditMealDialog(
                 Spacer(modifier = Modifier.height(4.dp))
                 TextButton(
                     onClick = onDelete,
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFE53935)),
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
                     Icon(Icons.Default.DeleteOutline, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -980,7 +1020,13 @@ fun EditMealDialog(
                     val finalCarbs = carbsOverride.toDoubleOrNull()
                     val finalFat = fatOverride.toDoubleOrNull()
 
+                    val updatedFoodItem = meal.foodItem.copy(
+                        name = foodNameInput.ifBlank { meal.foodItem.name },
+                        servingUnit = servingUnitInput.ifBlank { meal.foodItem.servingUnit }
+                    )
                     val updatedMeal = meal.copy(
+                        foodItem = updatedFoodItem,
+                        mealCategory = selectedCategory,
                         numberOfServings = finalServings,
                         customCaloriesOverride = finalCalories,
                         customProteinOverride = finalProtein,
@@ -989,9 +1035,9 @@ fun EditMealDialog(
                     )
                     onSave(updatedMeal)
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = MintPrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Save Changes", fontWeight = FontWeight.Bold)
+                Text("Save Changes", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
             }
         },
         dismissButton = {
