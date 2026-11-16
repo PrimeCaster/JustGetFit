@@ -307,13 +307,20 @@ class FitnessRepository(
                     weightKg = lastSet?.weightKg ?: 60.0,
                     reps = lastSet?.reps ?: 10,
                     rpe = 8,
-                    isCompleted = false
+                    isCompleted = true
                 )
                 exLog.copy(sets = (exLog.sets + newSet).toMutableList())
             } else exLog
         }.toMutableList()
 
-        syncActiveWorkoutToHistory(session.copy(exercises = updatedExercises))
+        var volume = 0.0
+        updatedExercises.forEach { ex ->
+            ex.sets.filter { it.isCompleted }.forEach { s ->
+                volume += s.weightKg * s.reps
+            }
+        }
+
+        syncActiveWorkoutToHistory(session.copy(exercises = updatedExercises, totalVolumeKg = volume))
     }
 
     fun deleteSetFromExercise(exerciseIndex: Int, setIndex: Int) {

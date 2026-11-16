@@ -59,7 +59,7 @@ fun WorkoutScreen(
     val context = LocalContext.current
 
     var selectedTabIndex by remember { mutableIntStateOf(initialTab) }
-    val tabTitles = listOf("Strength Session", "Cardio Machines", "Schedule & Splits")
+    val tabTitles = listOf("Strength", "Cardio", "Schedule & Splits")
 
     val activeWorkout by repository.activeWorkout.collectAsState()
     val exerciseCatalog by repository.exerciseCatalog.collectAsState()
@@ -139,7 +139,7 @@ fun WorkoutScreen(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    text = "Strength sets, cardio equipment & dynamic splits",
+                    text = "Strength, cardio & dynamic splits",
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -337,16 +337,8 @@ fun WorkoutScreen(
                     repository.selectWorkoutDate(newDate)
                 },
                 onOpenDatePicker = { showWorkoutDatePickerDialog = true },
-                onToggleSet = { exIdx, setIdx ->
-                    val cue = repository.toggleSetCompleted(exIdx, setIdx)
-                    if (cue != null) {
-                        activeMotivationalToast = cue
-                        triggerVibration()
-                        initialRestSeconds = activeWorkout.exercises.getOrNull(exIdx)?.exercise?.defaultRestSeconds ?: 90
-                        restSecondsLeft = initialRestSeconds
-                        showRestTimer = true
-                        isTimerRunning = true
-                    }
+                onDeleteSet = { exIdx, setIdx ->
+                    repository.deleteSetFromExercise(exIdx, setIdx)
                 },
                 onAddSet = { exIdx -> repository.addSetToExercise(exIdx) },
                 onEditSet = { exIdx, setIdx, setItem ->
@@ -1714,7 +1706,7 @@ private fun StrengthWorkoutLoggingTab(
     onSelectDate: (String) -> Unit,
     onShiftDate: (Int) -> Unit,
     onOpenDatePicker: () -> Unit,
-    onToggleSet: (Int, Int) -> Unit,
+    onDeleteSet: (Int, Int) -> Unit,
     onAddSet: (Int) -> Unit,
     onEditSet: (Int, Int, WorkoutSet) -> Unit,
     onDeleteExercise: (Int) -> Unit,
@@ -1910,7 +1902,7 @@ private fun StrengthWorkoutLoggingTab(
         itemsIndexed(workout.exercises) { exIdx, exerciseLog ->
             ExerciseLoggingCard(
                 exerciseLog = exerciseLog,
-                onToggleSet = { setIdx -> onToggleSet(exIdx, setIdx) },
+                onDeleteSet = { setIdx -> onDeleteSet(exIdx, setIdx) },
                 onAddSet = { onAddSet(exIdx) },
                 onEditSet = { setIdx, setItem -> onEditSet(exIdx, setIdx, setItem) },
                 onEditClick = { onEditExerciseClick(exIdx) },
@@ -2019,7 +2011,7 @@ private fun StrengthSetsDropdownLoggerCard(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Strength Sets Entry",
+                        text = "Log Strength Set",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -2052,7 +2044,7 @@ private fun StrengthSetsDropdownLoggerCard(
 
             // 1. Gym Machine Dropdown
             Text(
-                text = "1. GYM MACHINE EQUIPMENT (TECHNICAL NAME (EVERYDAY NAME FOR TARGETED MUSCLE))",
+                text = "1. Gym Machine Equipment (Technical Name (Everyday Name for Muscle Targeted))",
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -2189,7 +2181,7 @@ private fun StrengthSetsDropdownLoggerCard(
 
             // 2. Type of Exercise Dropdown
             Text(
-                text = "2. TYPE OF EXERCISE SELECTION",
+                text = "2. Exercise Movement",
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -2357,7 +2349,7 @@ private fun StrengthSetsDropdownLoggerCard(
                                 text = "%.1f kg".format(weightKg),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = PureWhite
                             )
                             IconButton(onClick = { weightKg += 2.5 }, modifier = Modifier.size(24.dp)) {
                                 Text("+", fontSize = 14.sp, fontWeight = FontWeight.Bold)
@@ -2388,7 +2380,7 @@ private fun StrengthSetsDropdownLoggerCard(
                                 text = "$reps",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = PureWhite
                             )
                             IconButton(onClick = { reps++ }, modifier = Modifier.size(24.dp)) {
                                 Text("+", fontSize = 14.sp, fontWeight = FontWeight.Bold)
@@ -2490,7 +2482,7 @@ private fun StrengthSetsDropdownLoggerCard(
 @Composable
 private fun ExerciseLoggingCard(
     exerciseLog: ExerciseLog,
-    onToggleSet: (Int) -> Unit,
+    onDeleteSet: (Int) -> Unit,
     onAddSet: () -> Unit,
     onEditSet: (Int, WorkoutSet) -> Unit,
     onEditClick: () -> Unit,
@@ -2512,7 +2504,7 @@ private fun ExerciseLoggingCard(
                         .weight(1f)
                         .clickable { onEditClick() }
                 ) {
-                    // Exercise Movement Name (Shows <Exercise Not Selected> if not selected)
+                    // Exercise Movement Name
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (exerciseLog.isExerciseSelected) {
                             Text(
@@ -2557,7 +2549,7 @@ private fun ExerciseLoggingCard(
 
                     Spacer(modifier = Modifier.height(3.dp))
 
-                    // Dedicated Gym Machine Display (Format: <Technical><Everyday><Muscles> or <Machine Not Selected>)
+                    // Dedicated Gym Machine Display
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (exerciseLog.isMachineSelected) {
                             Icon(
@@ -2599,7 +2591,6 @@ private fun ExerciseLoggingCard(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Action: Edit Exercise & Machine Selection Button
                     IconButton(
                         onClick = onEditClick,
                         modifier = Modifier
@@ -2616,7 +2607,6 @@ private fun ExerciseLoggingCard(
 
                     Spacer(modifier = Modifier.width(6.dp))
 
-                    // Action: Delete Exercise Button
                     IconButton(
                         onClick = onDeleteExercise,
                         modifier = Modifier
@@ -2625,7 +2615,7 @@ private fun ExerciseLoggingCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.DeleteOutline,
-                            contentDescription = "Delete Exercise",
+                            contentDescription = "Delete Exercise Section",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(16.dp)
                         )
@@ -2643,16 +2633,16 @@ private fun ExerciseLoggingCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("SET", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(28.dp))
-                Text("WEIGHT (KG)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(72.dp))
+                Text("SET", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(44.dp))
+                Text("WEIGHT (KG)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(76.dp))
                 Text("REPS", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(55.dp))
                 Text("RPE", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(40.dp))
-                Text("ACTIONS", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(72.dp))
+                Text("ACTIONS", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(68.dp))
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
 
-            // Set Rows with Anytime Editable Weight and Reps
+            // Set Rows with Anytime Editable Weight and Reps - NO CHECKBOXES, WHITE FONT FOR KG AND REPS
             exerciseLog.sets.forEachIndexed { sIdx, setItem ->
                 Row(
                     modifier = Modifier
@@ -2662,20 +2652,20 @@ private fun ExerciseLoggingCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "${setItem.setNumber}",
-                        fontSize = 13.sp,
+                        text = "Set ${setItem.setNumber}",
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.width(28.dp)
+                        modifier = Modifier.width(44.dp)
                     )
 
-                    // Clickable Weight Pill (Anytime Edit)
+                    // Clickable Weight Pill (Anytime Edit) - WHITE FONT FOR KG & NUMBER
                     Surface(
                         onClick = { onEditSet(sIdx, setItem) },
                         shape = RoundedCornerShape(8.dp),
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant),
-                        modifier = Modifier.width(72.dp)
+                        modifier = Modifier.width(76.dp)
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 5.dp),
@@ -2686,14 +2676,14 @@ private fun ExerciseLoggingCard(
                                 text = "%.1f".format(setItem.weightKg),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = PureWhite
                             )
                             Spacer(modifier = Modifier.width(2.dp))
-                            Text("kg", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("kg", fontSize = 9.sp, color = PureWhite.copy(alpha = 0.85f))
                         }
                     }
 
-                    // Clickable Reps Pill (Anytime Edit)
+                    // Clickable Reps Pill (Anytime Edit) - WHITE FONT
                     Surface(
                         onClick = { onEditSet(sIdx, setItem) },
                         shape = RoundedCornerShape(8.dp),
@@ -2710,80 +2700,68 @@ private fun ExerciseLoggingCard(
                                 text = "${setItem.reps}",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = PureWhite
                             )
                             Spacer(modifier = Modifier.width(2.dp))
-                            Text("r", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("r", fontSize = 9.sp, color = PureWhite.copy(alpha = 0.85f))
                         }
                     }
 
                     // RPE
                     Text(
                         text = "${setItem.rpe}/10",
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.width(40.dp)
                     )
 
-                    // Action Icons: Quick Edit + Done Checkbox
+                    // Action Icons: Quick Edit + DELETE ICON (NO CHECKBOX)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.width(72.dp)
+                        modifier = Modifier.width(68.dp)
                     ) {
                         IconButton(
                             onClick = { onEditSet(sIdx, setItem) },
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(30.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit Set Values",
-                                tint = MaterialTheme.colorScheme.primary,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(15.dp)
                             )
                         }
 
                         IconButton(
-                            onClick = { onToggleSet(sIdx) },
-                            modifier = Modifier
-                                .size(36.dp)
-                                .bounceClick { onToggleSet(sIdx) }
+                            onClick = { onDeleteSet(sIdx) },
+                            modifier = Modifier.size(30.dp)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                .size(26.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(
-                                    if (setItem.isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-                                ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (setItem.isCompleted) {
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = "Completed",
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(15.dp)
-                                    )
-                                }
-                            }
+                            Icon(
+                                imageVector = Icons.Default.DeleteOutline,
+                                contentDescription = "Delete Set",
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(16.dp)
+                            )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
-            // Add Set button
+            // Add Set button for this Machine & Exercise pair only
             OutlinedButton(
                 onClick = onAddSet,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp)
+                    .height(38.dp)
                     .bounceClick(onClick = onAddSet),
                 shape = RoundedCornerShape(10.dp)
             ) {
-                Text("Add Set", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Add Set to this Machine & Exercise", fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -2825,23 +2803,6 @@ private fun EditSetDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                // Set Completion Status Switch
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text("SET COMPLETION", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(if (isCompleted) "Completed & Logged" else "Incomplete / Planned", fontSize = 12.sp, color = if (isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(
-                        checked = isCompleted,
-                        onCheckedChange = { isCompleted = it },
-                        colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colorScheme.primary)
-                    )
-                }
-
                 // Weight (kg) Input with Stepper Chips
                 Column {
                     Text("WEIGHT (KG)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
