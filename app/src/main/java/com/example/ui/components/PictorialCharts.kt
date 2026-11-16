@@ -588,3 +588,164 @@ fun HeartRatePulseGraph(
         }
     }
 }
+
+/**
+ * 7-Day Hydration Trend Chart tracking daily water intake vs daily goal with visual water bars.
+ */
+@Composable
+fun WaterIntakeTrendChart(
+    weeklyIntake: List<Pair<String, Int>>,
+    targetWaterMl: Int,
+    selectedDayIndex: Int = -1,
+    modifier: Modifier = Modifier
+) {
+    val maxIntake = maxOf(targetWaterMl * 1.15f, (weeklyIntake.maxOfOrNull { it.second } ?: targetWaterMl).toFloat() * 1.1f)
+
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .background(WaterCyan.copy(alpha = 0.18f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("💧", fontSize = 12.sp)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(
+                        text = "Hydration 7-Day Trend",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Target: ${targetWaterMl}ml / day",
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            val avg = if (weeklyIntake.isNotEmpty()) weeklyIntake.map { it.second }.average().toInt() else 0
+            Box(
+                modifier = Modifier
+                    .background(WaterCyan.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
+            ) {
+                Text(
+                    text = "Avg: ${avg}ml",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = WaterCyan
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Canvas 7-Day Bar Chart
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(110.dp)
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val w = size.width
+                val h = size.height
+                val barCount = weeklyIntake.size.coerceAtLeast(1)
+                val spacing = 12.dp.toPx()
+                val totalSpacing = spacing * (barCount + 1)
+                val barWidth = ((w - totalSpacing) / barCount).coerceIn(16.dp.toPx(), 44.dp.toPx())
+
+                // Draw Target Dotted Line
+                val targetRatio = (targetWaterMl / maxIntake).coerceIn(0.1f, 0.95f)
+                val targetY = h - (h * targetRatio)
+                drawLine(
+                    color = WaterCyan.copy(alpha = 0.5f),
+                    start = Offset(0f, targetY),
+                    end = Offset(w, targetY),
+                    strokeWidth = 1.5.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f), 0f)
+                )
+
+                weeklyIntake.forEachIndexed { idx, (_, ml) ->
+                    val x = spacing + idx * (barWidth + spacing)
+                    val ratio = (ml / maxIntake).coerceIn(0.04f, 1.0f)
+                    val barH = h * ratio
+                    val y = h - barH
+
+                    // Background Track
+                    drawRoundRect(
+                        color = WaterCyan.copy(alpha = 0.08f),
+                        topLeft = Offset(x, 0f),
+                        size = Size(barWidth, h),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(6.dp.toPx(), 6.dp.toPx())
+                    )
+
+                    // Active Water Fill Bar
+                    val isSelected = idx == selectedDayIndex
+                    val isAboveTarget = ml >= targetWaterMl
+                    val barBrush = Brush.verticalGradient(
+                        colors = listOf(
+                            if (isAboveTarget) MintPrimary else WaterCyan,
+                            WaterCyan.copy(alpha = 0.7f)
+                        ),
+                        startY = y,
+                        endY = h
+                    )
+
+                    drawRoundRect(
+                        brush = barBrush,
+                        topLeft = Offset(x, y),
+                        size = Size(barWidth, barH),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(6.dp.toPx(), 6.dp.toPx())
+                    )
+
+                    if (isSelected) {
+                        drawRoundRect(
+                            color = PureWhite.copy(alpha = 0.9f),
+                            topLeft = Offset(x - 2.dp.toPx(), y - 2.dp.toPx()),
+                            size = Size(barWidth + 4.dp.toPx(), barH + 4.dp.toPx()),
+                            style = Stroke(width = 2.dp.toPx()),
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(7.dp.toPx(), 7.dp.toPx())
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // Days of week labels & ML numbers
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            weeklyIntake.forEachIndexed { idx, (dayLabel, ml) ->
+                val isSelected = idx == selectedDayIndex
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = dayLabel,
+                        fontSize = 11.sp,
+                        fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.SemiBold,
+                        color = if (isSelected) WaterCyan else MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = if (ml >= 1000) "%.1fL".format(ml / 1000.0) else "${ml}",
+                        fontSize = 9.sp,
+                        color = if (ml >= targetWaterMl) MintPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}

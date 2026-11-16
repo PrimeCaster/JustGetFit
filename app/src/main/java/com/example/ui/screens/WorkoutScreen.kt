@@ -68,6 +68,7 @@ fun WorkoutScreen(
     val currentQuote by repository.currentQuote.collectAsState()
     val currentSplitType by repository.currentSplitType.collectAsState()
     val splitSchedule by repository.splitSchedule.collectAsState()
+    val weightGoal by repository.weightGoal.collectAsState()
 
     // Exercise Cue & Motivation Toast
     var activeMotivationalToast by remember { mutableStateOf<String?>(null) }
@@ -356,6 +357,9 @@ fun WorkoutScreen(
                     editingExerciseIndex = null
                     showAddExerciseDialog = true
                 },
+                onAddCardioClick = {
+                    selectedTabIndex = 1
+                },
                 onEditExerciseClick = { exIdx ->
                     editingExerciseIndex = exIdx
                     showAddExerciseDialog = true
@@ -368,6 +372,7 @@ fun WorkoutScreen(
 
             1 -> CardioMachineLoggingTab(
                 cardioSessions = cardioSessions,
+                userWeightKg = weightGoal.currentWeightKg,
                 onSaveCardio = { session ->
                     repository.logCardioSession(session)
                     activeMotivationalToast = "Cardio session logged! Excellent cardiovascular stimulus."
@@ -1634,6 +1639,7 @@ private fun StrengthWorkoutLoggingTab(
     onEditSet: (Int, Int, WorkoutSet) -> Unit,
     onDeleteExercise: (Int) -> Unit,
     onAddExerciseClick: () -> Unit,
+    onAddCardioClick: () -> Unit = {},
     onEditExerciseClick: (Int) -> Unit,
     onFinishWorkout: () -> Unit
 ) {
@@ -1774,6 +1780,28 @@ private fun StrengthWorkoutLoggingTab(
                             text = "Add Exercise & Gym Machine",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Cardio Equipment Shortcut Button
+                    OutlinedButton(
+                        onClick = onAddCardioClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp)
+                            .bounceClick(onClick = onAddCardioClick),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, AquaAccent.copy(alpha = 0.6f))
+                    ) {
+                        Icon(imageVector = Icons.Default.Speed, contentDescription = null, tint = AquaAccent, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "+ Add Cardio Machine Session",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = AquaAccent
                         )
                     }
                 }
@@ -2354,14 +2382,19 @@ private fun WorkoutDatePickerDialog(
 @Composable
 private fun CardioMachineLoggingTab(
     cardioSessions: List<CardioSession>,
+    userWeightKg: Double = 79.2,
     onSaveCardio: (CardioSession) -> Unit
 ) {
     var selectedMachine by remember { mutableStateOf(CardioMachineType.TREADMILL) }
+    var speedUnit by remember { mutableStateOf("km/h") } // "km/h" or "mph"
 
     var durationMins by remember { mutableStateOf("30") }
-    var distanceKm by remember { mutableStateOf("5.0") }
-    var caloriesStr by remember { mutableStateOf("320") }
+    var distanceKm by remember { mutableStateOf("5.00") }
+    var caloriesStr by remember { mutableStateOf("315") }
     var heartRateStr by remember { mutableStateOf("145") }
+
+    var userWeightInput by remember { mutableStateOf(String.format(java.util.Locale.US, "%.1f", userWeightKg)) }
+    var userAgeInput by remember { mutableStateOf("28") }
 
     var treadmillSpeed by remember { mutableStateOf("10.0") }
     var treadmillIncline by remember { mutableStateOf("2.0") }
@@ -2375,7 +2408,75 @@ private fun CardioMachineLoggingTab(
     var rowingWatts by remember { mutableStateOf("210") }
 
     var bikeCadence by remember { mutableStateOf("85") }
+    var bikeResistance by remember { mutableStateOf("7") }
     var bikeWatts by remember { mutableStateOf("180") }
+
+    var stairFloors by remember { mutableStateOf("45") }
+
+    // Live ACSM Calorie Calculation function
+    fun computeCalories(): Int {
+        val dur = durationMins.toDoubleOrNull() ?: 30.0
+        val weight = userWeightInput.toDoubleOrNull() ?: userWeightKg
+        val age = userAgeInput.toIntOrNull() ?: 28
+        val isMph = speedUnit == "mph"
+        val speedVal = treadmillSpeed.toDoubleOrNull() ?: 10.0
+        val speedKmh = if (isMph) speedVal * 1.60934 else speedVal
+        val speedMMin = speedKmh * 16.6667
+        val inclineVal = (treadmillIncline.toDoubleOrNull() ?: 2.0).coerceAtLeast(0.0) / 100.0
+
+        val vo2 = when (selectedMachine) {
+            CardioMachineType.TREADMILL, CardioMachineType.OUTDOOR_RUN -> {
+                if (speedMMin > 134.0) {
+                    // Running formula: VO2 = (0.2 * S) + (0.9 * S * G) + 3.5
+                    (0.2 * speedMMin) + (0.9 * speedMMin * inclineVal) + 3.5
+                } else {
+                    // Walking formula: VO2 = (0.1 * S) + (1.8 * S * G) + 3.5
+                    (0.1 * speedMMin) + (1.8 * speedMMin * inclineVal) + 3.5
+                }
+            }
+            CardioMachineType.ELLIPTICAL -> {
+                val res = ellipticalResistance.toIntOrNull() ?: 8
+                (5.0 + res * 0.4) * 3.5
+            }
+            CardioMachineType.STATIONARY_BIKE -> {
+                val w = bikeWatts.toIntOrNull() ?: 180
+                val res = bikeResistance.toIntOrNull() ?: 7
+                if (w > 0) {
+                    (1.8 * (w * 6.0) / weight) + 7.0
+                } else {
+                    (4.5 + res * 0.4) * 3.5
+                }
+            }
+            CardioMachineType.ROWING_MACHINE -> {
+                val w = rowingWatts.toIntOrNull() ?: 210
+                (3.0 + w * 0.035) * 3.5
+            }
+            CardioMachineType.STAIR_CLIMBER -> {
+                val fl = stairFloors.toIntOrNull() ?: 45
+                (7.0 + (fl / dur.coerceAtLeast(1.0)) * 0.1) * 3.5
+            }
+        }
+
+        val ageFactor = (1.0 - ((age - 25).coerceAtLeast(0) * 0.0025)).coerceIn(0.85, 1.15)
+        val kcalPerMin = (vo2 * weight / 1000.0) * 5.0 * ageFactor
+        return (kcalPerMin * dur).toInt().coerceAtLeast(10)
+    }
+
+    // Auto-update calories on parameter changes
+    LaunchedEffect(
+        selectedMachine, speedUnit, treadmillSpeed, treadmillIncline,
+        durationMins, userWeightInput, userAgeInput, ellipticalResistance,
+        bikeWatts, bikeResistance, rowingWatts, stairFloors
+    ) {
+        val estimated = computeCalories()
+        caloriesStr = estimated.toString()
+
+        val dur = durationMins.toDoubleOrNull() ?: 30.0
+        val spd = treadmillSpeed.toDoubleOrNull() ?: 10.0
+        val isMph = speedUnit == "mph"
+        val dist = if (isMph) (spd * dur / 60.0) * 1.60934 else (spd * dur / 60.0)
+        distanceKm = String.format(java.util.Locale.US, "%.2f", dist)
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -2434,72 +2535,81 @@ private fun CardioMachineLoggingTab(
                 shape = RoundedCornerShape(18.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "Log ${selectedMachine.displayName} Session",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(14.dp))
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        OutlinedTextField(
-                            value = durationMins,
-                            onValueChange = { durationMins = it },
-                            label = { Text("Duration (min)") },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(10.dp)
+                        Text(
+                            text = "Log ${selectedMachine.displayName} Session",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                        OutlinedTextField(
-                            value = distanceKm,
-                            onValueChange = { distanceKm = it },
-                            label = { Text("Distance (km)") },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                    }
 
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = caloriesStr,
-                            onValueChange = { caloriesStr = it },
-                            label = { Text("Calories (kcal)") },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        OutlinedTextField(
-                            value = heartRateStr,
-                            onValueChange = { heartRateStr = it },
-                            label = { Text("Avg HR (BPM)") },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(10.dp)
-                        )
+                        // Speed Unit Toggle for Treadmill / Running
+                        if (selectedMachine == CardioMachineType.TREADMILL || selectedMachine == CardioMachineType.OUTDOOR_RUN) {
+                            Row(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(if (speedUnit == "km/h") CoralPrimary else Color.Transparent)
+                                        .clickable {
+                                            if (speedUnit != "km/h") {
+                                                val cur = treadmillSpeed.toDoubleOrNull() ?: 6.2
+                                                treadmillSpeed = String.format(java.util.Locale.US, "%.1f", cur * 1.60934)
+                                                speedUnit = "km/h"
+                                            }
+                                        }
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = "km/h",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (speedUnit == "km/h") PureWhite else MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(if (speedUnit == "mph") CoralPrimary else Color.Transparent)
+                                        .clickable {
+                                            if (speedUnit != "mph") {
+                                                val cur = treadmillSpeed.toDoubleOrNull() ?: 10.0
+                                                treadmillSpeed = String.format(java.util.Locale.US, "%.1f", cur * 0.621371)
+                                                speedUnit = "mph"
+                                            }
+                                        }
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = "mph",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (speedUnit == "mph") PureWhite else MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
-                    Text(
-                        text = "Machine Parameters",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = CoralPrimary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
 
+                    // Machine Specific Primary Telemetry Fields
                     when (selectedMachine) {
-                        CardioMachineType.TREADMILL -> {
+                        CardioMachineType.TREADMILL, CardioMachineType.OUTDOOR_RUN -> {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 OutlinedTextField(
                                     value = treadmillSpeed,
                                     onValueChange = { treadmillSpeed = it },
-                                    label = { Text("Speed (km/h)") },
+                                    label = { Text("Speed ($speedUnit)") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(10.dp)
                                 )
@@ -2507,6 +2617,7 @@ private fun CardioMachineLoggingTab(
                                     value = treadmillIncline,
                                     onValueChange = { treadmillIncline = it },
                                     label = { Text("Incline (%)") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(10.dp)
                                 )
@@ -2518,7 +2629,8 @@ private fun CardioMachineLoggingTab(
                                 OutlinedTextField(
                                     value = ellipticalResistance,
                                     onValueChange = { ellipticalResistance = it },
-                                    label = { Text("Resistance Level") },
+                                    label = { Text("Resistance Level (1-20)") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(10.dp)
                                 )
@@ -2526,6 +2638,7 @@ private fun CardioMachineLoggingTab(
                                     value = ellipticalSpms,
                                     onValueChange = { ellipticalSpms = it },
                                     label = { Text("Strides/min (SPM)") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(10.dp)
                                 )
@@ -2545,6 +2658,7 @@ private fun CardioMachineLoggingTab(
                                     value = rowingStrokesPerMin,
                                     onValueChange = { rowingStrokesPerMin = it },
                                     label = { Text("Stroke Rate (SPM)") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(10.dp)
                                 )
@@ -2555,6 +2669,7 @@ private fun CardioMachineLoggingTab(
                                     value = rowingDamper,
                                     onValueChange = { rowingDamper = it },
                                     label = { Text("Damper (1-10)") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(10.dp)
                                 )
@@ -2562,6 +2677,7 @@ private fun CardioMachineLoggingTab(
                                     value = rowingWatts,
                                     onValueChange = { rowingWatts = it },
                                     label = { Text("Power (Watts)") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(10.dp)
                                 )
@@ -2574,23 +2690,128 @@ private fun CardioMachineLoggingTab(
                                     value = bikeCadence,
                                     onValueChange = { bikeCadence = it },
                                     label = { Text("Cadence (RPM)") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(10.dp)
                                 )
                                 OutlinedTextField(
                                     value = bikeWatts,
                                     onValueChange = { bikeWatts = it },
-                                    label = { Text("Avg Watts") },
+                                    label = { Text("Power (Watts)") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(10.dp)
                                 )
                             }
                         }
 
-                        else -> {
+                        CardioMachineType.STAIR_CLIMBER -> {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                OutlinedTextField(
+                                    value = stairFloors,
+                                    onValueChange = { stairFloors = it },
+                                    label = { Text("Floors Climbed") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Duration and Distance Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = durationMins,
+                            onValueChange = { durationMins = it },
+                            label = { Text("Duration (min)") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        OutlinedTextField(
+                            value = distanceKm,
+                            onValueChange = { distanceKm = it },
+                            label = { Text("Distance (km)") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // User Profile Parameters (For Precision ACSM Calorie Estimation)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = userWeightInput,
+                            onValueChange = { userWeightInput = it },
+                            label = { Text("Weight (kg)") },
+                            placeholder = { Text("e.g. 79.2") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        OutlinedTextField(
+                            value = userAgeInput,
+                            onValueChange = { userAgeInput = it },
+                            label = { Text("Age (years)") },
+                            placeholder = { Text("e.g. 28") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Calories (Auto Calculated + Fully Editable) and Avg Heart Rate
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            OutlinedTextField(
+                                value = caloriesStr,
+                                onValueChange = { caloriesStr = it },
+                                label = { Text("Calories (kcal)") },
+                                placeholder = { Text("e.g. 320") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Recording outdoor running GPS pace and cadence.",
-                                fontSize = 12.sp,
+                                text = "⚡ Auto-estimated (editable)",
+                                fontSize = 10.sp,
+                                color = MintPrimary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            OutlinedTextField(
+                                value = heartRateStr,
+                                onValueChange = { heartRateStr = it },
+                                label = { Text("Avg HR (BPM)") },
+                                placeholder = { Text("e.g. 145") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Target: Zone 2 - 4",
+                                fontSize = 10.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -2598,44 +2819,45 @@ private fun CardioMachineLoggingTab(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
+                    // Save Button
                     Button(
                         onClick = {
+                            val dur = durationMins.toIntOrNull() ?: 30
+                            val spdVal = treadmillSpeed.toDoubleOrNull() ?: 10.0
+                            val spdKmh = if (speedUnit == "mph") spdVal * 1.60934 else spdVal
                             val session = CardioSession(
                                 machineType = selectedMachine,
                                 dateString = "Today",
-                                durationMinutes = durationMins.toIntOrNull() ?: 30,
+                                durationMinutes = dur,
                                 distanceKm = distanceKm.toDoubleOrNull() ?: 5.0,
                                 caloriesBurned = caloriesStr.toIntOrNull() ?: 300,
                                 avgHeartRateBpm = heartRateStr.toIntOrNull() ?: 140,
-                                treadmillSpeedKmh = treadmillSpeed.toDoubleOrNull() ?: 10.0,
+                                treadmillSpeedKmh = spdKmh,
                                 treadmillInclinePercent = treadmillIncline.toDoubleOrNull() ?: 2.0,
+                                speedUnit = speedUnit,
+                                userWeightKg = userWeightInput.toDoubleOrNull() ?: userWeightKg,
+                                userAge = userAgeInput.toIntOrNull() ?: 28,
                                 ellipticalResistanceLevel = ellipticalResistance.toIntOrNull() ?: 8,
                                 ellipticalStridesPerMin = ellipticalSpms.toIntOrNull() ?: 130,
+                                rowingSplitSeconds500m = 125,
                                 rowingStrokesPerMin = rowingStrokesPerMin.toIntOrNull() ?: 28,
                                 rowingDamperSetting = rowingDamper.toIntOrNull() ?: 6,
-                                rowingWatts = rowingWatts.toIntOrNull() ?: 200,
+                                rowingWatts = rowingWatts.toIntOrNull() ?: 210,
                                 bikeCadenceRpm = bikeCadence.toIntOrNull() ?: 85,
-                                bikeWatts = bikeWatts.toIntOrNull() ?: 180
+                                bikeResistanceLevel = bikeResistance.toIntOrNull() ?: 7,
+                                bikeWatts = bikeWatts.toIntOrNull() ?: 180,
+                                stairFloorsClimbed = stairFloors.toIntOrNull() ?: 45
                             )
                             onSaveCardio(session)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp)
-                            .bounceClick {
-                                val session = CardioSession(
-                                    machineType = selectedMachine,
-                                    dateString = "Today",
-                                    durationMinutes = durationMins.toIntOrNull() ?: 30,
-                                    distanceKm = distanceKm.toDoubleOrNull() ?: 5.0,
-                                    caloriesBurned = caloriesStr.toIntOrNull() ?: 300,
-                                    avgHeartRateBpm = heartRateStr.toIntOrNull() ?: 140
-                                )
-                                onSaveCardio(session)
-                            },
+                            .height(50.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary),
                         shape = RoundedCornerShape(12.dp)
                     ) {
+                        Icon(imageVector = Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text("Save Cardio Equipment Session", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -2677,7 +2899,23 @@ private fun CardioMachineLoggingTab(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(session.machineType.displayName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            Text("${session.dateString} • ${session.durationMinutes} min • %.1f km".format(session.distanceKm), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            val machineDetails = when (session.machineType) {
+                                CardioMachineType.TREADMILL -> "Speed: %.1f %s • Incline: %.1f%%".format(
+                                    if (session.speedUnit == "mph") session.treadmillSpeedKmh * 0.621371 else session.treadmillSpeedKmh,
+                                    session.speedUnit,
+                                    session.treadmillInclinePercent
+                                )
+                                CardioMachineType.ELLIPTICAL -> "Res: ${session.ellipticalResistanceLevel} • ${session.ellipticalStridesPerMin} SPM"
+                                CardioMachineType.ROWING_MACHINE -> "Damper: ${session.rowingDamperSetting} • ${session.rowingWatts}W"
+                                CardioMachineType.STATIONARY_BIKE -> "${session.bikeCadenceRpm} RPM • ${session.bikeWatts}W"
+                                CardioMachineType.STAIR_CLIMBER -> "${session.stairFloorsClimbed} Floors"
+                                else -> "Pace: %.1f km/h".format(if (session.durationMinutes > 0) (session.distanceKm / session.durationMinutes) * 60 else 0.0)
+                            }
+                            Text(
+                                text = "${session.durationMinutes} min • %.2f km • %s".format(session.distanceKm, machineDetails),
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
 

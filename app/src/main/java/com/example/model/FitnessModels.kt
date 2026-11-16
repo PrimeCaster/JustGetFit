@@ -141,6 +141,9 @@ data class CardioSession(
     // Machine Specific Telemetry
     val treadmillSpeedKmh: Double = 0.0,
     val treadmillInclinePercent: Double = 0.0,
+    val speedUnit: String = "km/h",
+    val userWeightKg: Double = 79.2,
+    val userAge: Int = 28,
     
     val ellipticalResistanceLevel: Int = 0,
     val ellipticalStridesPerMin: Int = 0,
@@ -170,7 +173,7 @@ enum class LlmProvider(
     GEMINI(
         id = "gemini",
         displayName = "Google Gemini",
-        defaultModel = "gemini-2.5-flash",
+        defaultModel = "gemini-1.5-flash",
         keyPlaceholder = "AIzaSy...",
         keyHelpUrl = "aistudio.google.com/apikey"
     ),

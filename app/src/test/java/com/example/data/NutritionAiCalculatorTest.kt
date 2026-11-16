@@ -40,7 +40,7 @@ class NutritionAiCalculatorTest {
 
     @Test
     fun testLlmProviderDefaults() {
-        assertEquals("gemini-2.5-flash", LlmProvider.GEMINI.defaultModel)
+        assertEquals("gemini-1.5-flash", LlmProvider.GEMINI.defaultModel)
         assertEquals("gpt-4o-mini", LlmProvider.CHATGPT.defaultModel)
         assertTrue(LlmProvider.GEMINI.keyHelpUrl.contains("aistudio.google.com"))
         assertTrue(LlmProvider.CHATGPT.keyHelpUrl.contains("openai.com"))
@@ -63,6 +63,35 @@ class NutritionAiCalculatorTest {
         assertEquals(45.0, res.carbsGrams, 0.01)
         assertEquals(5.0, res.fatGrams, 0.01)
         assertEquals(6.0, res.fiberGrams, 0.01)
+    }
+
+    @Test
+    fun testOfflineSmartNutritionEstimator() {
+        // Test 200g chicken breast and 1 cup rice
+        val chickenAndRice = calculator.estimateNutritionOffline("200g chicken breast with 1 cup white rice")
+        assertTrue(chickenAndRice.calories > 350)
+        assertTrue(chickenAndRice.proteinGrams >= 50.0)
+        assertTrue(chickenAndRice.carbsGrams >= 30.0)
+
+        // Test 2 scrambled eggs & toast
+        val eggsAndToast = calculator.estimateNutritionOffline("2 scrambled eggs with 1 slice whole wheat toast")
+        assertTrue(eggsAndToast.calories > 180)
+        assertTrue(eggsAndToast.proteinGrams >= 12.0)
+    }
+
+    @Test
+    fun testCalculateNutritionWithFallbackWhenNoKey() = runBlocking {
+        val result = calculator.calculateNutritionWithFallback(
+            foodDescription = "200g chicken breast and sweet potato",
+            provider = LlmProvider.GEMINI,
+            apiKey = ""
+        )
+        assertTrue(result.isSuccess)
+        val data = result.getOrNull()
+        assertNotNull(data)
+        assertTrue(data!!.calories > 0)
+        assertTrue(data.proteinGrams > 0)
+        assertTrue(data.notes.contains("Smart Offline"))
     }
 }
 

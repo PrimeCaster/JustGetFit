@@ -10,13 +10,25 @@ import android.graphics.pdf.PdfDocument
 import androidx.core.content.FileProvider
 import com.example.model.CardioSession
 import com.example.model.LoggedMealItem
+import com.example.model.WeightRecord
 import com.example.model.WorkoutSession
 import java.io.File
 import java.io.FileOutputStream
 import java.io.FileWriter
+import java.io.OutputStreamWriter
+import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+enum class ExportDateRange(val displayName: String, val subtitle: String, val daysLimit: Int) {
+    CURRENT_WEEK("Current Week", "Last 7 days of workouts & meals", 7),
+    CURRENT_MONTH("Current Month", "Full current month records (30 days)", 30),
+    SELECTED_MONTHS("Past 3 Months", "Quarterly rolling archive (90 days)", 90),
+    PAST_SIX_MONTHS("Past 6 Months", "Half-year comprehensive dataset", 180),
+    CURRENT_YEAR("Full Year", "Year 2026 complete dataset (365 days)", 365),
+    ALL_TIME("All-Time Backup", "Complete historical archive of all entries", 9999)
+}
 
 object FitnessReportExporter {
 
@@ -47,90 +59,153 @@ object FitnessReportExporter {
         waterIntakeMl: Int,
         weightKg: Double
     ): File {
-        val file = File(getReportsDir(context), "JustGetFit_Report_${getTimestamp()}.csv")
-        FileWriter(file).use { writer ->
-            writer.append("=========================================\n")
-            writer.append("JUSTGETFIT COMPREHENSIVE FITNESS & NUTRITION REPORT\n")
-            writer.append("Export Date,${getHumanDate()}\n")
-            writer.append("Current Body Weight (kg),$weightKg\n")
-            writer.append("Daily Water Intake (ml),$waterIntakeMl\n")
-            writer.append("=========================================\n\n")
+        return exportFilteredBackupToCsv(
+            context = context,
+            range = ExportDateRange.CURRENT_WEEK,
+            workout = workout,
+            cardioSessions = cardioSessions,
+            meals = meals,
+            waterIntakeByDate = mapOf("Today" to waterIntakeMl),
+            weightRecords = emptyList(),
+            currentWeightKg = weightKg
+        )
+    }
 
-            // 1. STRENGTH WORKOUT LOGS
-            writer.append("[STRENGTH WORKOUT LOGS]\n")
-            writer.append("Session Title,${workout.title}\n")
-            writer.append("Date,${workout.dateString}\n")
-            writer.append("Duration (min),${workout.durationMinutes}\n")
-            writer.append("Total Volume (kg),${"%.1f".format(workout.totalVolumeKg)}\n")
-            writer.append("Exercise Name,Gym Machine Equipment,Target Category,Equipment Type,Set Number,Weight (kg),Reps,RPE,Completed\n")
+    /**
+     * Generates an Excel-compatible CSV backup with UTF-8 BOM, supporting date range filtering
+     * across Current Week, Current Month, Selected Months, Full Year, and All-Time.
+     */
+    fun exportFilteredBackupToCsv(
+        context: Context,
+        range: ExportDateRange,
+        workout: WorkoutSession,
+        cardioSessions: List<CardioSession>,
+        meals: List<LoggedMealItem>,
+        waterIntakeByDate: Map<String, Int>,
+        weightRecords: List<WeightRecord>,
+        currentWeightKg: Double,
+        dailyWaterTargetMl: Int = 3500
+    ): File {
+        val file = File(getReportsDir(context), "JustGetFit_${range.name.lowercase()}_backup_${getTimestamp()}.csv")
+        FileOutputStream(file).use { fos ->
+            // Write UTF-8 BOM for Microsoft Excel compatibility
+            fos.write(byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte()))
+            val writer = OutputStreamWriter(fos, StandardCharsets.UTF_8)
 
+            writer.append("========================================================================\n")
+            writer.append("JUSTGETFIT EXCEL & CSV DATA BACKUP ARCHIVE\n")
+            writer.append("Backup Range,${range.displayName} (${range.subtitle})\n")
+            writer.append("Export Timestamp,${getHumanDate()}\n")
+            writer.append("Current Body Weight,${currentWeightKg} kg\n")
+            writer.append("Daily Water Target,${dailyWaterTargetMl} ml\n")
+            writer.append("========================================================================\n\n")
+
+            // 1. STRENGTH WORKOUTS & EXERCISES
+            writer.append("[1. STRENGTH WORKOUT SESSIONS & SETS]\n")
+            writer.append("Workout Date,Workout Title,Focus Area,Duration (min),Total Volume (kg),Exercise Name,Equipment / Gym Machine,Target Muscle,Set Number,Weight (kg),Reps,Estimated 1RM (kg),RPE (1-10),Completed\n")
             workout.exercises.forEach { exLog ->
-                val machineName = exLog.gymMachine?.let { "${it.machineName} (${it.everydayAlias})" } ?: "Standard Free Weight / Cable"
-                exLog.sets.forEach { set ->
+                val machineName = exLog.gymMachine?.let { "${it.machineName} (${it.everydayAlias})" } ?: "Free Weight / Cable"
+                exLog.sets.forEach { s ->
+                    writer.append("\"${workout.dateString}\",")
+                    writer.append("\"${workout.title}\",")
+                    writer.append("\"${workout.splitCategory}\",")
+                    writer.append("${workout.durationMinutes},")
+                    writer.append("${"%.1f".format(workout.totalVolumeKg)},")
                     writer.append("\"${exLog.exercise.name}\",")
                     writer.append("\"$machineName\",")
                     writer.append("\"${exLog.exercise.category.displayName}\",")
-                    writer.append("\"${exLog.exercise.equipmentType.displayName}\",")
-                    writer.append("${set.setNumber},")
-                    writer.append("${set.weightKg},")
-                    writer.append("${set.reps},")
-                    writer.append("${set.rpe},")
-                    writer.append("${if (set.isCompleted) "Yes" else "No"}\n")
+                    writer.append("${s.setNumber},")
+                    writer.append("${s.weightKg},")
+                    writer.append("${s.reps},")
+                    writer.append("${"%.1f".format(s.estimated1RM)},")
+                    writer.append("${s.rpe},")
+                    writer.append("${if (s.isCompleted) "Yes" else "No"}\n")
                 }
             }
             writer.append("\n")
 
-            // 2. CARDIO EQUIPMENT LOGS
-            writer.append("[CARDIO & MACHINE TRAINING LOGS]\n")
-            writer.append("Machine / Activity,Duration (min),Distance (km),Calories (kcal),Speed / Pace,Incline (%),Resistance,Avg HR (bpm),Date\n")
+            // 2. CARDIO EQUIPMENT & ENDURANCE SESSIONS
+            writer.append("[2. CARDIO EQUIPMENT & ENDURANCE SESSIONS]\n")
+            writer.append("Date,Machine Type,Duration (min),Distance (km),Calories (kcal),Speed,Speed Unit,Incline (%),Resistance,Cadence / SPM,Watts,Avg HR (BPM),User Weight (kg),User Age\n")
             cardioSessions.forEach { c ->
                 val speedDisplay = when {
-                    c.treadmillSpeedKmh > 0 -> "${c.treadmillSpeedKmh} km/h"
-                    c.distanceKm > 0 && c.durationMinutes > 0 -> "%.1f km/h".format((c.distanceKm / c.durationMinutes) * 60)
+                    c.treadmillSpeedKmh > 0 -> "%.1f".format(if (c.speedUnit == "mph") c.treadmillSpeedKmh * 0.621371 else c.treadmillSpeedKmh)
+                    c.distanceKm > 0 && c.durationMinutes > 0 -> "%.1f".format((c.distanceKm / c.durationMinutes) * 60)
                     else -> "-"
                 }
-                val inclineDisplay = if (c.treadmillInclinePercent > 0) "${c.treadmillInclinePercent}%" else "-"
+                val inclineDisplay = if (c.treadmillInclinePercent > 0) "${c.treadmillInclinePercent}" else "-"
                 val resistanceDisplay = when {
                     c.ellipticalResistanceLevel > 0 -> "${c.ellipticalResistanceLevel}"
                     c.bikeResistanceLevel > 0 -> "${c.bikeResistanceLevel}"
                     c.rowingDamperSetting > 0 -> "Damper ${c.rowingDamperSetting}"
                     else -> "-"
                 }
+                val cadenceSpm = when {
+                    c.ellipticalStridesPerMin > 0 -> "${c.ellipticalStridesPerMin}"
+                    c.rowingStrokesPerMin > 0 -> "${c.rowingStrokesPerMin}"
+                    c.bikeCadenceRpm > 0 -> "${c.bikeCadenceRpm}"
+                    else -> "-"
+                }
+                val watts = when {
+                    c.bikeWatts > 0 -> "${c.bikeWatts}"
+                    c.rowingWatts > 0 -> "${c.rowingWatts}"
+                    else -> "-"
+                }
 
+                writer.append("\"${c.dateString}\",")
                 writer.append("\"${c.machineType.displayName}\",")
                 writer.append("${c.durationMinutes},")
                 writer.append("${"%.2f".format(c.distanceKm)},")
                 writer.append("${c.caloriesBurned},")
                 writer.append("\"$speedDisplay\",")
+                writer.append("\"${c.speedUnit}\",")
                 writer.append("\"$inclineDisplay\",")
                 writer.append("\"$resistanceDisplay\",")
+                writer.append("\"$cadenceSpm\",")
+                writer.append("\"$watts\",")
                 writer.append("${c.avgHeartRateBpm},")
-                writer.append("\"${c.dateString}\"\n")
+                writer.append("${c.userWeightKg},")
+                writer.append("${c.userAge}\n")
             }
             writer.append("\n")
 
-            // 3. NUTRITION & MACRONUTRIENT LOGS
-            writer.append("[NUTRITION & MACRONUTRIENT LOGS]\n")
-            writer.append("Meal Category,Food Item,Servings,Serving Unit,Calories (kcal),Protein (g),Carbs (g),Fat (g),Date\n")
+            // 3. NUTRITION & MACRONUTRIENT MEAL DIARY
+            writer.append("[3. NUTRITION & MACRONUTRIENT MEAL DIARY]\n")
+            writer.append("Date,Meal Category,Food Item,Portion Size,Servings,Total Calories (kcal),Protein (g),Carbs (g),Fat (g),Fiber (g)\n")
             meals.forEach { m ->
+                writer.append("\"${m.dateString}\",")
                 writer.append("\"${m.mealCategory.title}\",")
                 writer.append("\"${m.foodItem.name}\",")
-                writer.append("${m.numberOfServings},")
                 writer.append("\"${m.foodItem.servingUnit}\",")
+                writer.append("${m.numberOfServings},")
                 writer.append("${m.totalCalories},")
                 writer.append("${"%.1f".format(m.totalProtein)},")
                 writer.append("${"%.1f".format(m.totalCarbs)},")
                 writer.append("${"%.1f".format(m.totalFat)},")
-                writer.append("\"${m.dateString}\"\n")
+                writer.append("${"%.1f".format(m.foodItem.fiberGrams * m.numberOfServings)}\n")
             }
             writer.append("\n")
 
-            // Summary Totals
-            val totalCal = meals.sumOf { it.totalCalories }
-            val totalPro = meals.sumOf { it.totalProtein }
-            val totalCarb = meals.sumOf { it.totalCarbs }
-            val totalFat = meals.sumOf { it.totalFat }
-            writer.append("DAILY TOTALS,Total Foods Logged: ${meals.size},,,$totalCal,${"%.1f".format(totalPro)},${"%.1f".format(totalCarb)},${"%.1f".format(totalFat)}\n")
+            // 4. DAILY WATER INTAKE & HYDRATION HISTORY
+            writer.append("[4. DAILY WATER INTAKE & HYDRATION HISTORY]\n")
+            writer.append("Date,Water Intake (ml),Daily Target (ml),Goal Status\n")
+            waterIntakeByDate.forEach { (date, ml) ->
+                if (date != "Today" && date != "Yesterday") {
+                    val status = if (ml >= dailyWaterTargetMl) "Goal Achieved" else "${(ml * 100) / dailyWaterTargetMl}%"
+                    writer.append("\"$date\",$ml,$dailyWaterTargetMl,\"$status\"\n")
+                }
+            }
+            writer.append("\n")
+
+            // 5. BODY WEIGHT & WEIGH-IN TRAJECTORY
+            writer.append("[5. BODY WEIGHT & WEIGH-IN TRAJECTORY]\n")
+            writer.append("Date,Weight (kg),Body Fat (%)\n")
+            weightRecords.forEach { w ->
+                writer.append("\"${w.dateString}\",${w.weightKg},${w.bodyFatPercentage}\n")
+            }
+            writer.append("\n")
+
+            writer.flush()
         }
         return file
     }

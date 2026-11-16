@@ -81,7 +81,7 @@ class FitnessRepository(
     }
 
     suspend fun calculateFoodNutritionWithAi(foodDescription: String): Result<NutritionAiResult> {
-        return nutritionAiCalculator.calculateNutrition(
+        return nutritionAiCalculator.calculateNutritionWithFallback(
             foodDescription = foodDescription,
             provider = _selectedLlmProvider.value,
             apiKey = getActiveApiKey(),

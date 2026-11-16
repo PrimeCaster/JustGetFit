@@ -147,79 +147,6 @@ fun DashboardScreen(
             }
         }
 
-        // Quick Athletic Color Theme Switcher Row
-        item {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 2.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "COLOR PALETTE",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "${currentColorTheme.emoji} ${currentColorTheme.displayName}",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { showSettingsDialog = true }
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(bottom = 8.dp)
-                ) {
-                    items(AppColorTheme.values()) { themeOption ->
-                        val isSelected = currentColorTheme == themeOption
-                        Surface(
-                            onClick = { repository.setColorTheme(themeOption) },
-                            shape = RoundedCornerShape(12.dp),
-                            color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.14f) else MaterialTheme.colorScheme.surface,
-                            border = BorderStroke(
-                                width = if (isSelected) 1.5.dp else 1.dp,
-                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
-                            ),
-                            modifier = Modifier.bounceClick { repository.setColorTheme(themeOption) }
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                // 3 color dots preview
-                                Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                                    themeOption.previewColors.forEach { dotColor ->
-                                        Box(
-                                            modifier = Modifier
-                                                .size(10.dp)
-                                                .clip(CircleShape)
-                                                .background(dotColor)
-                                        )
-                                    }
-                                }
-                                Text(
-                                    text = "${themeOption.emoji} ${themeOption.displayName}",
-                                    fontSize = 12.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         // 1. DIET & DAILY MACRO TARGETS (TOP OF PAGE)
         item {
             DailyWaterAndMacroProgressRingCard(
@@ -238,7 +165,68 @@ fun DashboardScreen(
             )
         }
 
-        // 2. ENDURANCE, CARDIO & RUNNING TRACKING (FOLLOWING MACROS)
+        // 2. PROMINENT WEIGHT TRACKING & GOAL TRAJECTORY GRAPH
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 6.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.TrendingDown,
+                                contentDescription = null,
+                                tint = MintPrimary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Weight Tracking & Trend",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        Button(
+                            onClick = { showWeighInDialog = true },
+                            modifier = Modifier
+                                .height(36.dp)
+                                .bounceClick { showWeighInDialog = true },
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("+ Log Weight", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Canvas Pictorial Chart
+                    WeightLossTrajectoryChart(
+                        records = weightRecords,
+                        goal = weightGoal,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+
+        // 3. ENDURANCE, CARDIO & RUNNING TRACKING
         item {
             Card(
                 modifier = Modifier
@@ -295,67 +283,6 @@ fun DashboardScreen(
                         weeklyRunningKm = weeklyRunningKm,
                         strengthVolumeTonnes = 14.8,
                         enduranceIndexPercent = 84,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-        }
-
-        // 3. PICTORIAL WEIGHT LOSS & GOAL TRAJECTORY
-        item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 6.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                shape = RoundedCornerShape(18.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.TrendingDown,
-                                contentDescription = null,
-                                tint = MintPrimary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Weight Loss & Goal Trajectory",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-
-                        Button(
-                            onClick = { showWeighInDialog = true },
-                            modifier = Modifier
-                                .height(36.dp)
-                                .bounceClick { showWeighInDialog = true },
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text("+ Log Weight", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // Canvas Pictorial Chart
-                    WeightLossTrajectoryChart(
-                        records = weightRecords,
-                        goal = weightGoal,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

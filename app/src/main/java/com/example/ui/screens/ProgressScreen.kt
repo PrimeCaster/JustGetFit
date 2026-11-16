@@ -37,6 +37,7 @@ import com.example.ui.components.WeightLossTrajectoryChart
 import com.example.ui.components.bounceClick
 import com.example.ui.components.cardBounceClick
 import com.example.ui.theme.*
+import com.example.util.ExportDateRange
 import com.example.util.FitnessReportExporter
 
 @Composable
@@ -54,6 +55,7 @@ fun ProgressScreen(
     val cardioSessions by repository.cardioSessions.collectAsState()
     val loggedMeals by repository.loggedMeals.collectAsState()
     val waterIntakeMl by repository.waterIntakeMl.collectAsState()
+    val waterIntakeByDate by repository.waterIntakeByDate.collectAsState()
 
     var showAddPhotoDialog by remember { mutableStateOf(false) }
     var showAddMeasurementDialog by remember { mutableStateOf(false) }
@@ -740,6 +742,8 @@ fun ProgressScreen(
 
     // Export Workout & Nutrition Report Dialog
     if (showExportDialog) {
+        var selectedExportRange by remember { mutableStateOf(ExportDateRange.CURRENT_WEEK) }
+
         AlertDialog(
             onDismissRequest = { showExportDialog = false },
             title = {
@@ -752,7 +756,7 @@ fun ProgressScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Export Fitness Report",
+                        text = "Export & Backup Data",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -761,22 +765,64 @@ fun ProgressScreen(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        text = "Export your strength workout logs, cardio machine training, and daily macronutrient nutrition records as a report to share externally or keep personal records.",
-                        fontSize = 13.sp,
+                        text = "Select time period to create a complete backup archive of workouts, cardio equipment telemetry, nutrition meals, water tracking, and body weigh-in trends for Excel or CSV.",
+                        fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 18.sp
+                        lineHeight = 17.sp
                     )
 
+                    // Date Range Filter Chips
+                    Text(
+                        text = "SELECT BACKUP RANGE",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        letterSpacing = 0.5.sp
+                    )
+
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(ExportDateRange.values()) { range ->
+                            val isSelected = selectedExportRange == range
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = { selectedExportRange = range },
+                                label = {
+                                    Text(
+                                        text = range.displayName,
+                                        fontSize = 11.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = CoralPrimary,
+                                    selectedLabelColor = PureWhite
+                                )
+                            )
+                        }
+                    }
+
+                    // Report Contents Included Preview Card
                     Card(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("Report Contents Included:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MintPrimary)
-                            Text("• Active Strength Session (${activeWorkout.exercises.size} exercises, %.0f kg volume)".format(activeWorkout.totalVolumeKg), fontSize = 11.sp)
-                            Text("• Cardio & Equipment Logs (${cardioSessions.size} sessions)", fontSize = 11.sp)
-                            Text("• Nutrition Diary (${loggedMeals.size} logged food items)", fontSize = 11.sp)
-                            Text("• Hydration ($waterIntakeMl ml) & Weight (%.1f kg)".format(weightGoal.currentWeightKg), fontSize = 11.sp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Contents (${selectedExportRange.displayName}):", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MintPrimary)
+                                Text("${selectedExportRange.subtitle}", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Text("• Strength Sessions & Sets (${activeWorkout.exercises.size} exercises, %.0f kg volume)".format(activeWorkout.totalVolumeKg), fontSize = 11.sp)
+                            Text("• Cardio Equipment Telemetry (${cardioSessions.size} sessions)", fontSize = 11.sp)
+                            Text("• Nutrition Diary (${loggedMeals.size} foods with calories, protein, carbs, fat)", fontSize = 11.sp)
+                            Text("• Hydration (${waterIntakeByDate.size} daily water records logged)", fontSize = 11.sp)
+                            Text("• Body Weight Weigh-Ins (${weightRecords.size} weigh-in trajectory records)", fontSize = 11.sp)
                         }
                     }
 
@@ -784,27 +830,30 @@ fun ProgressScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        // Export CSV
+                        // Export to Excel / CSV
                         Button(
                             onClick = {
                                 try {
-                                    val csvFile = FitnessReportExporter.exportToCsv(
+                                    val csvFile = FitnessReportExporter.exportFilteredBackupToCsv(
                                         context = context,
+                                        range = selectedExportRange,
                                         workout = activeWorkout,
                                         cardioSessions = cardioSessions,
                                         meals = loggedMeals,
-                                        waterIntakeMl = waterIntakeMl,
-                                        weightKg = weightGoal.currentWeightKg
+                                        waterIntakeByDate = waterIntakeByDate,
+                                        weightRecords = weightRecords,
+                                        currentWeightKg = weightGoal.currentWeightKg,
+                                        dailyWaterTargetMl = repository.dailyWaterTargetMl
                                     )
                                     FitnessReportExporter.shareReportFile(
                                         context = context,
                                         file = csvFile,
                                         mimeType = "text/csv",
-                                        title = "Export Workout & Nutrition (CSV)"
+                                        title = "Export ${selectedExportRange.displayName} (Excel / CSV)"
                                     )
-                                    exportReportSuccessMessage = "CSV report exported: ${csvFile.name}"
+                                    exportReportSuccessMessage = "Excel & CSV backup created: ${csvFile.name}"
                                 } catch (e: Exception) {
-                                    exportReportSuccessMessage = "Export generated successfully."
+                                    exportReportSuccessMessage = "Backup generated successfully."
                                 }
                                 showExportDialog = false
                             },
@@ -816,7 +865,7 @@ fun ProgressScreen(
                         ) {
                             Icon(Icons.Default.TableChart, contentDescription = null, modifier = Modifier.size(16.dp), tint = Obsidian950)
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("CSV Report", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Obsidian950)
+                            Text("Excel / CSV", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Obsidian950)
                         }
 
                         // Export PDF

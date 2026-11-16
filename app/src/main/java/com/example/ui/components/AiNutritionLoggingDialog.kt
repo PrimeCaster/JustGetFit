@@ -7,6 +7,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,6 +31,7 @@ import com.example.model.FoodItem
 import com.example.model.LlmProvider
 import com.example.model.LoggedMealItem
 import com.example.model.MealCategory
+import com.example.ui.theme.*
 import kotlinx.coroutines.launch
 
 @Composable
@@ -207,11 +210,68 @@ fun AiNutritionLoggingDialog(
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = if (hasApiKey) "✓ Key Ready" else "⚠️ Key Required",
+                                    text = if (hasApiKey) "✓ ${selectedProvider.displayName} Ready" else "⚡ Smart Estimator Active",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (hasApiKey) MaterialTheme.colorScheme.primary else Color(0xFFF97316)
+                                    color = if (hasApiKey) MaterialTheme.colorScheme.primary else TrophyGold
                                 )
+                            }
+
+                            // Quick Dummy Preset Chips for 1-Tap Verification
+                            Text(
+                                text = "TRY SAMPLE FOODS (1-TAP TEST)",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                val dummyPresets = listOf(
+                                    "🍗 200g Chicken & 1 Cup Rice" to "200g grilled chicken breast with 1 cup white basmati rice",
+                                    "🥑 2 Eggs & Toast" to "2 scrambled eggs with 1 slice whole wheat toast and half avocado",
+                                    "🥣 Oats & Whey" to "1 bowl oatmeal with 1 scoop whey protein and banana",
+                                    "🥩 Steak & Sweet Potato" to "250g grilled beef steak with 1 baked sweet potato",
+                                    "🥗 Salmon Salad" to "150g baked salmon fillet with mixed greens salad and olive oil"
+                                )
+                                items(dummyPresets) { (chipLabel, fullQuery) ->
+                                    Surface(
+                                        onClick = {
+                                            foodDescriptionInput = fullQuery
+                                            isCalculating = true
+                                            calculationError = null
+                                            aiSuccessSource = null
+                                            aiNotes = null
+                                            coroutineScope.launch {
+                                                val result = repository.calculateFoodNutritionWithAi(fullQuery)
+                                                isCalculating = false
+                                                if (result.isSuccess) {
+                                                    val data = result.getOrThrow()
+                                                    foodName = data.foodName
+                                                    servingUnit = data.servingUnit
+                                                    caloriesInput = data.calories.toString()
+                                                    proteinInput = data.proteinGrams.toString()
+                                                    carbsInput = data.carbsGrams.toString()
+                                                    fatInput = data.fatGrams.toString()
+                                                    aiSuccessSource = if (hasApiKey) "Calculated via ${selectedProvider.displayName}" else "Calculated via Precision Nutrition Engine"
+                                                    aiNotes = data.notes
+                                                }
+                                            }
+                                        },
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = MaterialTheme.colorScheme.surface,
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
+                                    ) {
+                                        Text(
+                                            text = chipLabel,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
                             }
 
                             OutlinedTextField(
@@ -240,10 +300,6 @@ fun AiNutritionLoggingDialog(
                                         calculationError = "Please describe what food or ingredients you ate."
                                         return@Button
                                     }
-                                    if (!hasApiKey) {
-                                        calculationError = "No API key configured for ${selectedProvider.displayName}. Please tap below to configure your key in Settings."
-                                        return@Button
-                                    }
 
                                     isCalculating = true
                                     calculationError = null
@@ -261,7 +317,7 @@ fun AiNutritionLoggingDialog(
                                             proteinInput = data.proteinGrams.toString()
                                             carbsInput = data.carbsGrams.toString()
                                             fatInput = data.fatGrams.toString()
-                                            aiSuccessSource = "Calculated via ${selectedProvider.displayName}"
+                                            aiSuccessSource = if (hasApiKey) "Calculated via ${selectedProvider.displayName}" else "Calculated via Precision Nutrition Engine"
                                             aiNotes = data.notes
                                         } else {
                                             calculationError = result.exceptionOrNull()?.message ?: "AI calculation failed."
@@ -285,11 +341,11 @@ fun AiNutritionLoggingDialog(
                                         color = MaterialTheme.colorScheme.onPrimary
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Analyzing with ${selectedProvider.displayName}...", fontSize = 12.sp)
+                                    Text("Analyzing food breakdown...", fontSize = 12.sp)
                                 } else {
                                     Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("✨ Calculate Macros with AI", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text("✨ Auto-Calculate Nutrition (All Editable)", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
 
@@ -343,13 +399,25 @@ fun AiNutritionLoggingDialog(
                     // Editable Calculated Macro Values
                     item {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(
-                                text = "NUTRITIONAL BREAKDOWN (EDITABLE)",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 1.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "NUTRITIONAL BREAKDOWN (ALL FIELDS EDITABLE)",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 0.5.sp,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "✏️ Tap any value to edit",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
 
                             // Food Name & Portion
                             OutlinedTextField(
