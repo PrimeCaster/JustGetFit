@@ -2558,7 +2558,7 @@ private fun CardioMachineLoggingTab(
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(if (speedUnit == "km/h") CoralPrimary else Color.Transparent)
+                                        .background(if (speedUnit == "km/h") MaterialTheme.colorScheme.primary else Color.Transparent)
                                         .clickable {
                                             if (speedUnit != "km/h") {
                                                 val cur = treadmillSpeed.toDoubleOrNull() ?: 6.2
@@ -2572,13 +2572,13 @@ private fun CardioMachineLoggingTab(
                                         text = "km/h",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = if (speedUnit == "km/h") PureWhite else MaterialTheme.colorScheme.onSurface
+                                        color = if (speedUnit == "km/h") MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                                     )
                                 }
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(if (speedUnit == "mph") CoralPrimary else Color.Transparent)
+                                        .background(if (speedUnit == "mph") MaterialTheme.colorScheme.primary else Color.Transparent)
                                         .clickable {
                                             if (speedUnit != "mph") {
                                                 val cur = treadmillSpeed.toDoubleOrNull() ?: 10.0
@@ -2592,7 +2592,7 @@ private fun CardioMachineLoggingTab(
                                         text = "mph",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = if (speedUnit == "mph") PureWhite else MaterialTheme.colorScheme.onSurface
+                                        color = if (speedUnit == "mph") MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                                     )
                                 }
                             }
@@ -2793,7 +2793,7 @@ private fun CardioMachineLoggingTab(
                             Text(
                                 text = "⚡ Auto-estimated (editable)",
                                 fontSize = 10.sp,
-                                color = MintPrimary,
+                                color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -2853,7 +2853,7 @@ private fun CardioMachineLoggingTab(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(imageVector = Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -2920,7 +2920,7 @@ private fun CardioMachineLoggingTab(
                     }
 
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("${session.caloriesBurned} kcal", fontWeight = FontWeight.Bold, color = CoralPrimary, fontSize = 14.sp)
+                        Text("${session.caloriesBurned} kcal", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, fontSize = 14.sp)
                         Text("${session.avgHeartRateBpm} BPM", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }

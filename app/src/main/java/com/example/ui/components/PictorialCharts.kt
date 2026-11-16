@@ -82,12 +82,12 @@ fun WeightLossTrajectoryChart(
             val lostKg = goal.startingWeightKg - goal.currentWeightKg
             Box(
                 modifier = Modifier
-                    .background(MintPrimary.copy(alpha = 0.15f), RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), RoundedCornerShape(12.dp))
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             ) {
                 Text(
                     text = "-%.1f kg lost".format(lostKg),
-                    color = MintPrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp
                 )
@@ -104,13 +104,13 @@ fun WeightLossTrajectoryChart(
                         text = "%.1f".format(goal.targetWeightKg),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
-                        color = CoralPrimary
+                        color = MaterialTheme.colorScheme.secondary
                     )
                     Text(
                         text = " kg",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
-                        color = CoralPrimary.copy(alpha = 0.8f),
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
                         modifier = Modifier.padding(bottom = 2.dp)
                     )
                 }
@@ -364,6 +364,10 @@ fun MacroNutrientRings(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        val primaryColor = MaterialTheme.colorScheme.primary
+        val secondaryColor = MaterialTheme.colorScheme.secondary
+        val tertiaryColor = MaterialTheme.colorScheme.tertiary
+
         // Concentric Rings Canvas
         Box(
             modifier = Modifier.size(110.dp),
@@ -376,12 +380,12 @@ fun MacroNutrientRings(
                 // Ring 1 (Outer - Calories)
                 val r1 = (size.minDimension / 2) - (strokeWidth / 2)
                 drawCircle(
-                    color = MintPrimary.copy(alpha = 0.15f),
+                    color = primaryColor.copy(alpha = 0.15f),
                     radius = r1,
                     style = Stroke(strokeWidth)
                 )
                 drawArc(
-                    color = MintPrimary,
+                    color = primaryColor,
                     startAngle = -90f,
                     sweepAngle = 360f * calorieProgress,
                     useCenter = false,
@@ -393,12 +397,12 @@ fun MacroNutrientRings(
                 // Ring 2 (Protein)
                 val r2 = r1 - strokeWidth - gap
                 drawCircle(
-                    color = ProteinBlue.copy(alpha = 0.15f),
+                    color = secondaryColor.copy(alpha = 0.15f),
                     radius = r2,
                     style = Stroke(strokeWidth)
                 )
                 drawArc(
-                    color = ProteinBlue,
+                    color = secondaryColor,
                     startAngle = -90f,
                     sweepAngle = 360f * proteinProgress,
                     useCenter = false,
@@ -410,12 +414,12 @@ fun MacroNutrientRings(
                 // Ring 3 (Carbs)
                 val r3 = r2 - strokeWidth - gap
                 drawCircle(
-                    color = CarbsOrange.copy(alpha = 0.15f),
+                    color = tertiaryColor.copy(alpha = 0.15f),
                     radius = r3,
                     style = Stroke(strokeWidth)
                 )
                 drawArc(
-                    color = CarbsOrange,
+                    color = tertiaryColor,
                     startAngle = -90f,
                     sweepAngle = 360f * carbsProgress,
                     useCenter = false,
@@ -600,6 +604,8 @@ fun WaterIntakeTrendChart(
     modifier: Modifier = Modifier
 ) {
     val maxIntake = maxOf(targetWaterMl * 1.15f, (weeklyIntake.maxOfOrNull { it.second } ?: targetWaterMl).toFloat() * 1.1f)
+    val themePrimary = MaterialTheme.colorScheme.primary
+    val themeSecondary = MaterialTheme.colorScheme.secondary
 
     Column(modifier = modifier) {
         Row(
@@ -611,7 +617,7 @@ fun WaterIntakeTrendChart(
                 Box(
                     modifier = Modifier
                         .size(24.dp)
-                        .background(WaterCyan.copy(alpha = 0.18f), CircleShape),
+                        .background(themePrimary.copy(alpha = 0.18f), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text("💧", fontSize = 12.sp)
@@ -635,14 +641,14 @@ fun WaterIntakeTrendChart(
             val avg = if (weeklyIntake.isNotEmpty()) weeklyIntake.map { it.second }.average().toInt() else 0
             Box(
                 modifier = Modifier
-                    .background(WaterCyan.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                    .background(themePrimary.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
                     .padding(horizontal = 8.dp, vertical = 3.dp)
             ) {
                 Text(
                     text = "Avg: ${avg}ml",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = WaterCyan
+                    color = themePrimary
                 )
             }
         }
@@ -667,7 +673,7 @@ fun WaterIntakeTrendChart(
                 val targetRatio = (targetWaterMl / maxIntake).coerceIn(0.1f, 0.95f)
                 val targetY = h - (h * targetRatio)
                 drawLine(
-                    color = WaterCyan.copy(alpha = 0.5f),
+                    color = themeSecondary.copy(alpha = 0.6f),
                     start = Offset(0f, targetY),
                     end = Offset(w, targetY),
                     strokeWidth = 1.5.dp.toPx(),
@@ -682,7 +688,7 @@ fun WaterIntakeTrendChart(
 
                     // Background Track
                     drawRoundRect(
-                        color = WaterCyan.copy(alpha = 0.08f),
+                        color = themePrimary.copy(alpha = 0.08f),
                         topLeft = Offset(x, 0f),
                         size = Size(barWidth, h),
                         cornerRadius = androidx.compose.ui.geometry.CornerRadius(6.dp.toPx(), 6.dp.toPx())
@@ -693,8 +699,8 @@ fun WaterIntakeTrendChart(
                     val isAboveTarget = ml >= targetWaterMl
                     val barBrush = Brush.verticalGradient(
                         colors = listOf(
-                            if (isAboveTarget) MintPrimary else WaterCyan,
-                            WaterCyan.copy(alpha = 0.7f)
+                            if (isAboveTarget) themePrimary else themePrimary.copy(alpha = 0.85f),
+                            themePrimary.copy(alpha = 0.45f)
                         ),
                         startY = y,
                         endY = h

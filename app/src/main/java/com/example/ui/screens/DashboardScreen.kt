@@ -186,7 +186,7 @@ fun DashboardScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.TrendingDown,
                                 contentDescription = null,
-                                tint = MintPrimary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -310,7 +310,7 @@ fun DashboardScreen(
                         text = "Open Splits >",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = CoralPrimary,
+                        color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.clickable { onNavigateToWorkouts() }
                     )
                 }
@@ -423,14 +423,14 @@ fun UpcomingWorkoutMiniCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .background(CoralPrimary.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
                         .padding(horizontal = 7.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = item.dayOfWeek.uppercase(),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = CoralPrimary
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
                 Text(

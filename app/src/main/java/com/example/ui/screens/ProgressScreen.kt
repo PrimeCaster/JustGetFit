@@ -815,7 +815,7 @@ fun ProgressScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Contents (${selectedExportRange.displayName}):", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MintPrimary)
+                                Text("Contents (${selectedExportRange.displayName}):", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                                 Text("${selectedExportRange.subtitle}", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Text("• Strength Sessions & Sets (${activeWorkout.exercises.size} exercises, %.0f kg volume)".format(activeWorkout.totalVolumeKg), fontSize = 11.sp)
@@ -861,11 +861,14 @@ fun ProgressScreen(
                                 .weight(1f)
                                 .bounceClick { },
                             shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = WaterCyan)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
                         ) {
-                            Icon(Icons.Default.TableChart, contentDescription = null, modifier = Modifier.size(16.dp), tint = Obsidian950)
+                            Icon(Icons.Default.TableChart, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Excel / CSV", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Obsidian950)
+                            Text("Excel / CSV", fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         }
 
                         // Export PDF
@@ -896,7 +899,10 @@ fun ProgressScreen(
                                 .weight(1f)
                                 .bounceClick { },
                             shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = CoralPrimary)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                                contentColor = MaterialTheme.colorScheme.onSecondary
+                            )
                         ) {
                             Icon(Icons.Default.PictureAsPdf, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))

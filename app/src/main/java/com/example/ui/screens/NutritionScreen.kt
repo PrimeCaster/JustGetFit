@@ -339,10 +339,10 @@ fun NutritionScreen(
                             Box(
                                 modifier = Modifier
                                     .size(36.dp)
-                                    .background(WaterCyan.copy(alpha = 0.15f), CircleShape),
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(imageVector = Icons.Default.WaterDrop, contentDescription = null, tint = WaterCyan, modifier = Modifier.size(20.dp))
+                                Icon(imageVector = Icons.Default.WaterDrop, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             }
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
@@ -353,10 +353,10 @@ fun NutritionScreen(
                                         onClick = { showEditWaterDialog = true },
                                         modifier = Modifier.size(24.dp)
                                     ) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Edit Water", tint = WaterCyan, modifier = Modifier.size(14.dp))
+                                        Icon(Icons.Default.Edit, contentDescription = "Edit Water", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp))
                                     }
                                 }
-                                Text("$currentWater / ${repository.dailyWaterTargetMl} ml", fontSize = 12.sp, color = WaterCyan, fontWeight = FontWeight.SemiBold)
+                                Text("$currentWater / ${repository.dailyWaterTargetMl} ml", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
                             }
                         }
 
@@ -365,7 +365,7 @@ fun NutritionScreen(
                                 onClick = { repository.addWater(250, selectedNutritionDate) },
                                 shape = RoundedCornerShape(8.dp),
                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = WaterCyan.copy(alpha = 0.15f), contentColor = WaterCyan),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), contentColor = MaterialTheme.colorScheme.primary),
                                 modifier = Modifier.bounceClick { repository.addWater(250, selectedNutritionDate) }
                             ) {
                                 Text("+250ml", fontSize = 11.sp, fontWeight = FontWeight.Bold)
@@ -374,7 +374,7 @@ fun NutritionScreen(
                                 onClick = { repository.addWater(500, selectedNutritionDate) },
                                 shape = RoundedCornerShape(8.dp),
                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = WaterCyan),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                 modifier = Modifier.bounceClick { repository.addWater(500, selectedNutritionDate) }
                             ) {
                                 Text("+500ml", fontSize = 11.sp, fontWeight = FontWeight.Bold)
