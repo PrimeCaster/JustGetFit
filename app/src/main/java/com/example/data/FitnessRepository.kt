@@ -390,7 +390,7 @@ class FitnessRepository(
     ) {
         val session = _activeWorkout.value
         val finalExercise = exercise ?: StrengthExercise(
-            name = "Exercise Not Selected",
+            name = "Exercise: Not Selected",
             category = machine?.category ?: ExerciseCategory.CHEST,
             techniqueTip = "Exercise movement was not selected in dropdown.",
             encouragingCue = "Remember to select your exercise from the dropdown!"

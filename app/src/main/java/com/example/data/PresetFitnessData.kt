@@ -8,6 +8,30 @@ object PresetFitnessData {
     val exerciseCatalog = listOf(
         // CHEST
         StrengthExercise(
+            name = "Barbell Bench Press",
+            category = ExerciseCategory.CHEST,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 120,
+            techniqueTip = "Plant feet firmly, touch mid-chest, drive upward with full body tightness.",
+            encouragingCue = "Lock the lats, drive your feet through the floor!"
+        ),
+        StrengthExercise(
+            name = "Incline Barbell Bench Press",
+            category = ExerciseCategory.CHEST,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 90,
+            techniqueTip = "Incline bench at 30 degrees, touch upper chest, press with authority.",
+            encouragingCue = "Build shelf-like upper chest thickness!"
+        ),
+        StrengthExercise(
+            name = "Decline Barbell Bench Press",
+            category = ExerciseCategory.CHEST,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 90,
+            techniqueTip = "Hook legs securely, lower bar to lower sternum, press locked.",
+            encouragingCue = "Massive lower pec recruitment with reduced shoulder shear!"
+        ),
+        StrengthExercise(
             name = "Flat Dumbbell Bench Press",
             category = ExerciseCategory.CHEST,
             equipmentType = EquipmentType.DUMBBELL,
@@ -20,8 +44,16 @@ object PresetFitnessData {
             category = ExerciseCategory.CHEST,
             equipmentType = EquipmentType.DUMBBELL,
             defaultRestSeconds = 75,
-            techniqueTip = "30-degree incline, elbows at 45 degrees, squeeze upper clavicular pecs.",
+            techniqueTip = "Incline bench, elbows tucked at 45 degrees, squeeze upper clavicular pecs.",
             encouragingCue = "Solid stretch at bottom, squeeze upper chest at top!"
+        ),
+        StrengthExercise(
+            name = "Decline Dumbbell Press",
+            category = ExerciseCategory.CHEST,
+            equipmentType = EquipmentType.DUMBBELL,
+            defaultRestSeconds = 75,
+            techniqueTip = "Decline position, controlled eccentric, squeeze lower chest fibers.",
+            encouragingCue = "Pure lower pectoral contraction without momentum!"
         ),
         StrengthExercise(
             name = "Incline Machine Chest Press",
@@ -30,6 +62,22 @@ object PresetFitnessData {
             defaultRestSeconds = 90,
             techniqueTip = "Adjust seat height so handles align with mid-to-upper chest. Lock back against pad.",
             encouragingCue = "Drive through the handles! Continuous tension builds upper chest thickness."
+        ),
+        StrengthExercise(
+            name = "Flat Machine Chest Press",
+            category = ExerciseCategory.CHEST,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 90,
+            techniqueTip = "Press handles evenly forward, full chest squeeze, slow eccentric return.",
+            encouragingCue = "Locked-in path of motion for pure chest hypertrophy!"
+        ),
+        StrengthExercise(
+            name = "Decline Machine Chest Press",
+            category = ExerciseCategory.CHEST,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 90,
+            techniqueTip = "Focus on pressing downwards along the machine trajectory.",
+            encouragingCue = "Isolate the lower pectoral heads safely!"
         ),
         StrengthExercise(
             name = "Pec Deck Machine Flyes",
@@ -42,21 +90,117 @@ object PresetFitnessData {
         StrengthExercise(
             name = "Cable Chest Crossover Flyes",
             category = ExerciseCategory.CHEST,
-            equipmentType = EquipmentType.CABLE_MACHINE,
+            equipmentType = ExerciseCategory.CHEST.let { EquipmentType.CABLE_MACHINE },
             defaultRestSeconds = 60,
             techniqueTip = "Set pulleys at shoulder or high position, press down and across sternum.",
             encouragingCue = "Feel that deep outer chest stretch, lock down the contraction!"
         ),
         StrengthExercise(
-            name = "Barbell Bench Press",
+            name = "Low-to-High Cable Flyes",
+            category = ExerciseCategory.CHEST,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Pulleys at lowest setting, scoop handles upward and together at upper chest level.",
+            encouragingCue = "Sculpt the clavicular chest line with constant tension!"
+        ),
+        StrengthExercise(
+            name = "High-to-Low Cable Flyes",
+            category = ExerciseCategory.CHEST,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Pulleys overhead, sweep handles downward towards pelvis.",
+            encouragingCue = "Deep lower chest burn and razor-sharp separation!"
+        ),
+        StrengthExercise(
+            name = "Chest Dips",
+            category = ExerciseCategory.CHEST,
+            equipmentType = EquipmentType.BODYWEIGHT,
+            defaultRestSeconds = 90,
+            techniqueTip = "Lean torso forward 30 degrees, flare elbows slightly, descend to 90 degrees.",
+            encouragingCue = "The king of bodyweight upper body mass builders!"
+        ),
+        StrengthExercise(
+            name = "Push-Ups",
+            category = ExerciseCategory.CHEST,
+            equipmentType = EquipmentType.BODYWEIGHT,
+            defaultRestSeconds = 60,
+            techniqueTip = "Straight rigid plank, chest touches floor, press up to full lockout.",
+            encouragingCue = "Total upper body stability and functional pushing power!"
+        ),
+        StrengthExercise(
+            name = "Landmine Chest Press",
             category = ExerciseCategory.CHEST,
             equipmentType = EquipmentType.BARBELL,
-            defaultRestSeconds = 120,
-            techniqueTip = "Plant feet firmly, touch mid-chest, drive upward with full body tightness.",
-            encouragingCue = "Lock the lats, drive your feet through the floor!"
+            defaultRestSeconds = 75,
+            techniqueTip = "Angled barbell path, press upward and inward with one or both hands.",
+            encouragingCue = "Shoulder-friendly pressing angle with supreme inner chest contraction!"
+        ),
+        StrengthExercise(
+            name = "Dumbbell Pullover",
+            category = ExerciseCategory.CHEST,
+            equipmentType = EquipmentType.DUMBBELL,
+            defaultRestSeconds = 60,
+            techniqueTip = "Cross bench, lower dumbbell overhead in arc, pull over chest.",
+            encouragingCue = "Expand the ribcage and stretch the serratus and pecs!"
         ),
 
         // BACK
+        StrengthExercise(
+            name = "Conventional Deadlift",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 150,
+            techniqueTip = "Pack lats, hinge hips back, squeeze glutes at the lockout.",
+            encouragingCue = "Push the earth away! Unstoppable posterior chain power!"
+        ),
+        StrengthExercise(
+            name = "Sumo Deadlift",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 150,
+            techniqueTip = "Wide stance, toes flared, open hips and drive vertically through heels.",
+            encouragingCue = "Upright torso drive with colossal hip and back leverage!"
+        ),
+        StrengthExercise(
+            name = "Barbell Bent-Over Rows",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 90,
+            techniqueTip = "Hinge forward 45 degrees, pull bar to lower belly, retract scapulae.",
+            encouragingCue = "Thick, powerful back development from traps to lats!"
+        ),
+        StrengthExercise(
+            name = "Pendlay Rows",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 90,
+            techniqueTip = "Torso parallel to floor, dead-stop every rep from the floor.",
+            encouragingCue = "Explosive pulling power with zero hip momentum!"
+        ),
+        StrengthExercise(
+            name = "Single-Arm Dumbbell Rows",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.DUMBBELL,
+            defaultRestSeconds = 75,
+            techniqueTip = "Hand on bench, flat spine, pull dumbbell up towards hip pocket.",
+            encouragingCue = "Drive the elbow straight up! Unmatched unilateral lat recruitment."
+        ),
+        StrengthExercise(
+            name = "Chest-Supported Machine Row",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 90,
+            techniqueTip = "Chest pinned to pad, pull handles back without using lower back momentum.",
+            encouragingCue = "Pure upper back engagement with zero spinal fatigue!"
+        ),
+        StrengthExercise(
+            name = "T-Bar Rows",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 90,
+            techniqueTip = "Straddle bar, close neutral grip, pull handles to chest.",
+            encouragingCue = "Massive mid-back density and lat wing thickness!"
+        ),
         StrengthExercise(
             name = "Lat Pulldowns",
             category = ExerciseCategory.BACK,
@@ -64,6 +208,46 @@ object PresetFitnessData {
             defaultRestSeconds = 90,
             techniqueTip = "Wide or neutral grip, slight lean back, pull bar to upper chest leading with elbows.",
             encouragingCue = "Pull your elbows into your back pockets! Flare those lats!"
+        ),
+        StrengthExercise(
+            name = "Close-Grip Lat Pulldowns",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 75,
+            techniqueTip = "V-bar attachment, pull to chest, feel deep lower lat stretch at top.",
+            encouragingCue = "Emphasize lower lats and full stretch amplitude!"
+        ),
+        StrengthExercise(
+            name = "Reverse-Grip Lat Pulldowns",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 75,
+            techniqueTip = "Underhand supinated grip, pull down to upper chest.",
+            encouragingCue = "Heavy lat overload with strong bicep leverage!"
+        ),
+        StrengthExercise(
+            name = "Pull-Ups",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.BODYWEIGHT,
+            defaultRestSeconds = 90,
+            techniqueTip = "Overhand grip, pull chest to bar, controlled descent to dead hang.",
+            encouragingCue = "The ultimate benchmark of relative upper body pulling strength!"
+        ),
+        StrengthExercise(
+            name = "Chin-Ups",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.BODYWEIGHT,
+            defaultRestSeconds = 90,
+            techniqueTip = "Underhand grip, drive elbows down, chin clears bar.",
+            encouragingCue = "Huge bicep and lat synergy!"
+        ),
+        StrengthExercise(
+            name = "Assisted Pull-Up Machine",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 90,
+            techniqueTip = "Knees on pad, full dead-hang stretch, pull chin cleanly over handles.",
+            encouragingCue = "Full range of motion builds authentic vertical pulling power!"
         ),
         StrengthExercise(
             name = "Seated Cable Rows",
@@ -82,39 +266,31 @@ object PresetFitnessData {
             encouragingCue = "Isolate the lats without bicep involvement! Smooth arc."
         ),
         StrengthExercise(
-            name = "Dumbbell Rows",
-            category = ExerciseCategory.BACK,
-            equipmentType = EquipmentType.DUMBBELL,
-            defaultRestSeconds = 75,
-            techniqueTip = "Hand on bench, flat spine, pull dumbbell up towards hip pocket.",
-            encouragingCue = "Drive the elbow straight up! Unmatched unilateral lat recruitment."
-        ),
-        StrengthExercise(
-            name = "Chest-Supported Machine Row",
-            category = ExerciseCategory.BACK,
-            equipmentType = EquipmentType.GYM_MACHINE,
-            defaultRestSeconds = 90,
-            techniqueTip = "Chest pinned to pad, pull handles back without using lower back momentum.",
-            encouragingCue = "Pure upper back engagement with zero spinal fatigue!"
-        ),
-        StrengthExercise(
-            name = "Assisted Pull-Up Machine",
-            category = ExerciseCategory.BACK,
-            equipmentType = EquipmentType.GYM_MACHINE,
-            defaultRestSeconds = 90,
-            techniqueTip = "Knees on pad, full dead-hang stretch, pull chin cleanly over handles.",
-            encouragingCue = "Full range of motion builds authentic vertical pulling power!"
-        ),
-        StrengthExercise(
-            name = "Conventional Deadlift",
+            name = "Rack Pulls",
             category = ExerciseCategory.BACK,
             equipmentType = EquipmentType.BARBELL,
-            defaultRestSeconds = 150,
-            techniqueTip = "Pack lats, hinge hips back, squeeze glutes at the lockout.",
-            encouragingCue = "Push the earth away! Unstoppable posterior chain power!"
+            defaultRestSeconds = 120,
+            techniqueTip = "Bar positioned at knee height in power rack, lock out with glutes and traps.",
+            encouragingCue = "Heavy trap, erector, and upper back overload!"
+        ),
+        StrengthExercise(
+            name = "Back Extensions",
+            category = ExerciseCategory.BACK,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Hips on pad, hinge forward, raise back until parallel with legs.",
+            encouragingCue = "Ironclad lower back, erector spinae, and glutes!"
         ),
 
         // SHOULDERS & TRAPS
+        StrengthExercise(
+            name = "Overhead Barbell Press",
+            category = ExerciseCategory.SHOULDERS,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 120,
+            techniqueTip = "Stand tall, squeeze glutes and abs, press bar in straight vertical line overhead.",
+            encouragingCue = "Raw overhead pressing power and total shoulder armor!"
+        ),
         StrengthExercise(
             name = "Dumbbell Shoulder Press",
             category = ExerciseCategory.SHOULDERS,
@@ -130,6 +306,22 @@ object PresetFitnessData {
             defaultRestSeconds = 90,
             techniqueTip = "Seat at chin height, press guided handles smoothly to lockout.",
             encouragingCue = "Safe, heavy delt overload! Squeeze at the top."
+        ),
+        StrengthExercise(
+            name = "Arnold Press",
+            category = ExerciseCategory.SHOULDERS,
+            equipmentType = EquipmentType.DUMBBELL,
+            defaultRestSeconds = 75,
+            techniqueTip = "Start with palms facing chest, rotate outwards while pressing overhead.",
+            encouragingCue = "Engage all three deltoid heads in one continuous movement!"
+        ),
+        StrengthExercise(
+            name = "Smith Machine Shoulder Press",
+            category = ExerciseCategory.SHOULDERS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 90,
+            techniqueTip = "Guided bar path, press smoothly from clavicles to full lockout.",
+            encouragingCue = "Lock into the groove and overload the front delts safely!"
         ),
         StrengthExercise(
             name = "Dumbbell Lateral Raises",
@@ -148,12 +340,44 @@ object PresetFitnessData {
             encouragingCue = "Zero dead zones! Constant tension right on the side delt."
         ),
         StrengthExercise(
+            name = "Machine Lateral Raises",
+            category = ExerciseCategory.SHOULDERS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Elbow pads at arm height, drive elbows outward and up.",
+            encouragingCue = "Perfect isolation with strict mechanical resistance!"
+        ),
+        StrengthExercise(
+            name = "Dumbbell Front Raises",
+            category = ExerciseCategory.SHOULDERS,
+            equipmentType = EquipmentType.DUMBBELL,
+            defaultRestSeconds = 60,
+            techniqueTip = "Raise dumbbells in front of body to eye level, keep torso strictly still.",
+            encouragingCue = "Sculpt the anterior deltoids with zero swinging!"
+        ),
+        StrengthExercise(
+            name = "Cable Front Raises",
+            category = ExerciseCategory.SHOULDERS,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Cable between legs or from low pulley, raise straight forward.",
+            encouragingCue = "Constant tension from start to finish on the front delt!"
+        ),
+        StrengthExercise(
             name = "Reverse Pec Deck (Rear Delt Fly)",
             category = ExerciseCategory.SHOULDERS,
             equipmentType = EquipmentType.GYM_MACHINE,
             defaultRestSeconds = 60,
             techniqueTip = "Chest against pad, arms horizontal, sweep outwards focusing on rear deltoids.",
             encouragingCue = "Carve out those rear delts! Essential for shoulder posture."
+        ),
+        StrengthExercise(
+            name = "Bent-Over Dumbbell Rear Delt Flyes",
+            category = ExerciseCategory.SHOULDERS,
+            equipmentType = EquipmentType.DUMBBELL,
+            defaultRestSeconds = 60,
+            techniqueTip = "Hips hinged forward, sweep dumbbells outward with slight elbow bend.",
+            encouragingCue = "Posterior deltoid roundness and balanced shoulders!"
         ),
         StrengthExercise(
             name = "Cable Face Pulls",
@@ -164,6 +388,14 @@ object PresetFitnessData {
             encouragingCue = "Pull apart the rope! Bulletproof rotator cuffs and upper back."
         ),
         StrengthExercise(
+            name = "Barbell Upright Rows",
+            category = ExerciseCategory.SHOULDERS,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 60,
+            techniqueTip = "Shoulder-width grip, pull bar up towards sternum leading with high elbows.",
+            encouragingCue = "Side delts and upper traps in unison!"
+        ),
+        StrengthExercise(
             name = "Dumbbell Shrugs",
             category = ExerciseCategory.SHOULDERS,
             equipmentType = EquipmentType.DUMBBELL,
@@ -171,15 +403,87 @@ object PresetFitnessData {
             techniqueTip = "Elevate shoulders straight towards ears, pause for 1 second, lower smoothly.",
             encouragingCue = "Heavy trap contraction! Do not roll your shoulders."
         ),
-
-        // LEGS
         StrengthExercise(
-            name = "Leg Press Machine (45 Degree)",
+            name = "Barbell Shrugs",
+            category = ExerciseCategory.SHOULDERS,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 75,
+            techniqueTip = "Hold bar in front of thighs, shrug straight up, peak 2-second hold.",
+            encouragingCue = "Stack heavy iron for mountain-like trapezius thickness!"
+        ),
+        StrengthExercise(
+            name = "Machine Shrugs",
+            category = ExerciseCategory.SHOULDERS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Grip handles on shrug or dip machine, shrug shoulders to ears.",
+            encouragingCue = "Guided heavy trap overload with neutral wrist grip!"
+        ),
+
+        // LEGS (QUADS, HAMSTRINGS, GLUTES, CALVES)
+        StrengthExercise(
+            name = "Barbell Back Squat",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 120,
+            techniqueTip = "Descend until hip crease is below knee caps. Drive mid-foot into ground.",
+            encouragingCue = "Drive the floor away! Proud chest, strong lockout!"
+        ),
+        StrengthExercise(
+            name = "Barbell Front Squat",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 120,
+            techniqueTip = "Clean grip or cross-arm, upright torso, deep knee flexion.",
+            encouragingCue = "Maximum quadriceps isolation and anterior core rigidity!"
+        ),
+        StrengthExercise(
+            name = "Leg Press",
             category = ExerciseCategory.LEGS,
             equipmentType = EquipmentType.GYM_MACHINE,
             defaultRestSeconds = 120,
-            techniqueTip = "Feet mid-platform, lower weight sled until 90-degree knee bend, press through heels.",
+            techniqueTip = "Feet mid-platform, lower weight sled until deep knee bend, press through heels.",
             encouragingCue = "Massive quad and glute drive! Don't lock knees out aggressively."
+        ),
+        StrengthExercise(
+            name = "Incline Sled Press",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 120,
+            techniqueTip = "Angled platform, controlled descent, push evenly through mid-foot and heel.",
+            encouragingCue = "Heavy lower body mass builder with total lower back security!"
+        ),
+        StrengthExercise(
+            name = "Hack Squat Machine",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 120,
+            techniqueTip = "Back against angled pad, feet slightly forward, sink deep into hips and quads.",
+            encouragingCue = "Ultimate quad builder with locked-in spinal safety!"
+        ),
+        StrengthExercise(
+            name = "Pendulum Squat Machine",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 120,
+            techniqueTip = "Curved counterbalance arm, deep knee travel, drive smoothly out of hole.",
+            encouragingCue = "Deepest quad stretch and knee-friendly mechanics on the planet!"
+        ),
+        StrengthExercise(
+            name = "Belt Squat Machine",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 90,
+            techniqueTip = "Weight attached to waist belt, squat deep with zero spinal compression.",
+            encouragingCue = "Pure leg overload with completely unloaded spine!"
+        ),
+        StrengthExercise(
+            name = "Sissy Squat Machine",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Calves locked in pad, lean back, hinge deeply at the knees.",
+            encouragingCue = "Direct rectus femoris and teardrop quad fire!"
         ),
         StrengthExercise(
             name = "Leg Extension Machine",
@@ -192,7 +496,7 @@ object PresetFitnessData {
         StrengthExercise(
             name = "Seated Leg Curl Machine",
             category = ExerciseCategory.LEGS,
-            equipmentType = EquipmentType.GYM_MACHINE,
+            equipmentType = ExerciseCategory.LEGS.let { EquipmentType.GYM_MACHINE },
             defaultRestSeconds = 75,
             techniqueTip = "Thigh pad firmly clamped, curl roller down toward seat, slow 3-sec return.",
             encouragingCue = "Hamstrings locked in! Controlled eccentric for bulletproof knees."
@@ -206,20 +510,12 @@ object PresetFitnessData {
             encouragingCue = "Deep hamstring recruitment! Own the negative."
         ),
         StrengthExercise(
-            name = "Calf Raise Machine (Standing/Seated)",
+            name = "Standing Single-Leg Curl Machine",
             category = ExerciseCategory.LEGS,
             equipmentType = EquipmentType.GYM_MACHINE,
             defaultRestSeconds = 60,
-            techniqueTip = "Balls of feet on block, deep ankle stretch at bottom, press high onto big toes.",
-            encouragingCue = "Full ankle flexion and extension! Build diamond calves."
-        ),
-        StrengthExercise(
-            name = "Hack Squat Machine",
-            category = ExerciseCategory.LEGS,
-            equipmentType = EquipmentType.GYM_MACHINE,
-            defaultRestSeconds = 120,
-            techniqueTip = "Back against angled pad, feet slightly forward, sink deep into hips and quads.",
-            encouragingCue = "Ultimate quad builder with locked-in spinal safety!"
+            techniqueTip = "One leg curled upward against roller, isolate hamstring unilaterally.",
+            encouragingCue = "Fix muscular imbalances and carve out clean hamstring definition!"
         ),
         StrengthExercise(
             name = "Romanian Deadlift",
@@ -230,6 +526,22 @@ object PresetFitnessData {
             encouragingCue = "Feel that deep hamstring tension and snap hips through!"
         ),
         StrengthExercise(
+            name = "Barbell Romanian Deadlift",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 90,
+            techniqueTip = "Barbell stays against shins, hinge hips back until deep hamstring stretch.",
+            encouragingCue = "Heavy posterior chain loaded stretch!"
+        ),
+        StrengthExercise(
+            name = "Bulgarian Split Squats",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.DUMBBELL,
+            defaultRestSeconds = 75,
+            techniqueTip = "Rear foot on bench, sink front thigh parallel to floor, drive through front heel.",
+            encouragingCue = "The ultimate single-leg quad and glute test!"
+        ),
+        StrengthExercise(
             name = "Walking Dumbbell Lunges",
             category = ExerciseCategory.LEGS,
             equipmentType = EquipmentType.DUMBBELL,
@@ -238,38 +550,86 @@ object PresetFitnessData {
             encouragingCue = "Unilateral balance and glute power with every step!"
         ),
         StrengthExercise(
-            name = "Barbell Back Squat",
+            name = "Barbell Hip Thrust",
             category = ExerciseCategory.LEGS,
             equipmentType = EquipmentType.BARBELL,
-            defaultRestSeconds = 120,
-            techniqueTip = "Descend until hip crease is below knee caps. Drive mid-foot into ground.",
-            encouragingCue = "Drive the floor away! Proud chest, strong lockout!"
+            defaultRestSeconds = 90,
+            techniqueTip = "Upper back against bench, barbell on hips, drive hips up to full horizontal lockout.",
+            encouragingCue = "Maximum glute contraction and athletic sprint power!"
+        ),
+        StrengthExercise(
+            name = "Machine Hip Thrust",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 90,
+            techniqueTip = "Belt secured, drive hip pad up to full glute squeeze at top.",
+            encouragingCue = "Locked-in comfort for massive glute overload!"
+        ),
+        StrengthExercise(
+            name = "Cable Glute Kickbacks",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Ankle strap on low cable, kick leg backward in an arc, squeeze glute.",
+            encouragingCue = "Target the upper glutes and glute medius!"
+        ),
+        StrengthExercise(
+            name = "Hip Abductor Machine",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Open knees outward against pads, hold peak contraction for 1 second.",
+            encouragingCue = "Build outer glute width and hip stability!"
+        ),
+        StrengthExercise(
+            name = "Hip Adductor Machine",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Squeeze legs inward together against pads, slow controlled release.",
+            encouragingCue = "Develop dense inner thighs and groin resilience!"
+        ),
+        StrengthExercise(
+            name = "Standing Calf Raise Machine",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Balls of feet on block, deep ankle stretch at bottom, press high onto big toes.",
+            encouragingCue = "Full ankle flexion and extension! Build diamond calves."
+        ),
+        StrengthExercise(
+            name = "Seated Calf Raise Machine",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Knees bent 90 degrees, slow deep stretch, explode up through toes.",
+            encouragingCue = "Direct soleus isolation for thick lower calf width!"
+        ),
+        StrengthExercise(
+            name = "Leg Press Calf Raises",
+            category = ExerciseCategory.LEGS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Balls of feet on bottom edge of sled, extend ankles forward.",
+            encouragingCue = "Heavy gastrocnemius loading with straight legs!"
         ),
 
-        // ARMS (TRICEPS, BICEPS, FOREARMS)
+        // ARMS (BICEPS, TRICEPS, FOREARMS)
         StrengthExercise(
-            name = "Cable Triceps Pushdowns",
-            category = ExerciseCategory.ARMS,
-            equipmentType = EquipmentType.CABLE_MACHINE,
-            defaultRestSeconds = 60,
-            techniqueTip = "Elbows pinned to sides, push straight or V-bar down and lock triceps out.",
-            encouragingCue = "Lock out and feel that tricep horseshoe burn!"
-        ),
-        StrengthExercise(
-            name = "Overhead Triceps Cable Extension",
-            category = ExerciseCategory.ARMS,
-            equipmentType = EquipmentType.CABLE_MACHINE,
-            defaultRestSeconds = 60,
-            techniqueTip = "Rope on low or mid cable, lean forward, extend forearms overhead.",
-            encouragingCue = "Full stretch on the long head of the tricep! Maximum arm size."
-        ),
-        StrengthExercise(
-            name = "Skull Crushers (EZ-Bar)",
+            name = "Barbell Bicep Curls",
             category = ExerciseCategory.ARMS,
             equipmentType = EquipmentType.BARBELL,
             defaultRestSeconds = 75,
-            techniqueTip = "Lower bar towards forehead or crown, keep upper arms vertical, extend up.",
-            encouragingCue = "Strict elbow pivot! Massive triceps builder."
+            techniqueTip = "Stand tall, pin elbows to sides, curl barbell in arc to upper chest.",
+            encouragingCue = "Old-school bicep mass builder! Strictly control the negative."
+        ),
+        StrengthExercise(
+            name = "EZ-Bar Bicep Curls",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 60,
+            techniqueTip = "Angled grip relieves wrist strain, strict bicep curl without swinging.",
+            encouragingCue = "Ergonomic wrist comfort for heavy arm loading!"
         ),
         StrengthExercise(
             name = "Dumbbell Bicep Curls",
@@ -288,12 +648,12 @@ object PresetFitnessData {
             encouragingCue = "Build forearm and bicep thickness with heavy hammer curls!"
         ),
         StrengthExercise(
-            name = "Cable Bicep Curls",
+            name = "Incline Dumbbell Curls",
             category = ExerciseCategory.ARMS,
-            equipmentType = EquipmentType.CABLE_MACHINE,
+            equipmentType = EquipmentType.DUMBBELL,
             defaultRestSeconds = 60,
-            techniqueTip = "Straight bar on low cable, keep continuous tension through the entire curve.",
-            encouragingCue = "Constant tension pump! Squeeze at the top."
+            techniqueTip = "Lean back on incline bench, let arms hang straight down, curl to top.",
+            encouragingCue = "Maximum stretch on the long head of the bicep for peak height!"
         ),
         StrengthExercise(
             name = "Preacher Curl Machine",
@@ -304,6 +664,94 @@ object PresetFitnessData {
             encouragingCue = "Strict bicep isolation with zero cheating!"
         ),
         StrengthExercise(
+            name = "Preacher Curls (EZ-Bar)",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 60,
+            techniqueTip = "Arms locked onto slanted pad, curl EZ-bar with pure bicep tension.",
+            encouragingCue = "Isolate the lower bicep and peak contraction!"
+        ),
+        StrengthExercise(
+            name = "Concentration Curls",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.DUMBBELL,
+            defaultRestSeconds = 60,
+            techniqueTip = "Elbow against inner thigh, curl dumbbell with focused contraction.",
+            encouragingCue = "Arnold's favorite peak bicep builder!"
+        ),
+        StrengthExercise(
+            name = "Cable Bicep Curls",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Straight bar on low cable, keep continuous tension through the entire curve.",
+            encouragingCue = "Constant tension pump! Squeeze at the top."
+        ),
+        StrengthExercise(
+            name = "Close-Grip Barbell Bench Press",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 90,
+            techniqueTip = "Hands shoulder-width apart, elbows tucked close to torso, press up.",
+            encouragingCue = "Heavy mechanical overload for massive triceps thickness!"
+        ),
+        StrengthExercise(
+            name = "Skull Crushers (EZ-Bar)",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.BARBELL,
+            defaultRestSeconds = 75,
+            techniqueTip = "Lower bar towards forehead or crown, keep upper arms vertical, extend up.",
+            encouragingCue = "Strict elbow pivot! Massive triceps builder."
+        ),
+        StrengthExercise(
+            name = "Cable Triceps Pushdowns",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Elbows pinned to sides, push straight or V-bar down and lock triceps out.",
+            encouragingCue = "Lock out and feel that tricep horseshoe burn!"
+        ),
+        StrengthExercise(
+            name = "Cable Triceps Rope Pushdowns",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Spread rope ends apart at bottom of motion for peak contraction.",
+            encouragingCue = "Spread the rope and fire the lateral tricep head!"
+        ),
+        StrengthExercise(
+            name = "Overhead Triceps Cable Extension",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Rope on low or mid cable, lean forward, extend forearms overhead.",
+            encouragingCue = "Full stretch on the long head of the tricep! Maximum arm size."
+        ),
+        StrengthExercise(
+            name = "Overhead Dumbbell Triceps Extension",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.DUMBBELL,
+            defaultRestSeconds = 60,
+            techniqueTip = "Hold single dumbbell with both hands overhead, lower behind head, press up.",
+            encouragingCue = "Deep stretch on the long head of the triceps!"
+        ),
+        StrengthExercise(
+            name = "Seated Machine Triceps Extension",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Back against pad, elbows aligned with machine pivot, extend handles down.",
+            encouragingCue = "Safe, locked-in tricep burn with continuous tension!"
+        ),
+        StrengthExercise(
+            name = "Triceps Dips",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.BODYWEIGHT,
+            defaultRestSeconds = 75,
+            techniqueTip = "Keep torso upright, elbows tucked close, push to full extension.",
+            encouragingCue = "Raw bodyweight triceps power!"
+        ),
+        StrengthExercise(
             name = "Reverse Cable Curls (Forearms)",
             category = ExerciseCategory.ARMS,
             equipmentType = EquipmentType.CABLE_MACHINE,
@@ -312,23 +760,31 @@ object PresetFitnessData {
             encouragingCue = "Ironclad grip and forearm vascularity!"
         ),
         StrengthExercise(
-            name = "Wrist Curls (Dumbbell/Machine)",
+            name = "Wrist Curls (Palms Up)",
             category = ExerciseCategory.ARMS,
             equipmentType = EquipmentType.DUMBBELL,
             defaultRestSeconds = 45,
             techniqueTip = "Forearms resting on thighs or bench, curl wrists upward to full flexion.",
             encouragingCue = "Popeye forearm endurance and grip strength!"
         ),
-
-        // CORE & CARDIO
         StrengthExercise(
-            name = "Light Planks & Core Bracing",
-            category = ExerciseCategory.CORE,
-            equipmentType = EquipmentType.BODYWEIGHT,
-            defaultRestSeconds = 60,
-            techniqueTip = "Elbows under shoulders, lock glutes and quads, pull belly button to spine.",
-            encouragingCue = "Solid pillar of core stability!"
+            name = "Reverse Wrist Curls (Palms Down)",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.DUMBBELL,
+            defaultRestSeconds = 45,
+            techniqueTip = "Forearms on bench, curl wrists upward with knuckles toward ceiling.",
+            encouragingCue = "Build the top of the forearms and wrist stability!"
         ),
+        StrengthExercise(
+            name = "Forearm Wrist Roller",
+            category = ExerciseCategory.ARMS,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Rotate roller handle forward and backward to wind weight plate up and down.",
+            encouragingCue = "Relentless forearm burn and crushing grip endurance!"
+        ),
+
+        // CORE
         StrengthExercise(
             name = "Hanging Leg Raise",
             category = ExerciseCategory.CORE,
@@ -337,6 +793,80 @@ object PresetFitnessData {
             techniqueTip = "Tilt pelvis up towards chin to fully recruit lower abdominals.",
             encouragingCue = "Total core control! Resisting momentum builds iron abs."
         ),
+        StrengthExercise(
+            name = "Captain's Chair Knee Raise",
+            category = ExerciseCategory.CORE,
+            equipmentType = EquipmentType.BODYWEIGHT,
+            defaultRestSeconds = 60,
+            techniqueTip = "Back against pad, forearms supported, drive knees cleanly to chest.",
+            encouragingCue = "Strict lower abdominal compression!"
+        ),
+        StrengthExercise(
+            name = "Cable Kneeling Crunch",
+            category = ExerciseCategory.CORE,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Rope held at forehead, kneel on floor, crunch elbows to thighs.",
+            encouragingCue = "Progressive overload for deep six-pack abdominal ridges!"
+        ),
+        StrengthExercise(
+            name = "Cable Woodchoppers",
+            category = ExerciseCategory.CORE,
+            equipmentType = EquipmentType.CABLE_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Rotate torso diagonally downward or upward across body with arms extended.",
+            encouragingCue = "Rotational power and oblique definition!"
+        ),
+        StrengthExercise(
+            name = "Abdominal Crunch Machine",
+            category = ExerciseCategory.CORE,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Sit back, hold handles, crunch forward curling the spine smoothly.",
+            encouragingCue = "Targeted rectus abdominis overload with pinpoint resistance!"
+        ),
+        StrengthExercise(
+            name = "Rotary Torso Machine",
+            category = ExerciseCategory.CORE,
+            equipmentType = EquipmentType.GYM_MACHINE,
+            defaultRestSeconds = 60,
+            techniqueTip = "Rotate torso smoothly through guided range of motion against pad.",
+            encouragingCue = "Build rotational abdominal torque and oblique strength!"
+        ),
+        StrengthExercise(
+            name = "Decline Bench Sit-Ups",
+            category = ExerciseCategory.CORE,
+            equipmentType = EquipmentType.BODYWEIGHT,
+            defaultRestSeconds = 60,
+            techniqueTip = "Feet locked in decline bench, curl torso upward focusing on abdominal squeeze.",
+            encouragingCue = "Classic core flexion against gravity!"
+        ),
+        StrengthExercise(
+            name = "Planks",
+            category = ExerciseCategory.CORE,
+            equipmentType = EquipmentType.BODYWEIGHT,
+            defaultRestSeconds = 60,
+            techniqueTip = "Elbows under shoulders, lock glutes and quads, pull belly button to spine.",
+            encouragingCue = "Solid pillar of core stability!"
+        ),
+        StrengthExercise(
+            name = "Russian Twists",
+            category = ExerciseCategory.CORE,
+            equipmentType = EquipmentType.BODYWEIGHT,
+            defaultRestSeconds = 60,
+            techniqueTip = "Seated with heels elevated, rotate torso side to side touching hands to floor.",
+            encouragingCue = "Dynamic core stability and rotational endurance!"
+        ),
+        StrengthExercise(
+            name = "Ab Wheel Rollouts",
+            category = ExerciseCategory.CORE,
+            equipmentType = EquipmentType.BODYWEIGHT,
+            defaultRestSeconds = 60,
+            techniqueTip = "Kneel, roll wheel forward extending torso, pull back with abdominals.",
+            encouragingCue = "Unrivaled eccentric core tension and anti-extension strength!"
+        ),
+
+        // CARDIO
         StrengthExercise(
             name = "Inclined Treadmill Walking (60+ mins)",
             category = ExerciseCategory.CARDIO,
@@ -491,9 +1021,13 @@ object PresetFitnessData {
     )
 
     fun createInitialWorkoutSession(): WorkoutSession {
-        val bench = exerciseCatalog[0] // Flat DB Bench
-        val shoulderPress = exerciseCatalog[13] // DB Shoulder Press
-        val pushdowns = exerciseCatalog[29] // Cable Pushdowns
+        val bench = exerciseCatalog.firstOrNull { it.name.contains("Bench", ignoreCase = true) } ?: exerciseCatalog[0]
+        val shoulderPress = exerciseCatalog.firstOrNull { it.name.contains("Shoulder Press", ignoreCase = true) } ?: exerciseCatalog[0]
+        val pushdowns = exerciseCatalog.firstOrNull { it.name.contains("Pushdown", ignoreCase = true) } ?: exerciseCatalog[0]
+
+        val chestMachine = gymMachinesCatalog.firstOrNull { it.machineName.contains("Chest Press", ignoreCase = true) } ?: gymMachinesCatalog[0]
+        val shoulderMachine = gymMachinesCatalog.firstOrNull { it.machineName.contains("Shoulder Press", ignoreCase = true) } ?: gymMachinesCatalog[0]
+        val tricepsMachine = gymMachinesCatalog.firstOrNull { it.machineName.contains("Triceps Extension", ignoreCase = true) } ?: gymMachinesCatalog[0]
 
         return WorkoutSession(
             title = "Push (Chest, Shoulders, Triceps)",
@@ -503,7 +1037,7 @@ object PresetFitnessData {
             exercises = mutableListOf(
                 ExerciseLog(
                     exercise = bench,
-                    gymMachine = gymMachinesCatalog[0], // Chest Press Machine
+                    gymMachine = chestMachine,
                     sets = mutableListOf(
                         WorkoutSet(1, weightKg = 32.0, reps = 10, rpe = 8, isCompleted = true),
                         WorkoutSet(2, weightKg = 34.0, reps = 8, rpe = 8, isCompleted = true),
@@ -512,7 +1046,7 @@ object PresetFitnessData {
                 ),
                 ExerciseLog(
                     exercise = shoulderPress,
-                    gymMachine = gymMachinesCatalog[4], // Shoulder Press Machine
+                    gymMachine = shoulderMachine,
                     sets = mutableListOf(
                         WorkoutSet(1, weightKg = 22.0, reps = 10, rpe = 8, isCompleted = false),
                         WorkoutSet(2, weightKg = 24.0, reps = 8, rpe = 9, isCompleted = false),
@@ -521,7 +1055,7 @@ object PresetFitnessData {
                 ),
                 ExerciseLog(
                     exercise = pushdowns,
-                    gymMachine = gymMachinesCatalog[22], // Triceps Extension Machine
+                    gymMachine = tricepsMachine,
                     sets = mutableListOf(
                         WorkoutSet(1, weightKg = 25.0, reps = 12, rpe = 8, isCompleted = false),
                         WorkoutSet(2, weightKg = 30.0, reps = 10, rpe = 9, isCompleted = false),
@@ -1211,6 +1745,13 @@ object PresetFitnessData {
             tip = "Isolates the chest muscles through a hugging/adduction motion without triceps takeover."
         ),
         GymMachineInfo(
+            machineName = "Reverse Pec Deck Machine",
+            everydayAlias = "Rear Delt Fly Station",
+            targetMuscle = "Rear Deltoids & Upper Back",
+            category = ExerciseCategory.SHOULDERS,
+            tip = "Isolates the posterior deltoids and rhomboids through horizontal abduction."
+        ),
+        GymMachineInfo(
             machineName = "Shoulder Press Machine",
             everydayAlias = "Seated Overhead Press Machine",
             targetMuscle = "Front & Lateral Deltoids",
@@ -1223,6 +1764,20 @@ object PresetFitnessData {
             targetMuscle = "Side Lateral Deltoids",
             category = ExerciseCategory.SHOULDERS,
             tip = "Isolates the side (lateral) deltoids with constant mechanical tension."
+        ),
+        GymMachineInfo(
+            machineName = "Front Raise Machine",
+            everydayAlias = "Deltoid Raise Station",
+            targetMuscle = "Anterior Deltoids",
+            category = ExerciseCategory.SHOULDERS,
+            tip = "Isolates the anterior deltoids through guided forward elevation."
+        ),
+        GymMachineInfo(
+            machineName = "Shrug Machine",
+            everydayAlias = "Trap Shrug Station",
+            targetMuscle = "Upper Trapezius",
+            category = ExerciseCategory.SHOULDERS,
+            tip = "Overloads the upper trapezius muscles with vertical shoulder elevation."
         ),
 
         // Upper Body – Back & Pulling
@@ -1241,18 +1796,25 @@ object PresetFitnessData {
             tip = "Targets the middle back, rhomboids, traps, and biceps via a horizontal pull."
         ),
         GymMachineInfo(
+            machineName = "High Row Machine",
+            everydayAlias = "Iso-Lateral High Row Station",
+            targetMuscle = "Upper Lats & Mid-Back",
+            category = ExerciseCategory.BACK,
+            tip = "Provides a high-to-low pulling trajectory for comprehensive upper lat and rhomboid recruitment."
+        ),
+        GymMachineInfo(
+            machineName = "Chest-Supported T-Bar Row Machine",
+            everydayAlias = "T-Bar Row Station",
+            targetMuscle = "Lats & Mid-Back Thickness",
+            category = ExerciseCategory.BACK,
+            tip = "Provides a semi-fixed leverage path for heavy back-building rows without lumbar strain."
+        ),
+        GymMachineInfo(
             machineName = "Assisted Pull-Up & Dip Machine",
             everydayAlias = "Gravitron Counterweight Station",
             targetMuscle = "Lats, Upper Back, Chest & Triceps",
             category = ExerciseCategory.BACK,
             tip = "Uses a counterweight knee pad or platform to assist with bodyweight pull-ups and dips."
-        ),
-        GymMachineInfo(
-            machineName = "T-Bar Row Station",
-            everydayAlias = "Landmine / Chest-Supported Row",
-            targetMuscle = "Lats & Mid-Back Thickness",
-            category = ExerciseCategory.BACK,
-            tip = "Provides a semi-fixed leverage path for heavy back-building rows."
         ),
         GymMachineInfo(
             machineName = "Back Extension Machine",
@@ -1265,10 +1827,45 @@ object PresetFitnessData {
         // Lower Body – Legs
         GymMachineInfo(
             machineName = "Leg Press Machine",
-            everydayAlias = "45-Degree Sled / Seated Leg Press",
+            everydayAlias = "Incline Sled Press",
             targetMuscle = "Quadriceps, Hamstrings & Glutes",
             category = ExerciseCategory.LEGS,
             tip = "A heavy compound machine targeting the quadriceps, hamstrings, and glutes."
+        ),
+        GymMachineInfo(
+            machineName = "Vertical Leg Press Machine",
+            everydayAlias = "Vertical Sled Press",
+            targetMuscle = "Glutes & Quadriceps",
+            category = ExerciseCategory.LEGS,
+            tip = "Positions the lifter flat on their back pressing directly upward against gravity."
+        ),
+        GymMachineInfo(
+            machineName = "Hack Squat Machine",
+            everydayAlias = "Angled Sled Squat",
+            targetMuscle = "Quadriceps & Glutes",
+            category = ExerciseCategory.LEGS,
+            tip = "A sled-based machine that mimics a deep barbell squat while supporting the back and shoulders."
+        ),
+        GymMachineInfo(
+            machineName = "Pendulum Squat Machine",
+            everydayAlias = "Arc Squat Sled",
+            targetMuscle = "Quadriceps & VMO",
+            category = ExerciseCategory.LEGS,
+            tip = "Curving arc resistance curve that minimizes lower back shear while maximizing quad stretch."
+        ),
+        GymMachineInfo(
+            machineName = "Belt Squat Machine",
+            everydayAlias = "Pit Shark Squat",
+            targetMuscle = "Quads & Glutes without Spinal Load",
+            category = ExerciseCategory.LEGS,
+            tip = "Loads the lower body directly through a hip belt with zero axial spinal compression."
+        ),
+        GymMachineInfo(
+            machineName = "Sissy Squat Machine",
+            everydayAlias = "Sissy Squat Bench",
+            targetMuscle = "Quadriceps Isolation",
+            category = ExerciseCategory.LEGS,
+            tip = "Locks feet and calves for strict deep knee flexion and extreme rectus femoris loading."
         ),
         GymMachineInfo(
             machineName = "Leg Extension Machine",
@@ -1292,11 +1889,11 @@ object PresetFitnessData {
             tip = "Isolates the hamstrings while lying face down for deep knee flexion."
         ),
         GymMachineInfo(
-            machineName = "Hack Squat Machine",
-            everydayAlias = "Angled Sled Squat",
-            targetMuscle = "Quadriceps & Glutes",
+            machineName = "Standing Single Leg Curl Machine",
+            everydayAlias = "Standing Hamstring Roller",
+            targetMuscle = "Hamstrings",
             category = ExerciseCategory.LEGS,
-            tip = "A sled-based machine that mimics a deep barbell squat while supporting the back and shoulders."
+            tip = "Isolates the hamstring of each leg independently with an upright stance."
         ),
         GymMachineInfo(
             machineName = "Hip Abductor Machine",
@@ -1327,20 +1924,48 @@ object PresetFitnessData {
             tip = "Isolates the soleus muscle of the lower leg with knees bent at 90 degrees."
         ),
         GymMachineInfo(
+            machineName = "Donkey Calf Raise Machine",
+            everydayAlias = "Hinged Calf Station",
+            targetMuscle = "Calves",
+            category = ExerciseCategory.LEGS,
+            tip = "Hinged hip position that puts gastrocnemius under maximum stretch under load."
+        ),
+        GymMachineInfo(
             machineName = "Glute-Ham Developer (GHD)",
-            everydayAlias = "Hip Thrust / Glute Drive Machine",
-            targetMuscle = "Glutes, Hamstrings & Posterior Chain",
+            everydayAlias = "Posterior Chain Station",
+            targetMuscle = "Glutes, Hamstrings & Lower Back",
             category = ExerciseCategory.LEGS,
             tip = "Specialized station for posterior chain, glute, and hamstring strength and hip extension."
+        ),
+        GymMachineInfo(
+            machineName = "Hip Thrust Machine",
+            everydayAlias = "Glute Drive / Booty Builder",
+            targetMuscle = "Gluteus Maximus",
+            category = ExerciseCategory.LEGS,
+            tip = "Dedicated station with padded lap belt for heavy, comfortable glute hip thrusts."
+        ),
+        GymMachineInfo(
+            machineName = "Glute Kickback Machine",
+            everydayAlias = "Standing Butt Blaster",
+            targetMuscle = "Gluteus Maximus",
+            category = ExerciseCategory.LEGS,
+            tip = "Standing machine with a rear push pad to isolate each glute independently."
         ),
 
         // Arms & Core
         GymMachineInfo(
             machineName = "Preacher Curl Machine",
-            everydayAlias = "Bicep Curl Station / Scott Bench",
+            everydayAlias = "Bicep Curl Station",
             targetMuscle = "Biceps",
             category = ExerciseCategory.ARMS,
             tip = "Isolates the biceps with complete elbow stabilization and constant tension."
+        ),
+        GymMachineInfo(
+            machineName = "Bicep Curl Cable Machine",
+            everydayAlias = "Dual Arm Curl Station",
+            targetMuscle = "Biceps & Brachialis",
+            category = ExerciseCategory.ARMS,
+            tip = "Dual-cable curl station delivering constant resistance through the entire curling arc."
         ),
         GymMachineInfo(
             machineName = "Triceps Extension Machine",
@@ -1350,6 +1975,27 @@ object PresetFitnessData {
             tip = "Isolates the triceps muscle group with guided elbow flexion and extension."
         ),
         GymMachineInfo(
+            machineName = "Triceps Dip Machine",
+            everydayAlias = "Seated Dip Station",
+            targetMuscle = "Triceps & Chest",
+            category = ExerciseCategory.ARMS,
+            tip = "Seated plate-loaded or pin-selected dip machine for heavy triceps overload."
+        ),
+        GymMachineInfo(
+            machineName = "Overhead Triceps Extension Machine",
+            everydayAlias = "French Press Station",
+            targetMuscle = "Triceps Long Head",
+            category = ExerciseCategory.ARMS,
+            tip = "Isolates the long head of the triceps with overhead guided handles."
+        ),
+        GymMachineInfo(
+            machineName = "Forearm Wrist Roller Station",
+            everydayAlias = "Grip & Wrist Roller",
+            targetMuscle = "Forearms & Grip Strength",
+            category = ExerciseCategory.ARMS,
+            tip = "Spindle-mounted wrist roller for intense forearm flexor and extensor burn."
+        ),
+        GymMachineInfo(
             machineName = "Abdominal Crunch Machine",
             everydayAlias = "Core Roller / Seated Ab Machine",
             targetMuscle = "Rectus Abdominis",
@@ -1357,11 +2003,18 @@ object PresetFitnessData {
             tip = "Guided seated machine targeting the rectus abdominis through spinal flexion."
         ),
         GymMachineInfo(
-            machineName = "Torso Rotation Machine",
-            everydayAlias = "Rotary Torso / Oblique Machine",
+            machineName = "Rotary Torso Machine",
+            everydayAlias = "Oblique Twister Machine",
             targetMuscle = "Obliques & Rotational Core",
             category = ExerciseCategory.CORE,
             tip = "Targets the obliques and rotational core strength with guided twisting motion."
+        ),
+        GymMachineInfo(
+            machineName = "Decline Abdominal Sit-Up Bench",
+            everydayAlias = "Slanted Crunch Board",
+            targetMuscle = "Upper & Lower Abdominals",
+            category = ExerciseCategory.CORE,
+            tip = "Adjustable decline bench for weighted abdominal sit-ups and trunk flexion."
         ),
 
         // Cable, Functional & Hybrid Stations
@@ -1388,47 +2041,38 @@ object PresetFitnessData {
         ),
         GymMachineInfo(
             machineName = "Power Tower",
-            everydayAlias = "Vertical Knee Raise (VKR) Station",
+            everydayAlias = "Vertical Knee Raise Station",
             targetMuscle = "Abdominals, Lats & Triceps",
             category = ExerciseCategory.CORE,
             tip = "Bodyweight station for hanging leg/knee raises, dips, and pull-ups."
         ),
-
-        // Cardiovascular Equipment
         GymMachineInfo(
-            machineName = "Treadmill",
-            everydayAlias = "Motorized Running & Walking Belt",
-            targetMuscle = "Cardiovascular System, Quads & Calves",
-            category = ExerciseCategory.CARDIO,
-            tip = "Adjustable speed and incline for steady-state running or HIIT sprints."
+            machineName = "Olympic Flat Bench Press Station",
+            everydayAlias = "Standard Barbell Bench",
+            targetMuscle = "Pectorals & Triceps",
+            category = ExerciseCategory.CHEST,
+            tip = "Standard Olympic bench with safety uprights for heavy flat barbell bench press."
         ),
         GymMachineInfo(
-            machineName = "Rowing Machine",
-            everydayAlias = "Indoor Rowing Ergometer",
-            targetMuscle = "Full Body Cardiovascular & Back",
-            category = ExerciseCategory.CARDIO,
-            tip = "Low-impact, full-body cardiovascular training with leg drive and back pull."
+            machineName = "Olympic Incline Bench Press Station",
+            everydayAlias = "Incline Barbell Bench",
+            targetMuscle = "Upper Pectorals & Shoulders",
+            category = ExerciseCategory.CHEST,
+            tip = "Fixed incline Olympic bench for heavy upper chest barbell pressing."
         ),
         GymMachineInfo(
-            machineName = "Elliptical Trainer",
-            everydayAlias = "Cross Trainer",
-            targetMuscle = "Low-Impact Cardio & Full Body",
-            category = ExerciseCategory.CARDIO,
-            tip = "Zero-impact joint-friendly cardiovascular conditioning."
+            machineName = "Olympic Decline Bench Press Station",
+            everydayAlias = "Decline Barbell Bench",
+            targetMuscle = "Lower Pectorals",
+            category = ExerciseCategory.CHEST,
+            tip = "Fixed decline Olympic bench with ankle supports for lower chest barbell pressing."
         ),
         GymMachineInfo(
-            machineName = "Stationary Exercise Bike",
-            everydayAlias = "Spin / Upright Cardio Bike",
-            targetMuscle = "Legs & Cardiovascular Endurance",
-            category = ExerciseCategory.CARDIO,
-            tip = "Smooth flywheel resistance for aerobic capacity and quad stamina."
-        ),
-        GymMachineInfo(
-            machineName = "Stair Climber",
-            everydayAlias = "StepMill / Revolving Staircase",
-            targetMuscle = "Glutes, Hamstrings, Calves & Heart Rate",
-            category = ExerciseCategory.CARDIO,
-            tip = "Continuous stair climbing for intense calorie burn and lower body conditioning."
+            machineName = "Preacher Curl Bench",
+            everydayAlias = "Free Weight Scott Bench",
+            targetMuscle = "Biceps",
+            category = ExerciseCategory.ARMS,
+            tip = "Angled arm rest bench for strict dumbbell and EZ-bar bicep curls."
         )
     )
 }

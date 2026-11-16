@@ -364,11 +364,11 @@ fun WorkoutScreen(
                     activeMotivationalToast = if (machine != null && exercise != null) {
                         "Logged ${exercise.name} set on ${machine.machineName}!"
                     } else if (machine == null && exercise == null) {
-                        "Logged set with <Machine Not Selected> and <Exercise Not Selected>."
+                        "Logged set with Machine: Not Selected and Exercise: Not Selected."
                     } else if (machine == null) {
-                        "Logged set with <Machine Not Selected>."
+                        "Logged set with Machine: Not Selected."
                     } else {
-                        "Logged set with <Exercise Not Selected>."
+                        "Logged set with Exercise: Not Selected."
                     }
                 },
                 onEditExerciseClick = { exIdx ->
@@ -903,7 +903,7 @@ private fun AddOrEditExerciseMachineDialog(
                                             )
                                         } else {
                                             Text(
-                                                text = "<-- None: Machine Not Selected -->",
+                                                text = "-- None: Machine Not Selected --",
                                                 fontSize = 12.sp,
                                                 fontWeight = FontWeight.SemiBold,
                                                 color = CoralPrimary
@@ -1000,7 +1000,7 @@ private fun AddOrEditExerciseMachineDialog(
                                                 ) {
                                                     Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp)) {
                                                         Text(
-                                                            text = "<-- None: Machine Not Selected -->",
+                                                            text = "-- None: Machine Not Selected --",
                                                             fontSize = 11.sp,
                                                             fontWeight = FontWeight.Bold,
                                                             color = CoralPrimary
@@ -1212,7 +1212,7 @@ private fun AddOrEditExerciseMachineDialog(
                                             )
                                         } else {
                                             Text(
-                                                text = "<-- None: Exercise Not Selected -->",
+                                                text = "-- None: Exercise Not Selected --",
                                                 fontWeight = FontWeight.SemiBold,
                                                 fontSize = 12.sp,
                                                 color = CoralPrimary
@@ -1309,7 +1309,7 @@ private fun AddOrEditExerciseMachineDialog(
                                                 ) {
                                                     Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp)) {
                                                         Text(
-                                                            text = "<-- None: Exercise Not Selected -->",
+                                                            text = "-- None: Exercise Not Selected --",
                                                             fontSize = 11.sp,
                                                             fontWeight = FontWeight.Bold,
                                                             color = CoralPrimary
@@ -2052,7 +2052,7 @@ private fun StrengthSetsDropdownLoggerCard(
 
             // 1. Gym Machine Dropdown
             Text(
-                text = "1. GYM MACHINE SELECTION (FORMAT: <TECHNICAL><EVERYDAY><MUSCLES>)",
+                text = "1. GYM MACHINE EQUIPMENT (TECHNICAL NAME (EVERYDAY NAME FOR TARGETED MUSCLE))",
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -2084,7 +2084,7 @@ private fun StrengthSetsDropdownLoggerCard(
                             )
                         } else {
                             Text(
-                                text = "<-- None: Machine Not Selected -->",
+                                text = "-- None: Machine Not Selected --",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = CoralPrimary
@@ -2141,7 +2141,7 @@ private fun StrengthSetsDropdownLoggerCard(
                                 ) {
                                     Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp)) {
                                         Text(
-                                            text = "<-- None: Machine Not Selected -->",
+                                            text = "-- None: Machine Not Selected --",
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = CoralPrimary
@@ -2221,7 +2221,7 @@ private fun StrengthSetsDropdownLoggerCard(
                             )
                         } else {
                             Text(
-                                text = "<-- None: Exercise Not Selected -->",
+                                text = "-- None: Exercise Not Selected --",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = CoralPrimary
@@ -2278,7 +2278,7 @@ private fun StrengthSetsDropdownLoggerCard(
                                 ) {
                                     Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp)) {
                                         Text(
-                                            text = "<-- None: Exercise Not Selected -->",
+                                            text = "-- None: Exercise Not Selected --",
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = CoralPrimary
@@ -2452,9 +2452,9 @@ private fun StrengthSetsDropdownLoggerCard(
                     Text(
                         text = when {
                             isBothSelected -> "✓ Ready to log: ${selectedExercise!!.name} on ${selectedMachine!!.machineName}"
-                            !hasMachine && !hasExercise -> "⚠️ Both not selected — Logged data will show <Machine Not Selected> & <Exercise Not Selected>"
-                            !hasMachine -> "⚠️ Gym machine not selected — Logged data will show <Machine Not Selected>"
-                            else -> "⚠️ Exercise not selected — Logged data will show <Exercise Not Selected>"
+                            !hasMachine && !hasExercise -> "⚠️ Both not selected — Logged data will show Machine: Not Selected & Exercise: Not Selected"
+                            !hasMachine -> "⚠️ Gym machine not selected — Logged data will show Machine: Not Selected"
+                            else -> "⚠️ Exercise not selected — Logged data will show Exercise: Not Selected"
                         },
                         fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -2545,7 +2545,7 @@ private fun ExerciseLoggingCard(
                                     Icon(Icons.Default.Warning, contentDescription = null, tint = CoralPrimary, modifier = Modifier.size(13.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "Exercise: <Exercise Not Selected>",
+                                        text = "Exercise: Not Selected",
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = CoralPrimary
@@ -2585,7 +2585,7 @@ private fun ExerciseLoggingCard(
                                     Icon(Icons.Default.Warning, contentDescription = null, tint = CoralPrimary, modifier = Modifier.size(12.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "Machine: <Machine Not Selected>",
+                                        text = "Machine: Not Selected",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = CoralPrimary

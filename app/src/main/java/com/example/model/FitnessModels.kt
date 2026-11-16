@@ -45,14 +45,14 @@ data class GymMachineInfo(
 ) {
     val dropdownLabel: String
         get() = if (machineName.equals("Not Selected", ignoreCase = true) || machineName.isBlank()) {
-            "<Machine Not Selected>"
+            "Machine: Not Selected"
         } else {
-            "<$machineName><$everydayAlias><$targetMuscle>"
+            "$machineName ($everydayAlias for $targetMuscle)"
         }
 
     fun toStrengthExercise(): StrengthExercise {
         return StrengthExercise(
-            name = if (machineName.equals("Not Selected", ignoreCase = true)) "Exercise Not Selected" else "$machineName ($everydayAlias)",
+            name = if (machineName.equals("Not Selected", ignoreCase = true)) "Exercise: Not Selected" else "$machineName ($everydayAlias)",
             category = category,
             equipmentType = EquipmentType.GYM_MACHINE,
             defaultRestSeconds = defaultRestSeconds,
@@ -104,14 +104,14 @@ data class ExerciseLog(
                 gymMachine.machineName.isNotBlank()
 
     val isExerciseSelected: Boolean
-        get() = !exercise.name.equals("Exercise Not Selected", ignoreCase = true) &&
+        get() = !exercise.name.contains("Not Selected", ignoreCase = true) &&
                 exercise.name.isNotBlank()
 
     val displayMachineName: String
-        get() = if (isMachineSelected) gymMachine!!.dropdownLabel else "<Machine Not Selected>"
+        get() = if (isMachineSelected) gymMachine!!.dropdownLabel else "Machine: Not Selected"
 
     val displayExerciseName: String
-        get() = if (isExerciseSelected) exercise.name else "<Exercise Not Selected>"
+        get() = if (isExerciseSelected) exercise.name else "Exercise: Not Selected"
 }
 
 data class WorkoutSession(
