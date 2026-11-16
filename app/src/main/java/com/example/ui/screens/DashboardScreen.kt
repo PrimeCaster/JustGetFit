@@ -46,6 +46,12 @@ fun DashboardScreen(
     val cardioSessions by repository.cardioSessions.collectAsState()
     val waterIntakeMl by repository.waterIntakeMl.collectAsState()
 
+    val dailyCalorieTarget by repository.dailyCalorieTargetFlow.collectAsState()
+    val dailyProteinTargetG by repository.dailyProteinTargetGFlow.collectAsState()
+    val dailyCarbsTargetG by repository.dailyCarbsTargetGFlow.collectAsState()
+    val dailyFatTargetG by repository.dailyFatTargetGFlow.collectAsState()
+    val dailyWaterTargetMl by repository.dailyWaterTargetMlFlow.collectAsState()
+
     var showWeighInDialog by remember { mutableStateOf(false) }
     var newWeightInput by remember { mutableStateOf("") }
     var showSettingsDialog by remember { mutableStateOf(false) }
@@ -151,15 +157,15 @@ fun DashboardScreen(
         item {
             DailyWaterAndMacroProgressRingCard(
                 consumedCalories = consumedCalories,
-                targetCalories = repository.dailyCalorieTarget,
+                targetCalories = dailyCalorieTarget,
                 proteinG = consumedProtein,
-                proteinTargetG = repository.dailyProteinTargetG,
+                proteinTargetG = dailyProteinTargetG,
                 carbsG = consumedCarbs,
-                carbsTargetG = repository.dailyCarbsTargetG,
+                carbsTargetG = dailyCarbsTargetG,
                 fatG = consumedFat,
-                fatTargetG = repository.dailyFatTargetG,
+                fatTargetG = dailyFatTargetG,
                 waterIntakeMl = waterIntakeMl,
-                waterTargetMl = repository.dailyWaterTargetMl,
+                waterTargetMl = dailyWaterTargetMl,
                 onNavigateToDiary = onNavigateToNutrition,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
             )

@@ -359,3 +359,19 @@ data class MotivationQuote(
     val author: String,
     val contextTag: String
 )
+
+// --- SUPPLEMENTS & TARGETS ---
+
+enum class SupplementTiming(val label: String, val iconEmoji: String) {
+    MORNING("Morning", "🌅"),
+    EVENING("Evening", "🌙")
+}
+
+data class SupplementItem(
+    val id: String = UUID.randomUUID().toString(),
+    val name: String,
+    val dosage: String,
+    val timing: SupplementTiming,
+    val isTaken: Boolean = false,
+    val notes: String = ""
+)

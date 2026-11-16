@@ -2075,4 +2075,56 @@ object PresetFitnessData {
             tip = "Angled arm rest bench for strict dumbbell and EZ-bar bicep curls."
         )
     )
+
+    val defaultSupplements = listOf(
+        SupplementItem(
+            name = "Multivitamin Complex",
+            dosage = "1 tablet with breakfast",
+            timing = SupplementTiming.MORNING,
+            isTaken = true,
+            notes = "With food and full glass of water"
+        ),
+        SupplementItem(
+            name = "Omega-3 Fish Oil",
+            dosage = "1000 mg EPA/DHA",
+            timing = SupplementTiming.MORNING,
+            isTaken = true,
+            notes = "Joint health and cognitive support"
+        ),
+        SupplementItem(
+            name = "Vitamin D3 + K2",
+            dosage = "5000 IU",
+            timing = SupplementTiming.MORNING,
+            isTaken = false,
+            notes = "Fat-soluble, take with healthy fats"
+        ),
+        SupplementItem(
+            name = "Creatine Monohydrate",
+            dosage = "5 g powder",
+            timing = SupplementTiming.MORNING,
+            isTaken = false,
+            notes = "Mix with water or post-workout shake"
+        ),
+        SupplementItem(
+            name = "Magnesium Glycinate",
+            dosage = "400 mg",
+            timing = SupplementTiming.EVENING,
+            isTaken = false,
+            notes = "30-45 minutes before bedtime for muscle recovery"
+        ),
+        SupplementItem(
+            name = "Zinc Picolinate",
+            dosage = "25 mg",
+            timing = SupplementTiming.EVENING,
+            isTaken = false,
+            notes = "Immune support, take with evening meal"
+        ),
+        SupplementItem(
+            name = "Ashwagandha KSM-66",
+            dosage = "600 mg",
+            timing = SupplementTiming.EVENING,
+            isTaken = false,
+            notes = "Cortisol modulation and relaxation"
+        )
+    )
 }

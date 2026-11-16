@@ -53,6 +53,12 @@ fun NutritionScreen(
     val waterIntakeMl by repository.waterIntakeMl.collectAsState()
     val selectedNutritionDate by repository.selectedNutritionDate.collectAsState()
 
+    val dailyCalorieTarget by repository.dailyCalorieTargetFlow.collectAsState()
+    val dailyProteinTargetG by repository.dailyProteinTargetGFlow.collectAsState()
+    val dailyCarbsTargetG by repository.dailyCarbsTargetGFlow.collectAsState()
+    val dailyFatTargetG by repository.dailyFatTargetGFlow.collectAsState()
+    val dailyWaterTargetMl by repository.dailyWaterTargetMlFlow.collectAsState()
+
     var activeNutritionToast by remember { mutableStateOf<String?>(null) }
 
     // Dialogs & Sheets
@@ -83,7 +89,7 @@ fun NutritionScreen(
     val totalCarbs = mealsForDate.sumOf { it.totalCarbs }
     val totalFat = mealsForDate.sumOf { it.totalFat }
 
-    val caloriesRemaining = (repository.dailyCalorieTarget - totalCalories).coerceAtLeast(0)
+    val caloriesRemaining = (dailyCalorieTarget - totalCalories).coerceAtLeast(0)
 
     LazyColumn(
         modifier = modifier
@@ -292,7 +298,7 @@ fun NutritionScreen(
                                 .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
-                            Text("Goal: ${repository.dailyCalorieTarget} kcal", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface)
+                            Text("Goal: $dailyCalorieTarget kcal", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
 
@@ -300,13 +306,13 @@ fun NutritionScreen(
 
                     MacroNutrientRings(
                         consumedCalories = totalCalories,
-                        targetCalories = repository.dailyCalorieTarget,
+                        targetCalories = dailyCalorieTarget,
                         proteinG = totalProtein,
-                        proteinTargetG = repository.dailyProteinTargetG,
+                        proteinTargetG = dailyProteinTargetG,
                         carbsG = totalCarbs,
-                        carbsTargetG = repository.dailyCarbsTargetG,
+                        carbsTargetG = dailyCarbsTargetG,
                         fatG = totalFat,
-                        fatTargetG = repository.dailyFatTargetG,
+                        fatTargetG = dailyFatTargetG,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -356,7 +362,7 @@ fun NutritionScreen(
                                         Icon(Icons.Default.Edit, contentDescription = "Edit Water", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp))
                                     }
                                 }
-                                Text("$currentWater / ${repository.dailyWaterTargetMl} ml", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+                                Text("$currentWater / $dailyWaterTargetMl ml", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
                             }
                         }
 
@@ -389,7 +395,7 @@ fun NutritionScreen(
                     // Water Tracking Graph
                     WaterIntakeTrendChart(
                         weeklyIntake = waterHistory7Days,
-                        targetWaterMl = repository.dailyWaterTargetMl,
+                        targetWaterMl = dailyWaterTargetMl,
                         selectedDayIndex = 6,
                         modifier = Modifier.fillMaxWidth()
                     )

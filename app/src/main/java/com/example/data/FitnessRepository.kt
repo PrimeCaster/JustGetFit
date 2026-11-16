@@ -118,6 +118,26 @@ class FitnessRepository(
         _weightGoal.update { it.copy(currentWeightKg = weightKg) }
     }
 
+    fun updateWeightTargets(currentKg: Double, targetKg: Double, startingKg: Double? = null, targetWeeks: Int? = null) {
+        _weightGoal.update { current ->
+            current.copy(
+                currentWeightKg = currentKg.coerceAtLeast(30.0),
+                targetWeightKg = targetKg.coerceAtLeast(30.0),
+                startingWeightKg = startingKg ?: current.startingWeightKg,
+                targetMilestoneWeeks = targetWeeks ?: current.targetMilestoneWeeks
+            )
+        }
+        val todayStr = FitnessDateUtils.getTodayDateString()
+        val existingIndex = _weightRecords.value.indexOfFirst { it.dateString == "Today" || it.dateString == todayStr }
+        if (existingIndex >= 0) {
+            _weightRecords.update { list ->
+                list.mapIndexed { idx, rec -> if (idx == existingIndex) rec.copy(weightKg = currentKg) else rec }
+            }
+        } else {
+            _weightRecords.update { it + WeightRecord(dateString = "Today", weightKg = currentKg) }
+        }
+    }
+
     // Workouts History by Date & Active Selected Workout
     private val _workoutsByDate = MutableStateFlow<Map<String, WorkoutSession>>(PresetFitnessData.createInitialWorkoutsHistory())
     val workoutsByDate: StateFlow<Map<String, WorkoutSession>> = _workoutsByDate.asStateFlow()
@@ -531,9 +551,11 @@ class FitnessRepository(
 
     private val _dailyCarbsTargetG = MutableStateFlow(250.0)
     val dailyCarbsTargetG: Double get() = _dailyCarbsTargetG.value
+    val dailyCarbsTargetGFlow: StateFlow<Double> = _dailyCarbsTargetG.asStateFlow()
 
     private val _dailyFatTargetG = MutableStateFlow(65.0)
     val dailyFatTargetG: Double get() = _dailyFatTargetG.value
+    val dailyFatTargetGFlow: StateFlow<Double> = _dailyFatTargetG.asStateFlow()
 
     private val _dailyWaterTargetMl = MutableStateFlow(3500)
     val dailyWaterTargetMl: Int get() = _dailyWaterTargetMl.value
@@ -549,6 +571,57 @@ class FitnessRepository(
 
     fun setDailyProteinTargetG(target: Double) {
         _dailyProteinTargetG.value = target.coerceAtLeast(20.0)
+    }
+
+    fun setDailyCarbsTargetG(target: Double) {
+        _dailyCarbsTargetG.value = target.coerceAtLeast(20.0)
+    }
+
+    fun setDailyFatTargetG(target: Double) {
+        _dailyFatTargetG.value = target.coerceAtLeast(10.0)
+    }
+
+    fun updateMacroTargets(proteinG: Double, carbsG: Double, fatG: Double, calories: Int? = null) {
+        _dailyProteinTargetG.value = proteinG.coerceAtLeast(20.0)
+        _dailyCarbsTargetG.value = carbsG.coerceAtLeast(20.0)
+        _dailyFatTargetG.value = fatG.coerceAtLeast(10.0)
+        val computedCals = ((proteinG * 4) + (carbsG * 4) + (fatG * 9)).toInt()
+        _dailyCalorieTarget.value = (calories ?: computedCals).coerceAtLeast(1000)
+    }
+
+    // Supplements Regimen (Morning & Evening)
+    private val _supplements = MutableStateFlow<List<SupplementItem>>(PresetFitnessData.defaultSupplements)
+    val supplements: StateFlow<List<SupplementItem>> = _supplements.asStateFlow()
+
+    fun toggleSupplementTaken(id: String) {
+        _supplements.update { list ->
+            list.map { if (it.id == id) it.copy(isTaken = !it.isTaken) else it }
+        }
+    }
+
+    fun addSupplement(name: String, dosage: String, timing: SupplementTiming, notes: String = "") {
+        if (name.isBlank()) return
+        val newItem = SupplementItem(
+            name = name.trim(),
+            dosage = dosage.trim(),
+            timing = timing,
+            notes = notes.trim()
+        )
+        _supplements.update { it + newItem }
+    }
+
+    fun updateSupplement(id: String, name: String, dosage: String, timing: SupplementTiming, notes: String = "") {
+        if (name.isBlank()) return
+        _supplements.update { list ->
+            list.map {
+                if (it.id == id) it.copy(name = name.trim(), dosage = dosage.trim(), timing = timing, notes = notes.trim())
+                else it
+            }
+        }
+    }
+
+    fun deleteSupplement(id: String) {
+        _supplements.update { list -> list.filter { it.id != id } }
     }
 
     fun isDateToday(dateStr: String): Boolean = FitnessDateUtils.isDateToday(dateStr)

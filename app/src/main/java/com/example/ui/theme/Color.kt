@@ -43,6 +43,7 @@ val DarkTextSecondary = Color(0xFF64748B)
 
 // Chart Specific Accents
 val ProteinBlue = Color(0xFF3B82F6)
+val ElectricBlue = Color(0xFF3B82F6)
 val CarbsOrange = Color(0xFFF97316)
 val FatGold = Color(0xFFEAB308)
 val WaterCyan = Color(0xFF06B6D4)

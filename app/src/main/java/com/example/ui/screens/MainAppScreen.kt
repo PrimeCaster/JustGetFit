@@ -27,7 +27,8 @@ enum class AppNavDestination(
     TODAY("Today", Icons.Default.Dashboard, Icons.Outlined.Dashboard),
     WORKOUTS("Workouts", Icons.Default.FitnessCenter, Icons.Outlined.FitnessCenter),
     NUTRITION("Nutrition", Icons.Default.Restaurant, Icons.Outlined.Restaurant),
-    PROGRESS("Progress", Icons.Default.AutoGraph, Icons.Outlined.AutoGraph)
+    PROGRESS("Progress", Icons.Default.AutoGraph, Icons.Outlined.AutoGraph),
+    TARGETS("Targets", Icons.Default.TrackChanges, Icons.Outlined.TrackChanges)
 }
 
 @Composable
@@ -143,6 +144,10 @@ fun MainAppScreen(
                     )
 
                     AppNavDestination.PROGRESS -> ProgressScreen(
+                        repository = repository
+                    )
+
+                    AppNavDestination.TARGETS -> TargetsScreen(
                         repository = repository
                     )
                 }
