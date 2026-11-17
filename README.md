@@ -1,71 +1,79 @@
 # JustGetFit 🏋️‍♂️🥗⚡
 
+[![Latest Release](https://img.shields.io/badge/Release-v0.5%20Beta-blue.svg?logo=github&style=flat-square)](https://github.com/PrimeCaster/JustGetFit/releases/tag/v0.5)
 [![Android CI & Build](https://github.com/PrimeCaster/JustGetFit/actions/workflows/android.yml/badge.svg)](https://github.com/PrimeCaster/JustGetFit/actions/workflows/android.yml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0-blue.svg?logo=kotlin)](https://kotlinlang.org)
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-brightgreen.svg?logo=android)](https://developer.android.com/jetpack/compose)
 [![Material 3](https://img.shields.io/badge/Design-Material%203-blueviolet.svg)](https://m3.material.io)
-[![API](https://img.shields.io/badge/API-26%2B-orange.svg)](https://android.com)
+[![API](https://img.shields.io/badge/API-24%2B-orange.svg)](https://android.com)
 
-**JustGetFit** is an all-in-one modern Android fitness, strength training, cardio, and precision AI nutrition tracking application built natively with Jetpack Compose, Kotlin Coroutines, and Material 3.
+**JustGetFit** is an all-in-one modern Android fitness, strength training, cardio equipment telemetry, recovery, and precision AI nutrition tracking application built natively with Jetpack Compose, Kotlin Coroutines, and Material 3.
 
 ---
 
-## ✨ Key Features
+## 📲 Download the v0.5 Beta APK
 
-### 1. 🏋️ Strength Training & Gym Equipment Logging
-- **Standardized Machine & Movement Naming**:
-  - Automatically formatted as: `<Technical Name> (<Everyday Name>) (<Target Muscle Group>)` (e.g. *Chest Press Machine (Seated Chest Press) (Pectoralis Major, Deltoids & Triceps)*).
-  - Includes **Free Dumbbells (Dumbbells / Free Weights) (Full Body & All Muscle Groups)** for barbell and free-weight sessions.
-- **Dual Selection Validation**:
-  - Enforces selection of both the gym equipment/machine and the exercise movement before logging, preventing incomplete workout entries.
-- **Dropdown & Manual Fallback**:
-  - Search from curated equipment and exercise presets, or switch to manual input with custom entries.
-- **Fully Editable Logged Sets**:
-  - Edit weights (kg), reps, RPE, gym machine, and exercise names at any point during or after a session.
-- **Interactive Rest Timer**:
-  - Between-set countdown timer (60s, 90s, 120s) with active progress visualization.
+Download and install the latest Beta APK directly to your Android device:
 
-### 2. 🥗 AI Precision Nutrition & Macro Calculator
-- **Natural Language Meal Analysis**:
-  - Type or dictate everyday meals (e.g. *"2 scrambled eggs with 1 slice whole wheat toast and half an avocado"*).
-- **Dual LLM Provider Support**:
-  - **Google Gemini**: Powered by `gemini-2.5-flash` (or custom model override) using strict structured JSON schema output (`responseMimeType: application/json`).
-  - **OpenAI ChatGPT**: Powered by `gpt-4o-mini` (or custom model override) using JSON completion mode.
-- **Instant Macro Breakdown**:
-  - Automatically calculates Calories, Protein (g), Carbohydrates (g), Fats (g), and Dietary Fiber (g).
-- **100% Editable**:
-  - Review and customize all macro values and serving sizes before saving directly to your daily meal diary (Breakfast, Lunch, Dinner, Snacks).
-- **Custom Food Catalog**:
-  - Save custom recipes and foods for one-tap future logging.
+[![Download JustGetFit APK](https://img.shields.io/badge/Download-JustGetFit--v0.5--beta.apk-success?style=for-the-badge&logo=android)](https://github.com/PrimeCaster/JustGetFit/releases/download/v0.5/JustGetFit-v0.5-beta.apk)
 
-### 3. ⚙️ Unified Settings & Athletic Themes
-- **Top Burger Menu (`☰`)**:
-  - Convenient, persistent access across all screens (Today, Workouts, Nutrition, Progress).
-- **Theme & Display Mode**:
-  - Seamless toggle between **🌙 Dark Mode** and **☀️ Light Mode**.
-  - **6 High-Performance Athletic Color Palettes**:
-    - ⚡ **Emerald Vitality**: Electric Mint & Active Coral
-    - 🌌 **Cyber Neon**: Electric Cyan & Cyber Violet
-    - 🔥 **Solar Flare**: Crimson Blaze & Molten Amber
-    - 🌊 **Ocean Titan**: Deep Cobalt & Glacier Teal
-    - 🔮 **Midnight Amethyst**: Imperial Purple & Rose Gold
-    - 🌲 **Nordic Forest**: Alpine Evergreen & Champagne Amber
-- **LLM API Key Management**:
-  - Masked input with password visibility toggle.
-  - In-app **"Test Connection"** verification with live status diagnostics.
-  - Zero hardcoded keys — keys remain securely in local app memory.
-- **Configurable Daily Targets**:
-  - Interactive stepper controls for Daily Calorie Target (kcal) and Daily Water Target (ml).
+> **Installation Note:** Since this is a direct build release APK, enable *"Install unknown apps"* for your browser or file manager in Android Settings when prompted.
 
-### 4. 🏃 Endurance, Cardio & Body Transformation
-- **Cardio Equipment Tracking**:
-  - Track distance (km), duration, pace, and speed across Treadmill, Stationary Bike, Rowing Machine, Stairmaster, and Elliptical.
-- **Body Transformation Visualizer**:
-  - Interactive Before & After comparison slider with front and side progress photo tracking.
-- **Circumference & Weight Trend**:
-  - Log body weight, waist, chest, arms, and hips with goal trajectory analytics.
-- **Fitness Report Exporter**:
-  - One-tap export of workout and nutrition records to PDF / CSV.
+---
+
+## 🌟 What's New in v0.5 Beta
+
+### 1. 🎯 Dedicated Targets & Goals Hub
+* **Interactive Target Categories**: Segmented sub-navigation bar (`All`, `📏 Body & Measurements`, `🥗 Diet & Hydration`, `💊 Supplements Routine`) for immediate, clutter-free access.
+* **Weight Goal Trajectory**: Real-time interactive weight target slider and starting/current/target trajectory progress bar.
+* **Circumference Evolution (3-in-1 Graph)**: Multi-curve tracking for Waist, Chest, and Arms simultaneously in a unified visualization.
+* **Endurance & Cardio Telemetry**: Equipment output tracking across Treadmill, Stationary Bike, Rowing Erg, and Elliptical.
+* **Macronutrient & Caloric Deficit Planner**: Real-time Protein, Carbs, and Fats allocation adjusters with Daily vs. Weekly switch.
+* **Hydration Goal Stepper**: Quick-increment water targets with daily progress telemetry.
+* **Daily Supplement Regimen**: Checklists for Morning and Evening regimens with dynamic add/edit/delete capabilities.
+
+### 2. 🗓️ Independent Date Navigation
+* Workouts and Nutrition now feature completely decoupled date navigation (`[ ◀ ] Today [ ▶ ]`).
+* Review and log past strength workouts (up to 14 days of contiguous historical data) without resetting or altering your daily nutrition diary, and vice versa.
+
+### 3. 🎨 Executive "Pro UI" & Athletic Palettes
+* **`💼 Pro UI`** *(Default)*: Engineered around clean, glare-free executive aesthetics (Linear Pro / GitHub Dark / Raycast) with soft precision azure (`#60a5fa`), sea-glass mint, and deep obsidian graphite.
+* **`🏁 Forza Motorsport`**: Inspired by authentic racing telemetry with apex amber/gold highlights and smoked carbon glass.
+* **`🏎️ Forza Telemetry`**: Electric racing cyan border styling and high-contrast telemetry indicators.
+* **`⚙️ Stealth Titanium`**: Minimalist monochrome automotive cockpit (brushed platinum and cool gunmetal).
+* **`🌿 Nordic Sage`**: Natural, calming wellness aesthetic with matte eucalyptus and forest slate.
+* **`🏔️ Alpine Cobalt`**: Precision sports cockpit telemetry in crisp glacier blue and smoked navy.
+* **`🏎️ Tuscan Copper`**: Luxury chronometer bronze and brushed terracotta.
+
+### 4. 📊 14-Day Pre-Populated Testing Datasets
+* Out-of-the-box multi-record datasets across all screens:
+  * 14 days of logged strength exercises (chest press, squats, deadlifts, pull-ups, rows, shoulder press).
+  * 14 days of breakfast, lunch, dinner, and snack meal diaries with full macro calculations.
+  * 14 days of cardio equipment sessions (distance, duration, pace, calories).
+  * 14 days of water intake telemetry and transformation slider photos.
+
+---
+
+## ✨ Key Feature Modules
+
+### 🏋️‍♂️ Strength Workout Logging
+* **Standardized Equipment Nomenclature**: `<Technical Name> (<Common Name>) (<Target Muscle Group>)` (e.g., *Chest Press Machine (Seated Chest Press) (Pectoralis Major, Deltoids & Triceps)*).
+* **Free Weights & Dumbbells**: Fully integrated free-weight library with muscle-group tags.
+* **Dual Selection Guard**: Prevents incomplete logs by requiring both machine and exercise movement selection.
+* **Full In-Place Editing**: Edit sets, weights (kg), reps, RPE, and notes on the fly.
+* **Interactive Rest Timer**: Built-in 60s / 90s / 120s rest interval timer with visual progress indicator.
+
+### 🥗 AI Precision Nutrition & Macro Calculator
+* **Natural Language Logging**: Type everyday meal descriptions (e.g., *"3 scrambled eggs with 1 slice sourdough toast and half an avocado"*).
+* **Dual Provider Engine**:
+  * **Google Gemini API**: Structured JSON schema output via `gemini-2.5-flash`.
+  * **OpenAI ChatGPT API**: Structured JSON completion via `gpt-4o-mini`.
+* **Complete Macro Diagnostics**: Instant computation of Calories, Protein (g), Net Carbohydrates (g), Fats (g), and Fiber (g).
+* **Custom Meal Catalog**: Save favorite meals and recipes for single-tap logging.
+
+### 🏃 Cardio Equipment Telemetry
+* Multi-machine support: Treadmill, Stationary Bike, Rowing Ergometer, Elliptical, and Stairmaster.
+* Logs distance (km), duration (min), pace (min/km), speed (km/h or mph), and active caloric expenditure.
 
 ---
 
@@ -76,22 +84,22 @@
 | **Language** | Kotlin 2.0 |
 | **UI Framework** | Jetpack Compose (Declarative UI) with Material 3 |
 | **Architecture** | Unidirectional Data Flow (UDF) / Clean Architecture / Repository Pattern |
-| **Asynchronous** | Kotlin Coroutines & `StateFlow` |
-| **Networking** | OkHttp 4 & Kotlin IO |
+| **Concurrency** | Kotlin Coroutines & `StateFlow` |
+| **Networking** | OkHttp 4 / Retrofit / Moshi |
 | **AI Integration** | Google Gemini REST API & OpenAI Chat Completions API |
-| **Unit Testing** | JUnit 4 & AndroidX Test |
-| **CI/CD** | GitHub Actions (Automated Test & Debug APK Build) |
+| **Testing** | JUnit 4, Robolectric, AndroidX Test |
+| **CI/CD** | GitHub Actions (Automated Unit Tests & APK Compilation) |
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Building from Source
 
 ### Prerequisites
-- Android Studio Hedgehog (2023.1.1) or newer
-- JDK 17
-- Android SDK 35 (compileSdk: 35, minSdk: 26)
+* Android Studio Hedgehog (2023.1.1) or newer
+* JDK 17
+* Android SDK 36 (minSdk: 24, targetSdk: 36)
 
-### Clone & Build
+### Clone & Compile
 ```bash
 git clone https://github.com/PrimeCaster/JustGetFit.git
 cd JustGetFit
@@ -111,21 +119,14 @@ The compiled APK will be located at:
 
 ---
 
-## 🔑 AI Key Setup (Optional)
+## 🔒 Security & Privacy
 
-To enable the **AI Nutrition Macro Calculator**:
-1. Open the app on your phone or emulator.
-2. Tap the **`☰` burger menu** in the top-right corner.
-3. Scroll to **2. AI Nutrition Coach & LLM**.
-4. Choose your preferred provider:
-   - **Google Gemini**: Get a free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
-   - **OpenAI ChatGPT**: Get a key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
-5. Paste your key and tap **"Test Connection"** to verify.
-
-> **Security Note:** API keys are never packaged inside the APK or committed to source control. They are entered securely at runtime and stored only on your device.
+* **Zero Hardcoded Secrets**: No API keys, credentials, or personal tokens are stored in the codebase or packaged into the APK.
+* **Client-Side Key Management**: AI API keys are optionally entered by the user at runtime in local storage and never transmitted to external telemetry servers.
+* **Strict `.gitignore`**: Keystores, `.env` files, and local SDK configurations are strictly ignored from version control.
 
 ---
 
-## 🛡️ License
+## 📄 License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
