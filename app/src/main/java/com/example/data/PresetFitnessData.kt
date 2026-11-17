@@ -1072,7 +1072,10 @@ object PresetFitnessData {
         val todayStr = FitnessDateUtils.getTodayDateString()
         val yesterdayStr = FitnessDateUtils.getDateDaysAgo(1)
         val twoDaysAgoStr = FitnessDateUtils.getDateDaysAgo(2)
+        val threeDaysAgoStr = FitnessDateUtils.getDateDaysAgo(3)
         val fourDaysAgoStr = FitnessDateUtils.getDateDaysAgo(4)
+        val fiveDaysAgoStr = FitnessDateUtils.getDateDaysAgo(5)
+        val sixDaysAgoStr = FitnessDateUtils.getDateDaysAgo(6)
         val oneWeekAgoStr = FitnessDateUtils.getDateDaysAgo(7)
         val twoWeeksAgoStr = FitnessDateUtils.getDateDaysAgo(14)
 
@@ -1156,10 +1159,10 @@ object PresetFitnessData {
             totalVolumeKg = 4120.0
         )
 
-        val fourDaysAgoWorkout = WorkoutSession(
+        val threeDaysAgoWorkout = WorkoutSession(
             title = "Shoulders & Core Power",
             splitCategory = "Shoulders",
-            dateString = fourDaysAgoStr,
+            dateString = threeDaysAgoStr,
             durationMinutes = 50,
             exercises = mutableListOf(
                 ExerciseLog(
@@ -1175,9 +1178,9 @@ object PresetFitnessData {
                     exercise = exerciseCatalog.firstOrNull { it.name.contains("Lateral", ignoreCase = true) } ?: exerciseCatalog[14],
                     gymMachine = gymMachinesCatalog.firstOrNull { it.machineName.contains("Lateral", ignoreCase = true) } ?: gymMachinesCatalog[5],
                     sets = mutableListOf(
-                        WorkoutSet(1, weightKg = 35.0, reps = 15, rpe = 8, isCompleted = true),
-                        WorkoutSet(2, weightKg = 40.0, reps = 12, rpe = 8, isCompleted = true),
-                        WorkoutSet(3, weightKg = 40.0, reps = 12, rpe = 9, isCompleted = true)
+                        WorkoutSet(1, weightKg = 12.0, reps = 15, rpe = 8, isCompleted = true),
+                        WorkoutSet(2, weightKg = 14.0, reps = 12, rpe = 8, isCompleted = true),
+                        WorkoutSet(3, weightKg = 14.0, reps = 12, rpe = 9, isCompleted = true)
                     )
                 )
             ),
@@ -1185,10 +1188,10 @@ object PresetFitnessData {
             totalVolumeKg = 3890.0
         )
 
-        val oneWeekAgoWorkout = WorkoutSession(
+        val fourDaysAgoWorkout = WorkoutSession(
             title = "Chest & Triceps Hypertrophy",
             splitCategory = "Push",
-            dateString = oneWeekAgoStr,
+            dateString = fourDaysAgoStr,
             durationMinutes = 60,
             exercises = mutableListOf(
                 ExerciseLog(
@@ -1212,6 +1215,90 @@ object PresetFitnessData {
             ),
             isCompleted = true,
             totalVolumeKg = 4680.0
+        )
+
+        val fiveDaysAgoWorkout = WorkoutSession(
+            title = "Legs & Posterior Power",
+            splitCategory = "Legs",
+            dateString = fiveDaysAgoStr,
+            durationMinutes = 60,
+            exercises = mutableListOf(
+                ExerciseLog(
+                    exercise = exerciseCatalog.firstOrNull { it.name.contains("Hack Squat", ignoreCase = true) } ?: exerciseCatalog[0],
+                    gymMachine = gymMachinesCatalog.firstOrNull { it.machineName.contains("Hack Squat", ignoreCase = true) } ?: gymMachinesCatalog[14],
+                    sets = mutableListOf(
+                        WorkoutSet(1, weightKg = 100.0, reps = 10, rpe = 8, isCompleted = true),
+                        WorkoutSet(2, weightKg = 120.0, reps = 8, rpe = 8, isCompleted = true),
+                        WorkoutSet(3, weightKg = 140.0, reps = 6, rpe = 9, isCompleted = true)
+                    )
+                ),
+                ExerciseLog(
+                    exercise = exerciseCatalog.firstOrNull { it.name.contains("Leg Curl", ignoreCase = true) } ?: exerciseCatalog[0],
+                    gymMachine = gymMachinesCatalog.firstOrNull { it.machineName.contains("Leg Curl", ignoreCase = true) } ?: gymMachinesCatalog[13],
+                    sets = mutableListOf(
+                        WorkoutSet(1, weightKg = 50.0, reps = 12, rpe = 8, isCompleted = true),
+                        WorkoutSet(2, weightKg = 55.0, reps = 10, rpe = 8, isCompleted = true)
+                    )
+                )
+            ),
+            isCompleted = true,
+            totalVolumeKg = 6720.0
+        )
+
+        val sixDaysAgoWorkout = WorkoutSession(
+            title = "Back & Lats Density",
+            splitCategory = "Pull",
+            dateString = sixDaysAgoStr,
+            durationMinutes = 55,
+            exercises = mutableListOf(
+                ExerciseLog(
+                    exercise = exerciseCatalog.firstOrNull { it.name.contains("Row", ignoreCase = true) } ?: exerciseCatalog[7],
+                    gymMachine = gymMachinesCatalog.firstOrNull { it.machineName.contains("Row", ignoreCase = true) } ?: gymMachinesCatalog[7],
+                    sets = mutableListOf(
+                        WorkoutSet(1, weightKg = 65.0, reps = 10, rpe = 8, isCompleted = true),
+                        WorkoutSet(2, weightKg = 70.0, reps = 8, rpe = 8, isCompleted = true),
+                        WorkoutSet(3, weightKg = 75.0, reps = 8, rpe = 9, isCompleted = true)
+                    )
+                ),
+                ExerciseLog(
+                    exercise = exerciseCatalog.firstOrNull { it.name.contains("Lat Pulldown", ignoreCase = true) } ?: exerciseCatalog[6],
+                    gymMachine = gymMachinesCatalog.firstOrNull { it.machineName.contains("Lat Pulldown", ignoreCase = true) } ?: gymMachinesCatalog[6],
+                    sets = mutableListOf(
+                        WorkoutSet(1, weightKg = 55.0, reps = 12, rpe = 8, isCompleted = true),
+                        WorkoutSet(2, weightKg = 60.0, reps = 10, rpe = 9, isCompleted = true)
+                    )
+                )
+            ),
+            isCompleted = true,
+            totalVolumeKg = 4950.0
+        )
+
+        val oneWeekAgoWorkout = WorkoutSession(
+            title = "Full Body Dynamic Power",
+            splitCategory = "Full Body",
+            dateString = oneWeekAgoStr,
+            durationMinutes = 65,
+            exercises = mutableListOf(
+                ExerciseLog(
+                    exercise = exerciseCatalog.firstOrNull { it.name.contains("Incline Machine Chest Press", ignoreCase = true) } ?: exerciseCatalog[6],
+                    gymMachine = gymMachinesCatalog.firstOrNull { it.machineName.contains("Incline Chest Press", ignoreCase = true) } ?: gymMachinesCatalog[2],
+                    sets = mutableListOf(
+                        WorkoutSet(1, weightKg = 60.0, reps = 10, rpe = 8, isCompleted = true),
+                        WorkoutSet(2, weightKg = 70.0, reps = 8, rpe = 8, isCompleted = true),
+                        WorkoutSet(3, weightKg = 75.0, reps = 6, rpe = 9, isCompleted = true)
+                    )
+                ),
+                ExerciseLog(
+                    exercise = exerciseCatalog.firstOrNull { it.name.contains("Leg Press", ignoreCase = true) } ?: exerciseCatalog[0],
+                    gymMachine = gymMachinesCatalog.firstOrNull { it.machineName.contains("Leg Press", ignoreCase = true) } ?: gymMachinesCatalog[11],
+                    sets = mutableListOf(
+                        WorkoutSet(1, weightKg = 160.0, reps = 12, rpe = 8, isCompleted = true),
+                        WorkoutSet(2, weightKg = 180.0, reps = 10, rpe = 9, isCompleted = true)
+                    )
+                )
+            ),
+            isCompleted = true,
+            totalVolumeKg = 5640.0
         )
 
         val twoWeeksAgoWorkout = WorkoutSession(
@@ -1240,9 +1327,20 @@ object PresetFitnessData {
             yesterdayStr to yesterdayWorkout,
             "Yesterday" to yesterdayWorkout,
             twoDaysAgoStr to twoDaysAgoWorkout,
+            "2 Days Ago" to twoDaysAgoWorkout,
+            threeDaysAgoStr to threeDaysAgoWorkout,
+            "3 Days Ago" to threeDaysAgoWorkout,
             fourDaysAgoStr to fourDaysAgoWorkout,
+            "4 Days Ago" to fourDaysAgoWorkout,
+            fiveDaysAgoStr to fiveDaysAgoWorkout,
+            "5 Days Ago" to fiveDaysAgoWorkout,
+            sixDaysAgoStr to sixDaysAgoWorkout,
+            "6 Days Ago" to sixDaysAgoWorkout,
             oneWeekAgoStr to oneWeekAgoWorkout,
-            twoWeeksAgoStr to twoWeeksAgoWorkout
+            "7 Days Ago" to oneWeekAgoWorkout,
+            "1 Week Ago" to oneWeekAgoWorkout,
+            twoWeeksAgoStr to twoWeeksAgoWorkout,
+            "2 Weeks Ago" to twoWeeksAgoWorkout
         )
     }
 
@@ -1472,14 +1570,18 @@ object PresetFitnessData {
         val todayStr = FitnessDateUtils.getTodayDateString()
         val yesterdayStr = FitnessDateUtils.getDateDaysAgo(1)
         val twoDaysAgoStr = FitnessDateUtils.getDateDaysAgo(2)
+        val threeDaysAgoStr = FitnessDateUtils.getDateDaysAgo(3)
+        val fourDaysAgoStr = FitnessDateUtils.getDateDaysAgo(4)
+        val fiveDaysAgoStr = FitnessDateUtils.getDateDaysAgo(5)
+        val sixDaysAgoStr = FitnessDateUtils.getDateDaysAgo(6)
         val oneWeekAgoStr = FitnessDateUtils.getDateDaysAgo(7)
 
         return listOf(
-            // Today's Meals
+            // Today's Meals (Day 0)
             LoggedMealItem(
                 foodItem = commonFoodsCatalog[1], // Oats
                 mealCategory = MealCategory.BREAKFAST,
-                numberOfServings = 1.0,
+                numberOfServings = 1.5,
                 dateString = todayStr
             ),
             LoggedMealItem(
@@ -1500,8 +1602,38 @@ object PresetFitnessData {
                 numberOfServings = 1.0,
                 dateString = todayStr
             ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[6], // Broccoli
+                mealCategory = MealCategory.LUNCH,
+                numberOfServings = 1.0,
+                dateString = todayStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[4], // Salmon
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.0,
+                dateString = todayStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[7], // Sweet Potato
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.0,
+                dateString = todayStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[8], // Greek Yogurt
+                mealCategory = MealCategory.SNACKS,
+                numberOfServings = 1.0,
+                dateString = todayStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[12], // Blueberries
+                mealCategory = MealCategory.SNACKS,
+                numberOfServings = 1.0,
+                dateString = todayStr
+            ),
 
-            // Yesterday's Meals
+            // Yesterday's Meals (Day 1)
             LoggedMealItem(
                 foodItem = commonFoodsCatalog[3], // Eggs
                 mealCategory = MealCategory.BREAKFAST,
@@ -1515,9 +1647,9 @@ object PresetFitnessData {
                 dateString = yesterdayStr
             ),
             LoggedMealItem(
-                foodItem = commonFoodsCatalog[4], // Salmon
+                foodItem = commonFoodsCatalog[0], // Chicken
                 mealCategory = MealCategory.LUNCH,
-                numberOfServings = 1.0,
+                numberOfServings = 1.5,
                 dateString = yesterdayStr
             ),
             LoggedMealItem(
@@ -1527,9 +1659,15 @@ object PresetFitnessData {
                 dateString = yesterdayStr
             ),
             LoggedMealItem(
-                foodItem = commonFoodsCatalog[0], // Chicken
+                foodItem = commonFoodsCatalog[16], // Sirloin Steak
                 mealCategory = MealCategory.DINNER,
-                numberOfServings = 1.5,
+                numberOfServings = 1.2,
+                dateString = yesterdayStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[5], // Rice
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.0,
                 dateString = yesterdayStr
             ),
             LoggedMealItem(
@@ -1538,12 +1676,30 @@ object PresetFitnessData {
                 numberOfServings = 1.0,
                 dateString = yesterdayStr
             ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[9], // Almonds
+                mealCategory = MealCategory.SNACKS,
+                numberOfServings = 1.0,
+                dateString = yesterdayStr
+            ),
 
-            // 2 Days Ago Meals
+            // 2 Days Ago Meals (Day 2)
             LoggedMealItem(
                 foodItem = commonFoodsCatalog[2], // Whey
                 mealCategory = MealCategory.BREAKFAST,
                 numberOfServings = 1.5,
+                dateString = twoDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[11], // Banana
+                mealCategory = MealCategory.BREAKFAST,
+                numberOfServings = 1.0,
+                dateString = twoDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[10], // Peanut Butter
+                mealCategory = MealCategory.BREAKFAST,
+                numberOfServings = 1.0,
                 dateString = twoDaysAgoStr
             ),
             LoggedMealItem(
@@ -1553,7 +1709,7 @@ object PresetFitnessData {
                 dateString = twoDaysAgoStr
             ),
             LoggedMealItem(
-                foodItem = commonFoodsCatalog[5], // Rice
+                foodItem = commonFoodsCatalog[19], // Brown Rice
                 mealCategory = MealCategory.LUNCH,
                 numberOfServings = 1.2,
                 dateString = twoDaysAgoStr
@@ -1564,12 +1720,218 @@ object PresetFitnessData {
                 numberOfServings = 1.0,
                 dateString = twoDaysAgoStr
             ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[7], // Sweet Potato
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.0,
+                dateString = twoDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[18], // Cottage Cheese
+                mealCategory = MealCategory.SNACKS,
+                numberOfServings = 1.0,
+                dateString = twoDaysAgoStr
+            ),
 
-            // 1 Week Ago Meals
+            // 3 Days Ago Meals (Day 3)
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[1], // Oats
+                mealCategory = MealCategory.BREAKFAST,
+                numberOfServings = 1.2,
+                dateString = threeDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[2], // Whey
+                mealCategory = MealCategory.BREAKFAST,
+                numberOfServings = 1.0,
+                dateString = threeDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[15], // Tuna Steak
+                mealCategory = MealCategory.LUNCH,
+                numberOfServings = 1.5,
+                dateString = threeDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[5], // Rice
+                mealCategory = MealCategory.LUNCH,
+                numberOfServings = 1.2,
+                dateString = threeDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[14], // Avocado
+                mealCategory = MealCategory.LUNCH,
+                numberOfServings = 0.5,
+                dateString = threeDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[0], // Chicken
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.5,
+                dateString = threeDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[7], // Sweet Potato
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.0,
+                dateString = threeDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[8], // Greek Yogurt
+                mealCategory = MealCategory.SNACKS,
+                numberOfServings = 1.5,
+                dateString = threeDaysAgoStr
+            ),
+
+            // 4 Days Ago Meals (Day 4)
             LoggedMealItem(
                 foodItem = commonFoodsCatalog[3], // Eggs
                 mealCategory = MealCategory.BREAKFAST,
                 numberOfServings = 2.0,
+                dateString = fourDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[17], // Whole Milk
+                mealCategory = MealCategory.BREAKFAST,
+                numberOfServings = 1.0,
+                dateString = fourDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[0], // Chicken
+                mealCategory = MealCategory.LUNCH,
+                numberOfServings = 1.5,
+                dateString = fourDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[5], // Rice
+                mealCategory = MealCategory.LUNCH,
+                numberOfServings = 1.5,
+                dateString = fourDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[4], // Salmon
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.2,
+                dateString = fourDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[7], // Sweet Potato
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.0,
+                dateString = fourDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[2], // Whey
+                mealCategory = MealCategory.SNACKS,
+                numberOfServings = 1.0,
+                dateString = fourDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[11], // Banana
+                mealCategory = MealCategory.SNACKS,
+                numberOfServings = 1.0,
+                dateString = fourDaysAgoStr
+            ),
+
+            // 5 Days Ago Meals (Day 5)
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[1], // Oats
+                mealCategory = MealCategory.BREAKFAST,
+                numberOfServings = 1.5,
+                dateString = fiveDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[2], // Whey
+                mealCategory = MealCategory.BREAKFAST,
+                numberOfServings = 1.0,
+                dateString = fiveDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[16], // Sirloin Steak
+                mealCategory = MealCategory.LUNCH,
+                numberOfServings = 1.2,
+                dateString = fiveDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[19], // Brown Rice
+                mealCategory = MealCategory.LUNCH,
+                numberOfServings = 1.0,
+                dateString = fiveDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[0], // Chicken
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.2,
+                dateString = fiveDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[7], // Sweet Potato
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.2,
+                dateString = fiveDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[8], // Greek Yogurt
+                mealCategory = MealCategory.SNACKS,
+                numberOfServings = 1.0,
+                dateString = fiveDaysAgoStr
+            ),
+
+            // 6 Days Ago Meals (Day 6)
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[3], // Eggs
+                mealCategory = MealCategory.BREAKFAST,
+                numberOfServings = 1.5,
+                dateString = sixDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[11], // Banana
+                mealCategory = MealCategory.BREAKFAST,
+                numberOfServings = 1.0,
+                dateString = sixDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[4], // Salmon
+                mealCategory = MealCategory.LUNCH,
+                numberOfServings = 1.0,
+                dateString = sixDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[5], // Rice
+                mealCategory = MealCategory.LUNCH,
+                numberOfServings = 1.0,
+                dateString = sixDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[0], // Chicken
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.5,
+                dateString = sixDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[7], // Sweet Potato
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.0,
+                dateString = sixDaysAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[18], // Cottage Cheese
+                mealCategory = MealCategory.SNACKS,
+                numberOfServings = 1.2,
+                dateString = sixDaysAgoStr
+            ),
+
+            // 1 Week Ago Meals (Day 7)
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[1], // Oats
+                mealCategory = MealCategory.BREAKFAST,
+                numberOfServings = 1.2,
+                dateString = oneWeekAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[2], // Whey
+                mealCategory = MealCategory.BREAKFAST,
+                numberOfServings = 1.0,
                 dateString = oneWeekAgoStr
             ),
             LoggedMealItem(
@@ -1579,8 +1941,26 @@ object PresetFitnessData {
                 dateString = oneWeekAgoStr
             ),
             LoggedMealItem(
+                foodItem = commonFoodsCatalog[5], // Rice
+                mealCategory = MealCategory.LUNCH,
+                numberOfServings = 1.2,
+                dateString = oneWeekAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[16], // Sirloin Steak
+                mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.0,
+                dateString = oneWeekAgoStr
+            ),
+            LoggedMealItem(
                 foodItem = commonFoodsCatalog[7], // Sweet Potato
                 mealCategory = MealCategory.DINNER,
+                numberOfServings = 1.0,
+                dateString = oneWeekAgoStr
+            ),
+            LoggedMealItem(
+                foodItem = commonFoodsCatalog[8], // Greek Yogurt
+                mealCategory = MealCategory.SNACKS,
                 numberOfServings = 1.0,
                 dateString = oneWeekAgoStr
             )
@@ -1591,17 +1971,30 @@ object PresetFitnessData {
         val todayStr = FitnessDateUtils.getTodayDateString()
         val yesterdayStr = FitnessDateUtils.getDateDaysAgo(1)
         val twoDaysAgoStr = FitnessDateUtils.getDateDaysAgo(2)
+        val threeDaysAgoStr = FitnessDateUtils.getDateDaysAgo(3)
         val fourDaysAgoStr = FitnessDateUtils.getDateDaysAgo(4)
+        val fiveDaysAgoStr = FitnessDateUtils.getDateDaysAgo(5)
+        val sixDaysAgoStr = FitnessDateUtils.getDateDaysAgo(6)
         val oneWeekAgoStr = FitnessDateUtils.getDateDaysAgo(7)
 
         return mapOf(
-            todayStr to 2250,
-            "Today" to 2250,
-            yesterdayStr to 3200,
-            "Yesterday" to 3200,
-            twoDaysAgoStr to 2800,
-            fourDaysAgoStr to 3000,
-            oneWeekAgoStr to 3400
+            todayStr to 2800,
+            "Today" to 2800,
+            yesterdayStr to 3400,
+            "Yesterday" to 3400,
+            twoDaysAgoStr to 3100,
+            "2 Days Ago" to 3100,
+            threeDaysAgoStr to 3500,
+            "3 Days Ago" to 3500,
+            fourDaysAgoStr to 3250,
+            "4 Days Ago" to 3250,
+            fiveDaysAgoStr to 3600,
+            "5 Days Ago" to 3600,
+            sixDaysAgoStr to 3300,
+            "6 Days Ago" to 3300,
+            oneWeekAgoStr to 3450,
+            "7 Days Ago" to 3450,
+            "1 Week Ago" to 3450
         )
     }
 
@@ -1611,7 +2004,10 @@ object PresetFitnessData {
         WeightRecord(dateString = "Oct 1", weightKg = 83.7, bodyFatPercentage = 21.9),
         WeightRecord(dateString = "Oct 15", weightKg = 82.2, bodyFatPercentage = 20.8),
         WeightRecord(dateString = "Nov 1", weightKg = 80.4, bodyFatPercentage = 19.8),
-        WeightRecord(dateString = "Nov 8", weightKg = 79.2, bodyFatPercentage = 19.1)
+        WeightRecord(dateString = "Nov 8", weightKg = 79.2, bodyFatPercentage = 19.1),
+        WeightRecord(dateString = "Nov 12", weightKg = 78.8, bodyFatPercentage = 18.9),
+        WeightRecord(dateString = "Nov 15", weightKg = 78.5, bodyFatPercentage = 18.6),
+        WeightRecord(dateString = "Today", weightKg = 78.2, bodyFatPercentage = 18.4)
     )
 
     val initialProgressPhotos = listOf(
@@ -1644,7 +2040,10 @@ object PresetFitnessData {
     val initialCircumferences = listOf(
         BodyCircumference(dateString = "Sep 1", waistCm = 94.0, chestCm = 104.0, armsCm = 37.0, thighsCm = 61.0),
         BodyCircumference(dateString = "Oct 1", waistCm = 90.5, chestCm = 105.0, armsCm = 37.5, thighsCm = 61.5),
-        BodyCircumference(dateString = "Nov 8", waistCm = 85.0, chestCm = 106.5, armsCm = 38.5, thighsCm = 62.0)
+        BodyCircumference(dateString = "Nov 1", waistCm = 87.0, chestCm = 106.0, armsCm = 38.0, thighsCm = 62.0),
+        BodyCircumference(dateString = "Nov 8", waistCm = 85.0, chestCm = 106.5, armsCm = 38.5, thighsCm = 62.0),
+        BodyCircumference(dateString = "Nov 15", waistCm = 84.5, chestCm = 107.0, armsCm = 38.8, thighsCm = 62.5),
+        BodyCircumference(dateString = "Today", waistCm = 84.0, chestCm = 107.5, armsCm = 39.0, thighsCm = 62.5)
     )
 
     val defaultReminders = listOf(
@@ -1674,8 +2073,18 @@ object PresetFitnessData {
     val initialCardioSessions = listOf(
         CardioSession(
             machineType = CardioMachineType.TREADMILL,
-            dateString = "Yesterday",
-            durationMinutes = 60,
+            dateString = FitnessDateUtils.getTodayDateString(),
+            durationMinutes = 35,
+            distanceKm = 3.8,
+            caloriesBurned = 310,
+            avgHeartRateBpm = 132,
+            treadmillSpeedKmh = 5.0,
+            treadmillInclinePercent = 10.0
+        ),
+        CardioSession(
+            machineType = CardioMachineType.TREADMILL,
+            dateString = FitnessDateUtils.getDateDaysAgo(1),
+            durationMinutes = 45,
             distanceKm = 6.5,
             caloriesBurned = 520,
             avgHeartRateBpm = 138,
@@ -1683,26 +2092,63 @@ object PresetFitnessData {
             treadmillInclinePercent = 12.0
         ),
         CardioSession(
+            machineType = CardioMachineType.STATIONARY_BIKE,
+            dateString = FitnessDateUtils.getDateDaysAgo(2),
+            durationMinutes = 30,
+            distanceKm = 11.5,
+            caloriesBurned = 340,
+            avgHeartRateBpm = 142,
+            bikeCadenceRpm = 85,
+            bikeResistanceLevel = 9
+        ),
+        CardioSession(
             machineType = CardioMachineType.ROWING_MACHINE,
-            dateString = "3 days ago",
-            durationMinutes = 20,
-            distanceKm = 4.8,
-            caloriesBurned = 260,
-            avgHeartRateBpm = 156,
-            rowingSplitSeconds500m = 125,
-            rowingStrokesPerMin = 28,
+            dateString = FitnessDateUtils.getDateDaysAgo(3),
+            durationMinutes = 25,
+            distanceKm = 5.2,
+            caloriesBurned = 310,
+            avgHeartRateBpm = 155,
+            rowingSplitSeconds500m = 122,
+            rowingStrokesPerMin = 29,
             rowingDamperSetting = 6,
-            rowingWatts = 210
+            rowingWatts = 225
+        ),
+        CardioSession(
+            machineType = CardioMachineType.STAIR_CLIMBER,
+            dateString = FitnessDateUtils.getDateDaysAgo(4),
+            durationMinutes = 20,
+            distanceKm = 1.8,
+            caloriesBurned = 240,
+            avgHeartRateBpm = 145,
+            stairFloorsClimbed = 85
         ),
         CardioSession(
             machineType = CardioMachineType.ELLIPTICAL,
-            dateString = "5 days ago",
-            durationMinutes = 25,
-            distanceKm = 4.1,
-            caloriesBurned = 210,
-            avgHeartRateBpm = 138,
+            dateString = FitnessDateUtils.getDateDaysAgo(5),
+            durationMinutes = 35,
+            distanceKm = 5.5,
+            caloriesBurned = 290,
+            avgHeartRateBpm = 128,
             ellipticalResistanceLevel = 8,
             ellipticalStridesPerMin = 130
+        ),
+        CardioSession(
+            machineType = CardioMachineType.TREADMILL,
+            dateString = FitnessDateUtils.getDateDaysAgo(6),
+            durationMinutes = 25,
+            distanceKm = 4.0,
+            caloriesBurned = 320,
+            avgHeartRateBpm = 162,
+            treadmillSpeedKmh = 9.6,
+            treadmillInclinePercent = 2.0
+        ),
+        CardioSession(
+            machineType = CardioMachineType.OUTDOOR_RUN,
+            dateString = FitnessDateUtils.getDateDaysAgo(7),
+            durationMinutes = 50,
+            distanceKm = 7.8,
+            caloriesBurned = 620,
+            avgHeartRateBpm = 150
         )
     )
 
