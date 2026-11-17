@@ -238,10 +238,6 @@ fun WorkoutScreen(
                             .size(38.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .bounceClick {
-                                val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, -1)
-                                repository.selectWorkoutDate(newDate)
-                            }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -289,12 +285,6 @@ fun WorkoutScreen(
                                 if (canGoForward) MaterialTheme.colorScheme.surfaceVariant
                                 else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
                             )
-                            .bounceClick {
-                                if (canGoForward) {
-                                    val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, 1)
-                                    repository.selectWorkoutDate(newDate)
-                                }
-                            }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,

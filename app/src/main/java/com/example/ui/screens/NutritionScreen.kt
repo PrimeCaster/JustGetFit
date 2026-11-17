@@ -206,10 +206,6 @@ fun NutritionScreen(
                                 .size(38.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .bounceClick {
-                                    val prev = FitnessDateUtils.shiftDate(selectedNutritionDate, -1)
-                                    repository.selectNutritionDate(prev)
-                                }
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -257,12 +253,6 @@ fun NutritionScreen(
                                     if (canGoForward) MaterialTheme.colorScheme.surfaceVariant
                                     else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
                                 )
-                                .bounceClick {
-                                    if (canGoForward) {
-                                        val next = FitnessDateUtils.shiftDate(selectedNutritionDate, 1)
-                                        repository.selectNutritionDate(next)
-                                    }
-                                }
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,

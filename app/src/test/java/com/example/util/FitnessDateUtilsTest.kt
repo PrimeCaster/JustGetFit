@@ -31,6 +31,37 @@ class FitnessDateUtilsTest {
     }
 
     @Test
+    fun testShiftDate() {
+        val todayStr = FitnessDateUtils.getTodayDateString()
+        val yesterdayStr = FitnessDateUtils.getDateDaysAgo(1)
+        val twoDaysAgoStr = FitnessDateUtils.getDateDaysAgo(2)
+        val threeDaysAgoStr = FitnessDateUtils.getDateDaysAgo(3)
+
+        // From "Today" shifting -1 should yield yesterday
+        assertEquals(yesterdayStr, FitnessDateUtils.shiftDate("Today", -1))
+        assertEquals(yesterdayStr, FitnessDateUtils.shiftDate(todayStr, -1))
+
+        // From yesterday shifting -1 should yield 2 days ago
+        assertEquals(twoDaysAgoStr, FitnessDateUtils.shiftDate("Yesterday", -1))
+        assertEquals(twoDaysAgoStr, FitnessDateUtils.shiftDate(yesterdayStr, -1))
+
+        // From 2 days ago shifting -1 should yield 3 days ago
+        assertEquals(threeDaysAgoStr, FitnessDateUtils.shiftDate(twoDaysAgoStr, -1))
+
+        // From 2 days ago shifting +1 should yield yesterday
+        assertEquals(yesterdayStr, FitnessDateUtils.shiftDate(twoDaysAgoStr, 1))
+
+        // From yesterday shifting +1 should yield today
+        assertEquals(todayStr, FitnessDateUtils.shiftDate(yesterdayStr, 1))
+
+        // Headings
+        assertEquals("Today", FitnessDateUtils.getMainDateHeading(todayStr))
+        assertEquals("Yesterday", FitnessDateUtils.getMainDateHeading(yesterdayStr))
+        assertEquals("2 Days Ago", FitnessDateUtils.getMainDateHeading(twoDaysAgoStr))
+        assertEquals("3 Days Ago", FitnessDateUtils.getMainDateHeading(threeDaysAgoStr))
+    }
+
+    @Test
     fun testGetDynamicDateOptionsForToday() {
         // When on Today, ONLY 1 option ([ ★ Today ]) must be returned
         val todayStr = FitnessDateUtils.getTodayDateString()

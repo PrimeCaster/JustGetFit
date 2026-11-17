@@ -21,23 +21,51 @@ data class DatePreset(
 
 object FitnessDateUtils {
 
-    private val standardDateFormat = SimpleDateFormat("MMM d, yyyy", Locale.US)
-    private val shortDayFormat = SimpleDateFormat("EEE", Locale.US)
-    private val dayNumFormat = SimpleDateFormat("d", Locale.US)
-    private val fullDayFormat = SimpleDateFormat("EEEE, MMM d", Locale.US)
+    private fun getStandardFormat() = SimpleDateFormat("MMM d, yyyy", Locale.US)
+    private fun getShortDayFormat() = SimpleDateFormat("EEE", Locale.US)
+    private fun getDayNumFormat() = SimpleDateFormat("d", Locale.US)
+    private fun getFullDayFormat() = SimpleDateFormat("EEEE, MMM d", Locale.US)
+    private fun getIsoFormat() = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
     fun getTodayDateString(): String {
-        return standardDateFormat.format(Date())
+        return getStandardFormat().format(Date())
     }
 
     fun getNormalizedDate(rawDateStr: String): String {
         val trimmed = rawDateStr.trim()
-        if (trimmed.equals("Today", ignoreCase = true)) {
+        if (trimmed.isEmpty() || trimmed.equals("Today", ignoreCase = true)) {
             return getTodayDateString()
         }
         if (trimmed.equals("Yesterday", ignoreCase = true)) {
             return getDateDaysAgo(1)
         }
+        if (trimmed.equals("Tomorrow", ignoreCase = true)) {
+            return getDateDaysAgo(-1)
+        }
+
+        // Check for "<N> Days Ago" pattern
+        val daysAgoMatch = Regex("""(\d+)\s+days?\s+ago""", RegexOption.IGNORE_CASE).find(trimmed)
+        if (daysAgoMatch != null) {
+            val days = daysAgoMatch.groupValues[1].toIntOrNull()
+            if (days != null) return getDateDaysAgo(days)
+        }
+
+        // Check if already in standard "MMM d, yyyy" format
+        try {
+            val parsedStandard = getStandardFormat().parse(trimmed)
+            if (parsedStandard != null) {
+                return getStandardFormat().format(parsedStandard)
+            }
+        } catch (_: Exception) {}
+
+        // Check if in ISO "yyyy-MM-dd" format
+        try {
+            val parsedIso = getIsoFormat().parse(trimmed)
+            if (parsedIso != null) {
+                return getStandardFormat().format(parsedIso)
+            }
+        } catch (_: Exception) {}
+
         return trimmed
     }
 
@@ -54,7 +82,7 @@ object FitnessDateUtils {
     fun getDateDaysAgo(daysAgo: Int): String {
         val cal = Calendar.getInstance()
         cal.add(Calendar.DAY_OF_YEAR, -daysAgo)
-        return standardDateFormat.format(cal.time)
+        return getStandardFormat().format(cal.time)
     }
 
     fun getRelativeLabel(dateStr: String): String {
@@ -63,7 +91,7 @@ object FitnessDateUtils {
         val yesterday = getDateDaysAgo(1)
 
         return when (normalized) {
-            today -> "Today (${standardDateFormat.format(Date())})"
+            today -> "Today (${getStandardFormat().format(Date())})"
             yesterday -> "Yesterday ($yesterday)"
             getDateDaysAgo(2) -> "2 Days Ago ($normalized)"
             getDateDaysAgo(3) -> "3 Days Ago ($normalized)"
@@ -89,11 +117,16 @@ object FitnessDateUtils {
             getDateDaysAgo(2) -> "2 Days Ago"
             getDateDaysAgo(3) -> "3 Days Ago"
             else -> {
-                try {
-                    val parsed = standardDateFormat.parse(normalized)
-                    if (parsed != null) fullDayFormat.format(parsed) else normalized
-                } catch (_: Exception) {
-                    normalized
+                val days = getDaysAgo(normalized)
+                if (days in 2..30) {
+                    "$days Days Ago"
+                } else {
+                    try {
+                        val parsed = getStandardFormat().parse(normalized)
+                        if (parsed != null) getFullDayFormat().format(parsed) else normalized
+                    } catch (_: Exception) {
+                        normalized
+                    }
                 }
             }
         }
@@ -106,7 +139,7 @@ object FitnessDateUtils {
     fun getSubDateHeading(dateStr: String): String {
         val normalized = getNormalizedDate(dateStr)
         return try {
-            val parsed = standardDateFormat.parse(normalized)
+            val parsed = getStandardFormat().parse(normalized)
             if (parsed != null) {
                 SimpleDateFormat("EEEE, MMM d, yyyy", Locale.US).format(parsed)
             } else {
@@ -123,18 +156,31 @@ object FitnessDateUtils {
     fun shiftDate(currentDateStr: String, deltaDays: Int): String {
         val normalized = getNormalizedDate(currentDateStr)
         val cal = Calendar.getInstance()
+
+        // Try standard format
         try {
-            val parsed = standardDateFormat.parse(normalized)
+            val parsed = getStandardFormat().parse(normalized)
             if (parsed != null) {
                 cal.time = parsed
                 cal.add(Calendar.DAY_OF_YEAR, deltaDays)
-                return standardDateFormat.format(cal.time)
+                return getStandardFormat().format(cal.time)
             }
-        } catch (_: Exception) {
-        }
-        // Fallback
-        cal.add(Calendar.DAY_OF_YEAR, deltaDays)
-        return standardDateFormat.format(cal.time)
+        } catch (_: Exception) {}
+
+        // Try ISO format
+        try {
+            val parsed = getIsoFormat().parse(normalized)
+            if (parsed != null) {
+                cal.time = parsed
+                cal.add(Calendar.DAY_OF_YEAR, deltaDays)
+                return getStandardFormat().format(cal.time)
+            }
+        } catch (_: Exception) {}
+
+        // Fallback: calculate based on getDaysAgo
+        val currentDaysAgo = getDaysAgo(currentDateStr)
+        val targetDaysAgo = (currentDaysAgo - deltaDays).coerceAtLeast(0)
+        return getDateDaysAgo(targetDaysAgo)
     }
 
     /**
@@ -153,22 +199,22 @@ object FitnessDateUtils {
             val c = cal.clone() as Calendar
             c.add(Calendar.DAY_OF_YEAR, offset)
             val d = c.time
-            val dateStr = standardDateFormat.format(d)
+            val dateStr = getStandardFormat().format(d)
             val isToday = offset == 0
             val isYesterday = offset == -1
 
             val label = when {
                 isToday -> "★ Today"
                 isYesterday -> "Yesterday"
-                else -> "${shortDayFormat.format(d)} ${dayNumFormat.format(d)}"
+                else -> "${getShortDayFormat().format(d)} ${getDayNumFormat().format(d)}"
             }
 
             list.add(
                 DateSelectorOption(
                     dateString = dateStr,
                     displayLabel = label,
-                    shortDayLabel = shortDayFormat.format(d),
-                    dayNumber = dayNumFormat.format(d),
+                    shortDayLabel = getShortDayFormat().format(d),
+                    dayNumber = getDayNumFormat().format(d),
                     daysAgo = -offset,
                     isToday = isToday
                 )
@@ -187,12 +233,12 @@ object FitnessDateUtils {
         val yesterday = getDateDaysAgo(1)
         if (normalized == yesterday) return 1
         return try {
-            val d1 = standardDateFormat.parse(today)
-            val d2 = standardDateFormat.parse(normalized)
+            val d1 = getStandardFormat().parse(today)
+            val d2 = getStandardFormat().parse(normalized)
             if (d1 != null && d2 != null) {
                 val diffMillis = d1.time - d2.time
-                val diffDays = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
-                diffDays
+                val diffDays = Math.round(diffMillis.toDouble() / (1000.0 * 60.0 * 60.0 * 24.0)).toInt()
+                diffDays.coerceAtLeast(0)
             } else 0
         } catch (_: Exception) {
             0
@@ -219,7 +265,7 @@ object FitnessDateUtils {
             val c = cal.clone() as Calendar
             c.add(Calendar.DAY_OF_YEAR, offset)
             val d = c.time
-            val dateStr = standardDateFormat.format(d)
+            val dateStr = getStandardFormat().format(d)
             val isToday = offset == 0
             val isYesterday = offset == -1
             val isTomorrow = offset == 1
@@ -228,15 +274,15 @@ object FitnessDateUtils {
                 isToday -> "Today"
                 isYesterday -> "Yesterday"
                 isTomorrow -> "Tomorrow"
-                else -> "${shortDayFormat.format(d)} ${dayNumFormat.format(d)}"
+                else -> "${getShortDayFormat().format(d)} ${getDayNumFormat().format(d)}"
             }
 
             list.add(
                 DateSelectorOption(
                     dateString = dateStr,
                     displayLabel = label,
-                    shortDayLabel = shortDayFormat.format(d),
-                    dayNumber = dayNumFormat.format(d),
+                    shortDayLabel = getShortDayFormat().format(d),
+                    dayNumber = getDayNumFormat().format(d),
                     daysAgo = -offset,
                     isToday = isToday
                 )
