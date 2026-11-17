@@ -1449,6 +1449,26 @@ object PresetFitnessData {
             fatGrams = 0.4
         ),
         FoodItem(
+            name = "Steamed Broccoli Florets",
+            brandOrCategory = "Vegetables & Micronutrients",
+            servingUnit = "150g steamed",
+            caloriesPerServing = 45,
+            proteinGrams = 3.5,
+            carbsGrams = 8.0,
+            fatGrams = 0.5,
+            fiberGrams = 3.8
+        ),
+        FoodItem(
+            name = "Roasted Sweet Potato",
+            brandOrCategory = "Complex Carbs",
+            servingUnit = "150g baked",
+            caloriesPerServing = 135,
+            proteinGrams = 3.0,
+            carbsGrams = 31.0,
+            fatGrams = 0.2,
+            fiberGrams = 4.5
+        ),
+        FoodItem(
             name = "Greek Yogurt (0% Fat)",
             brandOrCategory = "Dairy Protein",
             servingUnit = "200g container",
@@ -1458,14 +1478,33 @@ object PresetFitnessData {
             fatGrams = 0.0
         ),
         FoodItem(
-            name = "Ripe Hass Avocado",
-            brandOrCategory = "Monounsaturated Fat",
-            servingUnit = "1/2 medium (75g)",
-            caloriesPerServing = 120,
-            proteinGrams = 1.5,
+            name = "Raw Whole Almonds",
+            brandOrCategory = "Healthy Fats & Micronutrients",
+            servingUnit = "30g (approx 24 nuts)",
+            caloriesPerServing = 164,
+            proteinGrams = 6.0,
             carbsGrams = 6.0,
-            fatGrams = 11.0,
-            fiberGrams = 5.0
+            fatGrams = 14.0,
+            fiberGrams = 3.5
+        ),
+        FoodItem(
+            name = "Natural Peanut Butter",
+            brandOrCategory = "Healthy Fats",
+            servingUnit = "2 tbsp (32g)",
+            caloriesPerServing = 190,
+            proteinGrams = 8.0,
+            carbsGrams = 7.0,
+            fatGrams = 16.0
+        ),
+        FoodItem(
+            name = "Fresh Banana",
+            brandOrCategory = "Potassium Rich Fruit",
+            servingUnit = "1 medium banana (118g)",
+            caloriesPerServing = 105,
+            proteinGrams = 1.3,
+            carbsGrams = 27.0,
+            fatGrams = 0.3,
+            fiberGrams = 3.1
         ),
         FoodItem(
             name = "Fresh Blueberries",
@@ -1478,23 +1517,69 @@ object PresetFitnessData {
             fiberGrams = 2.4
         ),
         FoodItem(
-            name = "Natural Peanut Butter",
-            brandOrCategory = "Healthy Fats",
-            servingUnit = "2 tbsp (32g)",
-            caloriesPerServing = 190,
-            proteinGrams = 8.0,
-            carbsGrams = 7.0,
-            fatGrams = 16.0
+            name = "Extra Virgin Olive Oil",
+            brandOrCategory = "Healthy Monounsaturated Fats",
+            servingUnit = "1 tbsp (14g)",
+            caloriesPerServing = 119,
+            proteinGrams = 0.0,
+            carbsGrams = 0.0,
+            fatGrams = 13.5
         ),
         FoodItem(
-            name = "Roasted Sweet Potato",
-            brandOrCategory = "Complex Carbs",
-            servingUnit = "150g baked",
-            caloriesPerServing = 135,
-            proteinGrams = 3.0,
-            carbsGrams = 31.0,
-            fatGrams = 0.2,
-            fiberGrams = 4.5
+            name = "Ripe Hass Avocado",
+            brandOrCategory = "Monounsaturated Fat",
+            servingUnit = "1/2 medium (75g)",
+            caloriesPerServing = 120,
+            proteinGrams = 1.5,
+            carbsGrams = 6.0,
+            fatGrams = 11.0,
+            fiberGrams = 5.0
+        ),
+        FoodItem(
+            name = "Canned Albacore Tuna",
+            brandOrCategory = "Ultra Lean Protein",
+            servingUnit = "1 can in water (120g drained)",
+            caloriesPerServing = 130,
+            proteinGrams = 28.0,
+            carbsGrams = 0.0,
+            fatGrams = 1.0
+        ),
+        FoodItem(
+            name = "Sirloin Steak (Lean Cut)",
+            brandOrCategory = "Iron & Protein Rich Beef",
+            servingUnit = "180g grilled",
+            caloriesPerServing = 340,
+            proteinGrams = 48.0,
+            carbsGrams = 0.0,
+            fatGrams = 15.0
+        ),
+        FoodItem(
+            name = "Organic Whole Milk",
+            brandOrCategory = "Dairy & Healthy Fats",
+            servingUnit = "250ml cup",
+            caloriesPerServing = 149,
+            proteinGrams = 8.0,
+            carbsGrams = 12.0,
+            fatGrams = 8.0
+        ),
+        FoodItem(
+            name = "Low Fat Cottage Cheese",
+            brandOrCategory = "Slow-Digesting Casein Protein",
+            servingUnit = "200g tub",
+            caloriesPerServing = 163,
+            proteinGrams = 24.0,
+            carbsGrams = 8.0,
+            fatGrams = 4.0
+        ),
+        FoodItem(
+            name = "Cooked Brown Rice",
+            brandOrCategory = "Whole Grain Complex Carbs",
+            servingUnit = "150g cooked",
+            caloriesPerServing = 216,
+            proteinGrams = 5.0,
+            carbsGrams = 45.0,
+            fatGrams = 1.8,
+            fiberGrams = 3.5
         )
     )
 

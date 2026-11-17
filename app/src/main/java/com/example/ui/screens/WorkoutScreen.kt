@@ -229,21 +229,21 @@ fun WorkoutScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = {
-                            val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, -1)
-                            repository.selectWorkoutDate(newDate)
-                        },
+                    Box(
                         modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .size(44.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+                            .clickable {
+                                val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, -1)
+                                repository.selectWorkoutDate(newDate)
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Previous Day",
                             tint = CoralPrimary,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(22.dp)
                         )
                     }
 
@@ -270,27 +270,27 @@ fun WorkoutScreen(
 
                     val canGoForward = !FitnessDateUtils.isDateToday(selectedWorkoutDate)
 
-                    IconButton(
-                        onClick = {
-                            if (canGoForward) {
-                                val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, 1)
-                                repository.selectWorkoutDate(newDate)
-                            }
-                        },
-                        enabled = canGoForward,
+                    Box(
                         modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
+                            .size(44.dp)
                             .background(
                                 if (canGoForward) MaterialTheme.colorScheme.surfaceVariant
-                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                                CircleShape
                             )
+                            .clickable(enabled = canGoForward) {
+                                if (canGoForward) {
+                                    val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, 1)
+                                    repository.selectWorkoutDate(newDate)
+                                }
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = "Next Day",
                             tint = if (canGoForward) CoralPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(22.dp)
                         )
                     }
                 }

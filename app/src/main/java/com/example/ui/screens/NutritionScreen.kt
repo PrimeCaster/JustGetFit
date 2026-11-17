@@ -197,23 +197,23 @@ fun NutritionScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(
-                            onClick = {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+                            .clickable {
                                 val prev = FitnessDateUtils.shiftDate(selectedNutritionDate, -1)
                                 repository.selectNutritionDate(prev)
                             },
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Previous Day",
-                                tint = CoralPrimary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Previous Day",
+                            tint = CoralPrimary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
 
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -238,29 +238,29 @@ fun NutritionScreen(
 
                         val canGoForward = !FitnessDateUtils.isDateToday(selectedNutritionDate)
 
-                        IconButton(
-                            onClick = {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(
+                                if (canGoForward) MaterialTheme.colorScheme.surfaceVariant
+                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                                CircleShape
+                            )
+                            .clickable(enabled = canGoForward) {
                                 if (canGoForward) {
                                     val next = FitnessDateUtils.shiftDate(selectedNutritionDate, 1)
                                     repository.selectNutritionDate(next)
                                 }
                             },
-                            enabled = canGoForward,
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    if (canGoForward) MaterialTheme.colorScheme.surfaceVariant
-                                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-                                )
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Next Day",
-                                tint = if (canGoForward) CoralPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "Next Day",
+                            tint = if (canGoForward) CoralPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
