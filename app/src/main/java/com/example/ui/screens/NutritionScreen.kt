@@ -34,6 +34,7 @@ import com.example.data.FitnessRepository
 import com.example.model.*
 import com.example.ui.components.AiNutritionLoggingDialog
 import com.example.ui.components.AppSettingsDialog
+import com.example.ui.components.ShareFitnessDataDialog
 import com.example.ui.components.MacroNutrientRings
 import com.example.ui.components.WaterIntakeTrendChart
 import com.example.ui.components.bounceClick
@@ -68,6 +69,7 @@ fun NutritionScreen(
     var showAiFoodDialog by remember { mutableStateOf(false) }
     var aiFoodInitialQuery by remember { mutableStateOf("") }
     var showSettingsDialog by remember { mutableStateOf(false) }
+    var showShareDialog by remember { mutableStateOf(false) }
     var showNutritionDatePickerDialog by remember { mutableStateOf(false) }
     var editingMealEntry by remember { mutableStateOf<LoggedMealItem?>(null) }
     var showEditWaterDialog by remember { mutableStateOf(false) }
@@ -143,6 +145,23 @@ fun NutritionScreen(
                         Icon(imageVector = Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(15.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("AI Food", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
+
+                    // Share Fitness Data Button
+                    IconButton(
+                        onClick = { showShareDialog = true },
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .bounceClick { showShareDialog = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share Nutrition & Workouts",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(19.dp)
+                        )
                     }
 
                     // Top Burger Menu Settings Button
@@ -796,6 +815,14 @@ fun NutritionScreen(
         AppSettingsDialog(
             repository = repository,
             onDismiss = { showSettingsDialog = false }
+        )
+    }
+
+    // Share Fitness Data Dialog (WhatsApp, Email & System Chooser)
+    if (showShareDialog) {
+        ShareFitnessDataDialog(
+            repository = repository,
+            onDismiss = { showShareDialog = false }
         )
     }
 

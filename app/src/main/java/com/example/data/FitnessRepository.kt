@@ -855,4 +855,35 @@ class FitnessRepository(
         )
         _reminders.update { it + newReminder }
     }
+
+    fun getCardioForDate(dateStr: String): List<CardioSession> {
+        val target = FitnessDateUtils.getNormalizedDate(dateStr)
+        return _cardioSessions.value.filter {
+            FitnessDateUtils.getNormalizedDate(it.dateString) == target
+        }
+    }
+
+    // Google Drive & CSV Backup Settings
+    private val _googleDriveEmail = MutableStateFlow("athlete@gmail.com")
+    val googleDriveEmail: StateFlow<String> = _googleDriveEmail.asStateFlow()
+
+    private val _googleDriveFolderName = MutableStateFlow("JustGetFit")
+    val googleDriveFolderName: StateFlow<String> = _googleDriveFolderName.asStateFlow()
+
+    private val _lastBackupTimestamp = MutableStateFlow<String?>("Nov 17, 2026 at 10:05 AM")
+    val lastBackupTimestamp: StateFlow<String?> = _lastBackupTimestamp.asStateFlow()
+
+    private val _autoBackupEnabled = MutableStateFlow(true)
+    val autoBackupEnabled: StateFlow<Boolean> = _autoBackupEnabled.asStateFlow()
+
+    fun updateGoogleDriveSettings(email: String, folderName: String, autoBackup: Boolean) {
+        _googleDriveEmail.value = email.trim()
+        _googleDriveFolderName.value = if (folderName.isBlank()) "JustGetFit" else folderName.trim()
+        _autoBackupEnabled.value = autoBackup
+    }
+
+    fun recordBackupSuccess() {
+        val sdf = java.text.SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", java.util.Locale.getDefault())
+        _lastBackupTimestamp.value = sdf.format(java.util.Date())
+    }
 }

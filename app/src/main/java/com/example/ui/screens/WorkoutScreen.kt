@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import com.example.data.FitnessRepository
 import com.example.model.*
 import com.example.ui.components.AppSettingsDialog
+import com.example.ui.components.ShareFitnessDataDialog
 import com.example.ui.components.bounceClick
 import com.example.ui.components.cardBounceClick
 import com.example.ui.theme.*
@@ -86,6 +87,7 @@ fun WorkoutScreen(
     var workoutCelebrationMessage by remember { mutableStateOf("") }
     var editingSplitDayIndex by remember { mutableStateOf<Int?>(null) }
     var showSettingsDialog by remember { mutableStateOf(false) }
+    var showShareDialog by remember { mutableStateOf(false) }
 
     val selectedWorkoutDate by repository.selectedWorkoutDate.collectAsState()
     var showWorkoutDatePickerDialog by remember { mutableStateOf(false) }
@@ -176,6 +178,23 @@ fun WorkoutScreen(
                     }
                 }
 
+                // Share Fitness Data Button
+                IconButton(
+                    onClick = { showShareDialog = true },
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .bounceClick { showShareDialog = true }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = "Share Workouts",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(19.dp)
+                    )
+                }
+
                 // Top Burger Menu Settings Button
                 IconButton(
                     onClick = { showSettingsDialog = true },
@@ -191,6 +210,89 @@ fun WorkoutScreen(
                         tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(20.dp)
                     )
+                }
+            }
+        }
+
+        // DATE NAVIGATION BAR (Today, Yesterday & Past Days - Like MyFitnessPal)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 2.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(modifier = Modifier.padding(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = {
+                            val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, -1)
+                            repository.selectWorkoutDate(newDate)
+                        },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Day", tint = CoralPrimary)
+                    }
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.clickable { showWorkoutDatePickerDialog = true }
+                    ) {
+                        Text(
+                            text = FitnessDateUtils.getRelativeLabel(selectedWorkoutDate),
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Tap to pick any past day or week",
+                            fontSize = 11.sp,
+                            color = CoralPrimary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {
+                            val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, 1)
+                            repository.selectWorkoutDate(newDate)
+                        },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Day", tint = CoralPrimary)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Horizontal Quick Date Pills
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(FitnessDateUtils.getRecentDateOptions(7)) { option ->
+                        val isSelected = FitnessDateUtils.getNormalizedDate(selectedWorkoutDate) == option.dateString
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = { repository.selectWorkoutDate(option.dateString) },
+                            label = {
+                                Text(
+                                    option.displayLabel,
+                                    fontSize = 11.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = CoralPrimary,
+                                selectedLabelColor = PureWhite
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -649,6 +751,14 @@ fun WorkoutScreen(
         AppSettingsDialog(
             repository = repository,
             onDismiss = { showSettingsDialog = false }
+        )
+    }
+
+    // Share Fitness Data Dialog (WhatsApp, Email & System Chooser)
+    if (showShareDialog) {
+        ShareFitnessDataDialog(
+            repository = repository,
+            onDismiss = { showShareDialog = false }
         )
     }
 }
@@ -1720,79 +1830,20 @@ private fun StrengthWorkoutLoggingTab(
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 90.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        // 1. DATE NAVIGATION BAR (Load and Edit Previous Days, Weeks & Older Workouts)
+        // Session Date Header Indicator
         item {
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                shape = RoundedCornerShape(16.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = { onShiftDate(-1) },
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Day", tint = CoralPrimary)
-                        }
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.clickable { onOpenDatePicker() }
-                        ) {
-                            Text(
-                                text = FitnessDateUtils.getRelativeLabel(selectedDate),
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = "Tap to pick any previous day or week",
-                                fontSize = 11.sp,
-                                color = CoralPrimary,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-
-                        IconButton(
-                            onClick = { onShiftDate(1) },
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Day", tint = CoralPrimary)
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Horizontal Quick Date Pills
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(FitnessDateUtils.getRecentDateOptions(7)) { option ->
-                            val isSelected = FitnessDateUtils.getNormalizedDate(selectedDate) == option.dateString
-                            FilterChip(
-                                selected = isSelected,
-                                onClick = { onSelectDate(option.dateString) },
-                                label = {
-                                    Text(
-                                        option.displayLabel,
-                                        fontSize = 11.sp,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                    )
-                                },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = CoralPrimary,
-                                    selectedLabelColor = PureWhite
-                                )
-                            )
-                        }
-                    }
-                }
+                Text(
+                    text = "WORKOUT SESSION • ${FitnessDateUtils.getRelativeLabel(selectedDate).uppercase()}",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    letterSpacing = 1.sp
+                )
             }
         }
 

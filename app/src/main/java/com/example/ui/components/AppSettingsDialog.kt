@@ -28,10 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import java.io.File
 import com.example.data.FitnessRepository
 import com.example.model.LlmProvider
 import com.example.ui.theme.AppColorTheme
 import com.example.ui.theme.PureWhite
+import com.example.util.FitnessReportExporter
 import kotlinx.coroutines.launch
 
 @Composable
@@ -59,6 +63,20 @@ fun AppSettingsDialog(
     var isTestingConnection by remember { mutableStateOf(false) }
     var connectionTestResult by remember { mutableStateOf<String?>(null) }
     var isConnectionSuccess by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val googleDriveEmail by repository.googleDriveEmail.collectAsState()
+    val googleDriveFolderName by repository.googleDriveFolderName.collectAsState()
+    val autoBackupEnabled by repository.autoBackupEnabled.collectAsState()
+    val lastBackupTimestamp by repository.lastBackupTimestamp.collectAsState()
+
+    var tempGoogleEmail by remember(googleDriveEmail) { mutableStateOf(googleDriveEmail) }
+    var tempDriveFolder by remember(googleDriveFolderName) { mutableStateOf(googleDriveFolderName) }
+    var tempAutoBackup by remember(autoBackupEnabled) { mutableStateOf(autoBackupEnabled) }
+
+    var isExporting by remember { mutableStateOf(false) }
+    var exportStatusMessage by remember { mutableStateOf<String?>(null) }
+    var showShareDialog by remember { mutableStateOf(false) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -669,13 +687,235 @@ fun AppSettingsDialog(
                             }
                         }
                     }
+
+                    // SECTION 4: DATA EXPORT, CSV ARCHIVES & GOOGLE DRIVE BACKUP
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CloudSync,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Column {
+                                    Text(
+                                        text = "Data Export & Google Drive Backup",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "Store offline CSV files in JustGetFit folder & backup to Gmail Drive",
+                                        fontSize = 10.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+
+                            // Google Drive Account Email Input
+                            OutlinedTextField(
+                                value = tempGoogleEmail,
+                                onValueChange = {
+                                    tempGoogleEmail = it
+                                    repository.updateGoogleDriveSettings(it, tempDriveFolder, tempAutoBackup)
+                                },
+                                label = { Text("Google Account / Gmail", fontSize = 12.sp) },
+                                placeholder = { Text("your.email@gmail.com", fontSize = 12.sp) },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(18.dp))
+                                },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+
+                            // Google Drive Target Folder
+                            OutlinedTextField(
+                                value = tempDriveFolder,
+                                onValueChange = {
+                                    tempDriveFolder = it
+                                    repository.updateGoogleDriveSettings(tempGoogleEmail, it, tempAutoBackup)
+                                },
+                                label = { Text("Drive Backup Folder Name", fontSize = 12.sp) },
+                                placeholder = { Text("JustGetFit", fontSize = 12.sp) },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Folder, contentDescription = null, modifier = Modifier.size(18.dp))
+                                },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+
+                            // Auto Backup Switch
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Auto-Backup on App Save",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "Automatically update CSV archives when workouts or meals are logged",
+                                        fontSize = 10.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Switch(
+                                    checked = tempAutoBackup,
+                                    onCheckedChange = {
+                                        tempAutoBackup = it
+                                        repository.updateGoogleDriveSettings(tempGoogleEmail, tempDriveFolder, it)
+                                    }
+                                )
+                            }
+
+                            // Backup Status Card
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = if (lastBackupTimestamp != null) Icons.Default.CheckCircle else Icons.Default.Info,
+                                        contentDescription = null,
+                                        tint = if (lastBackupTimestamp != null) Color(0xFF10B981) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Column {
+                                        Text(
+                                            text = "Last Cloud Sync / Export",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = lastBackupTimestamp ?: "No backup yet (export below)",
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
+
+                            if (exportStatusMessage != null) {
+                                Text(
+                                    text = exportStatusMessage!!,
+                                    fontSize = 10.sp,
+                                    color = Color(0xFF10B981),
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+
+                            // Action Buttons: Export CSVs, Cloud Backup, Share Dialog
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Button(
+                                    onClick = {
+                                        isExporting = true
+                                        val files = FitnessReportExporter.exportAllDataToFolder(context, repository)
+                                        repository.recordBackupSuccess()
+                                        exportStatusMessage = "Exported 7 CSVs to: ${FitnessReportExporter.getPublicAppFolder(context).name}/ folder (${files.size} files)"
+                                        Toast.makeText(context, "Saved 7 CSVs to JustGetFit folder!", Toast.LENGTH_LONG).show()
+                                        isExporting = false
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                ) {
+                                    Icon(Icons.Default.FileDownload, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = if (isExporting) "Exporting CSVs..." else "Export All CSVs to JustGetFit Folder",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                Button(
+                                    onClick = {
+                                        repository.updateGoogleDriveSettings(tempGoogleEmail, tempDriveFolder, tempAutoBackup)
+                                        val files = FitnessReportExporter.exportAllDataToFolder(context, repository)
+                                        val fullBackup = files["Full Backup"] ?: File(FitnessReportExporter.getPublicAppFolder(context), "JustGetFit_Full_Backup.csv")
+                                        FitnessReportExporter.backupToGoogleDrive(context, fullBackup, tempGoogleEmail, tempDriveFolder)
+                                        repository.recordBackupSuccess()
+                                        exportStatusMessage = "Google Drive backup dispatched for folder '$tempDriveFolder'"
+                                        Toast.makeText(context, "Ready to backup into Google Drive folder '$tempDriveFolder'", Toast.LENGTH_SHORT).show()
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                ) {
+                                    Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "Backup to Google Drive (Gmail)",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                OutlinedButton(
+                                    onClick = { showShareDialog = true },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "Share Workouts & Nutrition (WhatsApp / Email)",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Bottom Save & Close Button
                 Button(
-                    onClick = onDismiss,
+                    onClick = {
+                        repository.updateGoogleDriveSettings(tempGoogleEmail, tempDriveFolder, tempAutoBackup)
+                        onDismiss()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -693,6 +933,13 @@ fun AppSettingsDialog(
                 }
             }
         }
+    }
+
+    if (showShareDialog) {
+        ShareFitnessDataDialog(
+            repository = repository,
+            onDismiss = { showShareDialog = false }
+        )
     }
 }
 
