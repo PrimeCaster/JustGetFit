@@ -191,6 +191,7 @@ fun NutritionScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
+                    // Header Row: [ ◀ ]   Today / Date   [ ▶ ]
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -201,27 +202,41 @@ fun NutritionScreen(
                                 val prev = FitnessDateUtils.shiftDate(selectedNutritionDate, -1)
                                 repository.selectNutritionDate(prev)
                             },
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .bounceClick {
+                                    val prev = FitnessDateUtils.shiftDate(selectedNutritionDate, -1)
+                                    repository.selectNutritionDate(prev)
+                                }
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Day", tint = CoralPrimary)
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Previous Day",
+                                tint = CoralPrimary,
+                                modifier = Modifier.size(20.dp)
+                            )
                         }
 
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.clickable { showNutritionDatePickerDialog = true }
+                            modifier = Modifier
+                                .clickable { showNutritionDatePickerDialog = true }
+                                .padding(horizontal = 8.dp)
                         ) {
                             Text(
-                                text = FitnessDateUtils.getRelativeLabel(selectedNutritionDate),
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
+                                text = FitnessDateUtils.getMainDateHeading(selectedNutritionDate),
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.ExtraBold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Tap to pick any previous day or week",
+                                text = FitnessDateUtils.getSubDateHeading(selectedNutritionDate),
                                 fontSize = 11.sp,
-                                color = CoralPrimary,
-                                fontWeight = FontWeight.Medium
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 
@@ -230,35 +245,53 @@ fun NutritionScreen(
                                 val next = FitnessDateUtils.shiftDate(selectedNutritionDate, 1)
                                 repository.selectNutritionDate(next)
                             },
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .bounceClick {
+                                    val next = FitnessDateUtils.shiftDate(selectedNutritionDate, 1)
+                                    repository.selectNutritionDate(next)
+                                }
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Day", tint = CoralPrimary)
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "Next Day",
+                                tint = CoralPrimary,
+                                modifier = Modifier.size(20.dp)
+                            )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Horizontal Quick Date Pills
+                    // Chronological Quick Date Pills with 'Today' centered in the middle
+                    val dateOptions = remember { FitnessDateUtils.getCenteredDateOptions(pastDaysCount = 3, futureDaysCount = 3) }
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        items(FitnessDateUtils.getRecentDateOptions(7)) { option ->
+                        items(dateOptions) { option ->
                             val isSelected = FitnessDateUtils.getNormalizedDate(selectedNutritionDate) == option.dateString
                             FilterChip(
                                 selected = isSelected,
                                 onClick = { repository.selectNutritionDate(option.dateString) },
                                 label = {
                                     Text(
-                                        option.displayLabel,
+                                        text = if (option.isToday) "★ Today" else option.displayLabel,
                                         fontSize = 11.sp,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        fontWeight = if (isSelected || option.isToday) FontWeight.Bold else FontWeight.Normal
                                     )
                                 },
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = CoralPrimary,
-                                    selectedLabelColor = PureWhite
-                                )
+                                    selectedLabelColor = PureWhite,
+                                    containerColor = if (option.isToday) CoralPrimary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceVariant,
+                                    labelColor = if (option.isToday) CoralPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                                ),
+                                border = if (option.isToday && !isSelected) {
+                                    FilterChipDefaults.filterChipBorder(enabled = true, selected = false, borderColor = CoralPrimary.copy(alpha = 0.5f))
+                                } else null
                             )
                         }
                     }

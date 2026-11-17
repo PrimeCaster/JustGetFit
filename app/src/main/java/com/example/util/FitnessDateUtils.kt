@@ -73,6 +73,51 @@ object FitnessDateUtils {
     }
 
     /**
+     * MyFitnessPal-style Primary Header Title:
+     * "Today", "Yesterday", "Tomorrow", "2 Days Ago", or day name "Sunday, Nov 15"
+     */
+    fun getMainDateHeading(dateStr: String): String {
+        val normalized = getNormalizedDate(dateStr)
+        val today = getTodayDateString()
+        val yesterday = getDateDaysAgo(1)
+        val tomorrow = shiftDate(today, 1)
+
+        return when (normalized) {
+            today -> "Today"
+            yesterday -> "Yesterday"
+            tomorrow -> "Tomorrow"
+            getDateDaysAgo(2) -> "2 Days Ago"
+            getDateDaysAgo(3) -> "3 Days Ago"
+            else -> {
+                try {
+                    val parsed = standardDateFormat.parse(normalized)
+                    if (parsed != null) fullDayFormat.format(parsed) else normalized
+                } catch (_: Exception) {
+                    normalized
+                }
+            }
+        }
+    }
+
+    /**
+     * MyFitnessPal-style Secondary Header Subtitle:
+     * Full readable date, e.g. "Sunday, Nov 17, 2026"
+     */
+    fun getSubDateHeading(dateStr: String): String {
+        val normalized = getNormalizedDate(dateStr)
+        return try {
+            val parsed = standardDateFormat.parse(normalized)
+            if (parsed != null) {
+                SimpleDateFormat("EEEE, MMM d, yyyy", Locale.US).format(parsed)
+            } else {
+                normalized
+            }
+        } catch (_: Exception) {
+            normalized
+        }
+    }
+
+    /**
      * Shifts a date string forward or backward by the given number of days.
      */
     fun shiftDate(currentDateStr: String, deltaDays: Int): String {
@@ -96,21 +141,32 @@ object FitnessDateUtils {
      * Generates a list of recent dates for quick horizontal pill selector.
      */
     fun getRecentDateOptions(count: Int = 14): List<DateSelectorOption> {
+        return getCenteredDateOptions(pastDaysCount = 3, futureDaysCount = 3)
+    }
+
+    /**
+     * Generates dates in chronological order with 'Today' centered in the middle, past days on the left,
+     * and tomorrow / future days on the right (just like MyFitnessPal):
+     * e.g., 3 Days Ago, 2 Days Ago, Yesterday, TODAY (in middle), Tomorrow, Day +2, Day +3
+     */
+    fun getCenteredDateOptions(pastDaysCount: Int = 3, futureDaysCount: Int = 3): List<DateSelectorOption> {
         val list = mutableListOf<DateSelectorOption>()
         val cal = Calendar.getInstance()
 
-        for (daysAgo in 0 until count) {
+        for (offset in -pastDaysCount..futureDaysCount) {
             val c = cal.clone() as Calendar
-            c.add(Calendar.DAY_OF_YEAR, -daysAgo)
+            c.add(Calendar.DAY_OF_YEAR, offset)
             val d = c.time
             val dateStr = standardDateFormat.format(d)
-            val isToday = daysAgo == 0
-            val isYesterday = daysAgo == 1
+            val isToday = offset == 0
+            val isYesterday = offset == -1
+            val isTomorrow = offset == 1
 
             val label = when {
                 isToday -> "Today"
                 isYesterday -> "Yesterday"
-                else -> "${shortDayFormat.format(d)}, ${dayNumFormat.format(d)}"
+                isTomorrow -> "Tomorrow"
+                else -> "${shortDayFormat.format(d)} ${dayNumFormat.format(d)}"
             }
 
             list.add(
@@ -119,7 +175,7 @@ object FitnessDateUtils {
                     displayLabel = label,
                     shortDayLabel = shortDayFormat.format(d),
                     dayNumber = dayNumFormat.format(d),
-                    daysAgo = daysAgo,
+                    daysAgo = -offset,
                     isToday = isToday
                 )
             )

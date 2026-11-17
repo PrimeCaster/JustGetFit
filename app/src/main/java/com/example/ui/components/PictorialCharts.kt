@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +25,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.model.BodyCircumference
+import com.example.model.CardioMachineType
+import com.example.model.CardioSession
 import com.example.model.WeightGoal
 import com.example.model.WeightRecord
 import com.example.ui.theme.*
@@ -752,6 +756,472 @@ fun WaterIntakeTrendChart(
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * Body Circumference Multi-Measurement Graph:
+ * Plots Waist, Chest, and Arms measurements simultaneously in ONE unified graph with distinct colors:
+ * - Waist (Coral/Orange): Decreasing trend (waist slimming / fat loss)
+ * - Chest (Cyan/Sky Blue): Hypertrophy upward progression
+ * - Arms (Emerald/Mint): Arm circumference progression
+ */
+@Composable
+fun BodyMeasurementsTrendChart(
+    circumferences: List<BodyCircumference>,
+    modifier: Modifier = Modifier
+) {
+    if (circumferences.isEmpty()) return
+
+    val waistColor = Color(0xFFFF5722) // Coral / Orange
+    val chestColor = Color(0xFF00E5FF) // Cyan / Sky Blue
+    val armsColor = Color(0xFF10B981)  // Emerald / Mint
+
+    val baseline = circumferences.first()
+    val latest = circumferences.last()
+
+    val waistDelta = latest.waistCm - baseline.waistCm
+    val chestDelta = latest.chestCm - baseline.chestCm
+    val armsDelta = latest.armsCm - baseline.armsCm
+
+    val animatedProgress by animateFloatAsState(
+        targetValue = 1f,
+        animationSpec = tween(durationMillis = 1000),
+        label = "bodyChartAnimation"
+    )
+
+    Column(modifier = modifier) {
+        // Summary Header Badges (Waist, Chest, Arms)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            MeasurementPillBadge(
+                label = "Waist",
+                valueCm = latest.waistCm,
+                deltaCm = waistDelta,
+                color = waistColor,
+                isLossGood = true,
+                modifier = Modifier.weight(1f)
+            )
+            MeasurementPillBadge(
+                label = "Chest",
+                valueCm = latest.chestCm,
+                deltaCm = chestDelta,
+                color = chestColor,
+                isLossGood = false,
+                modifier = Modifier.weight(1f)
+            )
+            MeasurementPillBadge(
+                label = "Arms",
+                valueCm = latest.armsCm,
+                deltaCm = armsDelta,
+                color = armsColor,
+                isLossGood = false,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Unified Multi-Line Canvas (Arms ~37-39 cm, Waist ~85-94 cm, Chest ~104-107 cm)
+        val minScale = 30.0
+        val maxScale = 115.0
+        val scaleRange = maxScale - minScale
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(170.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
+                .padding(horizontal = 14.dp, vertical = 10.dp)
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val w = size.width
+                val h = size.height
+                val paddingBottom = 16f
+                val effectiveH = h - paddingBottom
+
+                // Draw Horizontal Reference Guidelines at 40cm, 60cm, 80cm, 100cm
+                val gridLevels = listOf(40.0, 60.0, 80.0, 100.0)
+                gridLevels.forEach { level ->
+                    val y = effectiveH - ((level - minScale) / scaleRange * effectiveH).toFloat()
+                    drawLine(
+                        color = Color.White.copy(alpha = 0.08f),
+                        start = Offset(0f, y),
+                        end = Offset(w, y),
+                        strokeWidth = 1.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f)
+                    )
+                }
+
+                val n = circumferences.size.coerceAtLeast(1)
+                fun getX(index: Int): Float = if (n > 1) (index.toFloat() / (n - 1)) * w else w / 2
+
+                val waistPoints = circumferences.mapIndexed { idx, item ->
+                    val x = getX(idx)
+                    val normY = ((item.waistCm - minScale) / scaleRange).toFloat()
+                    val y = effectiveH - (normY * effectiveH * animatedProgress)
+                    Offset(x, y)
+                }
+
+                val chestPoints = circumferences.mapIndexed { idx, item ->
+                    val x = getX(idx)
+                    val normY = ((item.chestCm - minScale) / scaleRange).toFloat()
+                    val y = effectiveH - (normY * effectiveH * animatedProgress)
+                    Offset(x, y)
+                }
+
+                val armsPoints = circumferences.mapIndexed { idx, item ->
+                    val x = getX(idx)
+                    val normY = ((item.armsCm - minScale) / scaleRange).toFloat()
+                    val y = effectiveH - (normY * effectiveH * animatedProgress)
+                    Offset(x, y)
+                }
+
+                fun drawMetricLine(points: List<Offset>, color: Color) {
+                    if (points.isEmpty()) return
+
+                    val path = Path().apply {
+                        moveTo(points.first().x, points.first().y)
+                        for (i in 1 until points.size) {
+                            val p0 = points[i - 1]
+                            val p1 = points[i]
+                            val controlX = (p0.x + p1.x) / 2
+                            cubicTo(controlX, p0.y, controlX, p1.y, p1.x, p1.y)
+                        }
+                    }
+
+                    drawPath(
+                        path = path,
+                        color = color,
+                        style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+                    )
+
+                    points.forEachIndexed { idx, pt ->
+                        val isLast = idx == points.size - 1
+                        drawCircle(
+                            color = color.copy(alpha = 0.35f),
+                            radius = if (isLast) 7.dp.toPx() else 4.5.dp.toPx(),
+                            center = pt
+                        )
+                        drawCircle(
+                            color = color,
+                            radius = if (isLast) 4.5.dp.toPx() else 3.dp.toPx(),
+                            center = pt
+                        )
+                        if (isLast) {
+                            drawCircle(
+                                color = Color.White,
+                                radius = 2.dp.toPx(),
+                                center = pt
+                            )
+                        }
+                    }
+                }
+
+                // Draw all 3 lines in ONE graph
+                drawMetricLine(chestPoints, chestColor)
+                drawMetricLine(waistPoints, waistColor)
+                drawMetricLine(armsPoints, armsColor)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Date timeline labels
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            circumferences.forEach {
+                Text(
+                    text = it.dateString,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Legend row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ChartLegendPill(color = waistColor, label = "Waist (Slimming)")
+            ChartLegendPill(color = chestColor, label = "Chest (Hypertrophy)")
+            ChartLegendPill(color = armsColor, label = "Arms (Growth)")
+        }
+    }
+}
+
+/**
+ * Endurance and Cardio Performance Tracking Graph:
+ * Visualizes cardio sessions, duration progression, distance covered, calories burned,
+ * and aerobic heart rate telemetry across treadmill, rowing, bike & elliptical.
+ */
+@Composable
+fun EndurancePerformanceChart(
+    cardioSessions: List<CardioSession>,
+    modifier: Modifier = Modifier
+) {
+    val totalMinutes = cardioSessions.sumOf { it.durationMinutes }
+    val totalDistanceKm = cardioSessions.sumOf { it.distanceKm }
+    val totalCalories = cardioSessions.sumOf { it.caloriesBurned }
+    val avgHeartRate = if (cardioSessions.isNotEmpty()) cardioSessions.map { it.avgHeartRateBpm }.average().toInt() else 138
+
+    Column(modifier = modifier) {
+        // Quick Telemetry Stats Cards
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            CardioStatTile(
+                title = "Cardio Time",
+                value = "${totalMinutes}m",
+                icon = "⏱",
+                color = CardioGreen,
+                modifier = Modifier.weight(1f)
+            )
+            CardioStatTile(
+                title = "Distance",
+                value = "%.1f km".format(totalDistanceKm),
+                icon = "🏃",
+                color = CoralPrimary,
+                modifier = Modifier.weight(1f)
+            )
+            CardioStatTile(
+                title = "Calories",
+                value = "$totalCalories",
+                icon = "🔥",
+                color = TrophyGold,
+                modifier = Modifier.weight(1f)
+            )
+            CardioStatTile(
+                title = "Avg HR",
+                value = "$avgHeartRate",
+                icon = "❤️",
+                color = AquaAccent,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Multi-Bar Endurance Output Canvas
+        val maxDuration = (cardioSessions.maxOfOrNull { it.durationMinutes } ?: 60).coerceAtLeast(45).toFloat() * 1.15f
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(130.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
+                .padding(horizontal = 14.dp, vertical = 10.dp)
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val w = size.width
+                val h = size.height
+                val count = cardioSessions.size.coerceAtLeast(1)
+                val spacing = 16.dp.toPx()
+                val totalSpacing = spacing * (count + 1)
+                val barWidth = ((w - totalSpacing) / count).coerceIn(24.dp.toPx(), 60.dp.toPx())
+
+                // Draw Aerobic Target Reference Line (30 mins)
+                val targetMinRatio = (30f / maxDuration).coerceIn(0.1f, 0.9f)
+                val targetY = h - (h * targetMinRatio)
+                drawLine(
+                    color = Color.White.copy(alpha = 0.15f),
+                    start = Offset(0f, targetY),
+                    end = Offset(w, targetY),
+                    strokeWidth = 1.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 6f), 0f)
+                )
+
+                cardioSessions.forEachIndexed { idx, session ->
+                    val x = spacing + idx * (barWidth + spacing)
+                    val ratio = (session.durationMinutes / maxDuration).coerceIn(0.08f, 1.0f)
+                    val barH = h * ratio
+                    val y = h - barH
+
+                    // Background Track
+                    drawRoundRect(
+                        color = Color.White.copy(alpha = 0.04f),
+                        topLeft = Offset(x, 0f),
+                        size = Size(barWidth, h),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(6.dp.toPx(), 6.dp.toPx())
+                    )
+
+                    val barColor = when (session.machineType) {
+                        CardioMachineType.TREADMILL -> Color(0xFFFF5722)
+                        CardioMachineType.ROWING_MACHINE -> Color(0xFF00E5FF)
+                        CardioMachineType.ELLIPTICAL -> Color(0xFF10B981)
+                        CardioMachineType.STATIONARY_BIKE -> Color(0xFFFFB800)
+                        CardioMachineType.STAIR_CLIMBER -> Color(0xFFA855F7)
+                        CardioMachineType.OUTDOOR_RUN -> Color(0xFF3B82F6)
+                    }
+
+                    // Bar Gradient
+                    val barBrush = Brush.verticalGradient(
+                        colors = listOf(barColor, barColor.copy(alpha = 0.45f)),
+                        startY = y,
+                        endY = h
+                    )
+
+                    drawRoundRect(
+                        brush = barBrush,
+                        topLeft = Offset(x, y),
+                        size = Size(barWidth, barH),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(6.dp.toPx(), 6.dp.toPx())
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Session Date & Machine Type Labels
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            cardioSessions.forEach { session ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = session.dateString,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "${session.durationMinutes}m • ${session.distanceKm}k",
+                        fontSize = 9.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Cardio Machine Badges Breakdown
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            cardioSessions.map { it.machineType }.distinct().forEach { machine ->
+                val badgeColor = when (machine) {
+                    CardioMachineType.TREADMILL -> Color(0xFFFF5722)
+                    CardioMachineType.ROWING_MACHINE -> Color(0xFF00E5FF)
+                    CardioMachineType.ELLIPTICAL -> Color(0xFF10B981)
+                    else -> MaterialTheme.colorScheme.primary
+                }
+                Box(
+                    modifier = Modifier
+                        .background(badgeColor.copy(alpha = 0.12f), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = machine.displayName,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = badgeColor
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MeasurementPillBadge(
+    label: String,
+    valueCm: Double,
+    deltaCm: Double,
+    color: Color,
+    isLossGood: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(color.copy(alpha = 0.12f), RoundedCornerShape(12.dp))
+            .border(1.dp, color.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+            .padding(8.dp)
+    ) {
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .background(color, CircleShape)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = label,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = color
+                )
+            }
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "%.1f cm".format(valueCm),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            val isProgress = if (isLossGood) deltaCm <= 0 else deltaCm >= 0
+            Text(
+                text = "%+.1f cm".format(deltaCm),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isProgress) MintPrimary else CoralPrimary
+            )
+        }
+    }
+}
+
+@Composable
+private fun ChartLegendPill(color: Color, label: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .background(color, CircleShape)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = label,
+            fontSize = 10.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun CardioStatTile(
+    title: String,
+    value: String,
+    icon: String,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(color.copy(alpha = 0.12f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 6.dp, vertical = 6.dp)
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+            Text(icon, fontSize = 11.sp)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(value, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+            Text(title, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

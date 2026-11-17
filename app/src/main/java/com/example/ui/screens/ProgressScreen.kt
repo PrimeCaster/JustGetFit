@@ -33,12 +33,12 @@ import androidx.compose.ui.unit.sp
 import com.example.data.FitnessRepository
 import com.example.model.*
 import com.example.ui.components.AppSettingsDialog
+import com.example.ui.components.BodyMeasurementsTrendChart
+import com.example.ui.components.EndurancePerformanceChart
 import com.example.ui.components.WeightLossTrajectoryChart
 import com.example.ui.components.bounceClick
 import com.example.ui.components.cardBounceClick
 import com.example.ui.theme.*
-import com.example.util.ExportDateRange
-import com.example.util.FitnessReportExporter
 
 @Composable
 fun ProgressScreen(
@@ -61,8 +61,6 @@ fun ProgressScreen(
     var showAddMeasurementDialog by remember { mutableStateOf(false) }
     var showAddReminderDialog by remember { mutableStateOf(false) }
     var showShareSuccessSnackbar by remember { mutableStateOf(false) }
-    var exportReportSuccessMessage by remember { mutableStateOf<String?>(null) }
-    var showExportDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
 
     // Split-Screen Transformation Slider State (0.0 to 1.0)
@@ -157,92 +155,10 @@ fun ProgressScreen(
                         }
                     }
                 }
-
-                // Dedicated, Beautifully Aligned Export Report Card Banner
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .cardBounceClick { showExportDialog = true },
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(42.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.FileDownload,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = "Export Fitness Report",
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Box(
-                                        modifier = Modifier
-                                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), RoundedCornerShape(6.dp))
-                                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                                    ) {
-                                        Text(
-                                            text = "PDF / CSV",
-                                            fontSize = 9.sp,
-                                            fontWeight = FontWeight.ExtraBold,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "Share workout & nutrition records externally",
-                                    fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-
-                        Button(
-                            onClick = { showExportDialog = true },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
-                            ),
-                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
-                            modifier = Modifier.bounceClick { showExportDialog = true }
-                        ) {
-                            Text("Export", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
             }
         }
 
-        // Share Confirmation
-        // Share & Export Confirmation Banners
+        // Share Confirmation Banner
         item {
             AnimatedVisibility(visible = showShareSuccessSnackbar) {
                 Box(
@@ -269,37 +185,53 @@ fun ProgressScreen(
                     }
                 }
             }
+        }
 
-            AnimatedVisibility(visible = exportReportSuccessMessage != null) {
-                exportReportSuccessMessage?.let { msg ->
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MintPrimary.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
-                            .border(1.dp, MintPrimary.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
-                            .padding(10.dp)
+        // Weight Loss Trajectory Progress Graph
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        Column {
+                            Text(
+                                text = "Weight Loss Trajectory",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Starting %.1f kg → Target %.1f kg".format(weightGoal.startingWeightKg, weightGoal.targetWeightKg),
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .background(MintPrimary.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
-                            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MintPrimary, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = msg,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                            IconButton(onClick = { exportReportSuccessMessage = null }, modifier = Modifier.size(20.dp)) {
-                                Icon(Icons.Default.Close, contentDescription = null, tint = MintPrimary)
-                            }
+                            Text(
+                                text = "-%.1f kg Total".format(weightGoal.startingWeightKg - weightGoal.currentWeightKg),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MintPrimary
+                            )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    WeightLossTrajectoryChart(
+                        records = weightRecords,
+                        goal = weightGoal
+                    )
                 }
             }
         }
@@ -475,7 +407,7 @@ fun ProgressScreen(
             }
         }
 
-        // Body Circumference Measurements
+        // Body Circumference Measurements (Waist, Chest, Arms in ONE Graph!)
         item {
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -487,12 +419,19 @@ fun ProgressScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "Circumference Metrics",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                        Column {
+                            Text(
+                                text = "Body Circumferences Evolution",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Waist, Chest & Arms in One Unified Graph",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                         Button(
                             onClick = { showAddMeasurementDialog = true },
                             shape = RoundedCornerShape(8.dp),
@@ -506,34 +445,53 @@ fun ProgressScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    val latest = circumferences.lastOrNull()
-                    val baseline = circumferences.firstOrNull()
+                    BodyMeasurementsTrendChart(circumferences = circumferences)
+                }
+            }
+        }
 
-                    if (latest != null && baseline != null) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        // Endurance and Cardio Performance Tracking Graph
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "Cardio & Endurance Performance",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Cardio equipment telemetry, distance & stamina",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .background(CardioGreen.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
-                            MeasurementMetricCard(
-                                label = "Waist",
-                                currentCm = latest.waistCm,
-                                deltaCm = latest.waistCm - baseline.waistCm,
-                                modifier = Modifier.weight(1f)
-                            )
-                            MeasurementMetricCard(
-                                label = "Chest",
-                                currentCm = latest.chestCm,
-                                deltaCm = latest.chestCm - baseline.chestCm,
-                                modifier = Modifier.weight(1f)
-                            )
-                            MeasurementMetricCard(
-                                label = "Arms",
-                                currentCm = latest.armsCm,
-                                deltaCm = latest.armsCm - baseline.armsCm,
-                                modifier = Modifier.weight(1f)
+                            Text(
+                                text = "${cardioSessions.size} Sessions",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = CardioGreen
                             )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    EndurancePerformanceChart(cardioSessions = cardioSessions)
                 }
             }
         }
@@ -736,186 +694,6 @@ fun ProgressScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showAddReminderDialog = false }) { Text("Cancel") }
-            }
-        )
-    }
-
-    // Export Workout & Nutrition Report Dialog
-    if (showExportDialog) {
-        var selectedExportRange by remember { mutableStateOf(ExportDateRange.CURRENT_WEEK) }
-
-        AlertDialog(
-            onDismissRequest = { showExportDialog = false },
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Summarize,
-                        contentDescription = null,
-                        tint = MintPrimary,
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Export & Backup Data",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        text = "Select time period to create a complete backup archive of workouts, cardio equipment telemetry, nutrition meals, water tracking, and body weigh-in trends for Excel or CSV.",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 17.sp
-                    )
-
-                    // Date Range Filter Chips
-                    Text(
-                        text = "SELECT BACKUP RANGE",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        letterSpacing = 0.5.sp
-                    )
-
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(ExportDateRange.values()) { range ->
-                            val isSelected = selectedExportRange == range
-                            FilterChip(
-                                selected = isSelected,
-                                onClick = { selectedExportRange = range },
-                                label = {
-                                    Text(
-                                        text = range.displayName,
-                                        fontSize = 11.sp,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                    )
-                                },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = CoralPrimary,
-                                    selectedLabelColor = PureWhite
-                                )
-                            )
-                        }
-                    }
-
-                    // Report Contents Included Preview Card
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("Contents (${selectedExportRange.displayName}):", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                                Text("${selectedExportRange.subtitle}", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            Text("• Strength Sessions & Sets (${activeWorkout.exercises.size} exercises, %.0f kg volume)".format(activeWorkout.totalVolumeKg), fontSize = 11.sp)
-                            Text("• Cardio Equipment Telemetry (${cardioSessions.size} sessions)", fontSize = 11.sp)
-                            Text("• Nutrition Diary (${loggedMeals.size} foods with calories, protein, carbs, fat)", fontSize = 11.sp)
-                            Text("• Hydration (${waterIntakeByDate.size} daily water records logged)", fontSize = 11.sp)
-                            Text("• Body Weight Weigh-Ins (${weightRecords.size} weigh-in trajectory records)", fontSize = 11.sp)
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        // Export to Excel / CSV
-                        Button(
-                            onClick = {
-                                try {
-                                    val csvFile = FitnessReportExporter.exportFilteredBackupToCsv(
-                                        context = context,
-                                        range = selectedExportRange,
-                                        workout = activeWorkout,
-                                        cardioSessions = cardioSessions,
-                                        meals = loggedMeals,
-                                        waterIntakeByDate = waterIntakeByDate,
-                                        weightRecords = weightRecords,
-                                        currentWeightKg = weightGoal.currentWeightKg,
-                                        dailyWaterTargetMl = repository.dailyWaterTargetMl
-                                    )
-                                    FitnessReportExporter.shareReportFile(
-                                        context = context,
-                                        file = csvFile,
-                                        mimeType = "text/csv",
-                                        title = "Export ${selectedExportRange.displayName} (Excel / CSV)"
-                                    )
-                                    exportReportSuccessMessage = "Excel & CSV backup created: ${csvFile.name}"
-                                } catch (e: Exception) {
-                                    exportReportSuccessMessage = "Backup generated successfully."
-                                }
-                                showExportDialog = false
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .bounceClick { },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
-                            )
-                        ) {
-                            Icon(Icons.Default.TableChart, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Excel / CSV", fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                        }
-
-                        // Export PDF
-                        Button(
-                            onClick = {
-                                try {
-                                    val pdfFile = FitnessReportExporter.exportToPdf(
-                                        context = context,
-                                        workout = activeWorkout,
-                                        cardioSessions = cardioSessions,
-                                        meals = loggedMeals,
-                                        waterIntakeMl = waterIntakeMl,
-                                        weightKg = weightGoal.currentWeightKg
-                                    )
-                                    FitnessReportExporter.shareReportFile(
-                                        context = context,
-                                        file = pdfFile,
-                                        mimeType = "application/pdf",
-                                        title = "Export Workout & Nutrition (PDF)"
-                                    )
-                                    exportReportSuccessMessage = "PDF report generated: ${pdfFile.name}"
-                                } catch (e: Exception) {
-                                    exportReportSuccessMessage = "PDF report generated successfully."
-                                }
-                                showExportDialog = false
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .bounceClick { },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondary,
-                                contentColor = MaterialTheme.colorScheme.onSecondary
-                            )
-                        ) {
-                            Icon(Icons.Default.PictureAsPdf, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("PDF Report", fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                        }
-                    }
-                }
-            },
-            confirmButton = {},
-            dismissButton = {
-                TextButton(onClick = { showExportDialog = false }) {
-                    Text("Close")
-                }
             }
         )
     }
