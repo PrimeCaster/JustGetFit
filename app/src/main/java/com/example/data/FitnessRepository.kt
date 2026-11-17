@@ -35,12 +35,15 @@ class FitnessRepository(
         _currentColorTheme.value = theme
     }
 
-    // --- LLM CONFIGURATION (GEMINI & CHATGPT) ---
+    // --- LLM CONFIGURATION (GEMINI, CLAUDE & CHATGPT) ---
     private val _selectedLlmProvider = MutableStateFlow(LlmProvider.GEMINI)
     val selectedLlmProvider: StateFlow<LlmProvider> = _selectedLlmProvider.asStateFlow()
 
     private val _geminiApiKey = MutableStateFlow("")
     val geminiApiKey: StateFlow<String> = _geminiApiKey.asStateFlow()
+
+    private val _claudeApiKey = MutableStateFlow("")
+    val claudeApiKey: StateFlow<String> = _claudeApiKey.asStateFlow()
 
     private val _chatGptApiKey = MutableStateFlow("")
     val chatGptApiKey: StateFlow<String> = _chatGptApiKey.asStateFlow()
@@ -61,6 +64,10 @@ class FitnessRepository(
         _geminiApiKey.value = key.trim()
     }
 
+    fun setClaudeApiKey(key: String) {
+        _claudeApiKey.value = key.trim()
+    }
+
     fun setChatGptApiKey(key: String) {
         _chatGptApiKey.value = key.trim()
     }
@@ -76,6 +83,7 @@ class FitnessRepository(
     fun getActiveApiKey(): String {
         return when (_selectedLlmProvider.value) {
             LlmProvider.GEMINI -> _geminiApiKey.value
+            LlmProvider.CLAUDE -> _claudeApiKey.value
             LlmProvider.CHATGPT -> _chatGptApiKey.value
         }
     }

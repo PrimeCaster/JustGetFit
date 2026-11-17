@@ -48,6 +48,7 @@ fun AppSettingsDialog(
     val currentColorTheme by repository.currentColorTheme.collectAsState()
     val selectedLlmProvider by repository.selectedLlmProvider.collectAsState()
     val geminiApiKey by repository.geminiApiKey.collectAsState()
+    val claudeApiKey by repository.claudeApiKey.collectAsState()
     val chatGptApiKey by repository.chatGptApiKey.collectAsState()
     val customModelOverride by repository.customModelOverride.collectAsState()
     val dailyCalorieTarget = repository.dailyCalorieTarget
@@ -56,6 +57,7 @@ fun AppSettingsDialog(
     val defaultRestTimerSeconds by repository.defaultRestTimerSeconds.collectAsState()
 
     var tempGeminiKey by remember(geminiApiKey) { mutableStateOf(geminiApiKey) }
+    var tempClaudeKey by remember(claudeApiKey) { mutableStateOf(claudeApiKey) }
     var tempChatGptKey by remember(chatGptApiKey) { mutableStateOf(chatGptApiKey) }
     var tempCustomModel by remember(customModelOverride) { mutableStateOf(customModelOverride) }
     var isApiKeyVisible by remember { mutableStateOf(false) }
@@ -358,7 +360,11 @@ fun AppSettingsDialog(
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                 }
-                                val activeKey = if (selectedLlmProvider == LlmProvider.GEMINI) tempGeminiKey else tempChatGptKey
+                                val activeKey = when (selectedLlmProvider) {
+                                    LlmProvider.GEMINI -> tempGeminiKey
+                                    LlmProvider.CLAUDE -> tempClaudeKey
+                                    LlmProvider.CHATGPT -> tempChatGptKey
+                                }
                                 Box(
                                     modifier = Modifier
                                         .background(
@@ -382,7 +388,7 @@ fun AppSettingsDialog(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
 
-                            // LLM Provider Selector Tabs (Gemini vs ChatGPT)
+                            // LLM Provider Selector Tabs (Gemini vs Claude vs ChatGPT)
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -409,8 +415,12 @@ fun AppSettingsDialog(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
-                                            text = if (provider == LlmProvider.GEMINI) "✨ Google Gemini" else "🤖 OpenAI ChatGPT",
-                                            fontSize = 12.sp,
+                                            text = when (provider) {
+                                                LlmProvider.GEMINI -> "✨ Gemini"
+                                                LlmProvider.CLAUDE -> "🧠 Claude"
+                                                LlmProvider.CHATGPT -> "🤖 ChatGPT"
+                                            },
+                                            fontSize = 11.sp,
                                             fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Medium,
                                             color = if (isCurrent) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                                         )
@@ -419,16 +429,27 @@ fun AppSettingsDialog(
                             }
 
                             // API Key Input Field
-                            val currentKey = if (selectedLlmProvider == LlmProvider.GEMINI) tempGeminiKey else tempChatGptKey
+                            val currentKey = when (selectedLlmProvider) {
+                                LlmProvider.GEMINI -> tempGeminiKey
+                                LlmProvider.CLAUDE -> tempClaudeKey
+                                LlmProvider.CHATGPT -> tempChatGptKey
+                            }
                             OutlinedTextField(
                                 value = currentKey,
                                 onValueChange = { newKey ->
-                                    if (selectedLlmProvider == LlmProvider.GEMINI) {
-                                        tempGeminiKey = newKey
-                                        repository.setGeminiApiKey(newKey)
-                                    } else {
-                                        tempChatGptKey = newKey
-                                        repository.setChatGptApiKey(newKey)
+                                    when (selectedLlmProvider) {
+                                        LlmProvider.GEMINI -> {
+                                            tempGeminiKey = newKey
+                                            repository.setGeminiApiKey(newKey)
+                                        }
+                                        LlmProvider.CLAUDE -> {
+                                            tempClaudeKey = newKey
+                                            repository.setClaudeApiKey(newKey)
+                                        }
+                                        LlmProvider.CHATGPT -> {
+                                            tempChatGptKey = newKey
+                                            repository.setChatGptApiKey(newKey)
+                                        }
                                     }
                                     connectionTestResult = null
                                 },
@@ -913,6 +934,10 @@ fun AppSettingsDialog(
                 // Bottom Save & Close Button
                 Button(
                     onClick = {
+                        repository.setGeminiApiKey(tempGeminiKey)
+                        repository.setClaudeApiKey(tempClaudeKey)
+                        repository.setChatGptApiKey(tempChatGptKey)
+                        repository.setCustomModelOverride(tempCustomModel)
                         repository.updateGoogleDriveSettings(tempGoogleEmail, tempDriveFolder, tempAutoBackup)
                         onDismiss()
                     },

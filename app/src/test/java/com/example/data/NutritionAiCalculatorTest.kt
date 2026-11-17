@@ -41,9 +41,12 @@ class NutritionAiCalculatorTest {
     @Test
     fun testLlmProviderDefaults() {
         assertEquals("gemini-1.5-flash", LlmProvider.GEMINI.defaultModel)
+        assertEquals("claude-3-5-sonnet-20241022", LlmProvider.CLAUDE.defaultModel)
         assertEquals("gpt-4o-mini", LlmProvider.CHATGPT.defaultModel)
         assertTrue(LlmProvider.GEMINI.keyHelpUrl.contains("aistudio.google.com"))
+        assertTrue(LlmProvider.CLAUDE.keyHelpUrl.contains("anthropic.com"))
         assertTrue(LlmProvider.CHATGPT.keyHelpUrl.contains("openai.com"))
+        assertTrue(LlmProvider.CLAUDE.keyPlaceholder.startsWith("sk-ant"))
     }
 
     @Test

@@ -196,6 +196,13 @@ enum class LlmProvider(
         keyPlaceholder = "AIzaSy...",
         keyHelpUrl = "aistudio.google.com/apikey"
     ),
+    CLAUDE(
+        id = "claude",
+        displayName = "Anthropic Claude",
+        defaultModel = "claude-3-5-sonnet-20241022",
+        keyPlaceholder = "sk-ant-...",
+        keyHelpUrl = "console.anthropic.com/settings/keys"
+    ),
     CHATGPT(
         id = "chatgpt",
         displayName = "OpenAI ChatGPT",

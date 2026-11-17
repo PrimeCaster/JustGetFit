@@ -43,6 +43,7 @@ class NutritionAiCalculator(
         try {
             when (provider) {
                 LlmProvider.GEMINI -> callGeminiApi(trimmed, apiKey, customModelOverride)
+                LlmProvider.CLAUDE -> callClaudeApi(trimmed, apiKey, customModelOverride)
                 LlmProvider.CHATGPT -> callChatGptApi(trimmed, apiKey, customModelOverride)
             }
         } catch (e: Exception) {
@@ -261,6 +262,78 @@ class NutritionAiCalculator(
             parseNutritionJson(rawText, originalQuery)
         } catch (e: Exception) {
             Result.failure(Exception("Failed to parse Gemini response: ${e.message}"))
+        }
+    }
+
+    private fun callClaudeApi(
+        description: String,
+        apiKey: String,
+        customModelOverride: String?
+    ): Result<NutritionAiResult> {
+        val model = if (!customModelOverride.isNullOrBlank()) customModelOverride.trim() else LlmProvider.CLAUDE.defaultModel
+        val url = "https://api.anthropic.com/v1/messages"
+
+        val promptText = """
+            You are a professional certified sports dietitian and precision nutrition calculation engine.
+            Analyze the following food item or meal accurately: "$description".
+            Estimate the total nutritional breakdown for the entire described portion.
+            Return ONLY a valid JSON object with exactly these keys and no markdown wrapping or preamble:
+            {
+              "foodName": "Short descriptive food/meal title",
+              "servingUnit": "Estimated serving or portion size",
+              "calories": 350,
+              "proteinG": 25.0,
+              "carbsG": 30.0,
+              "fatG": 12.0,
+              "fiberG": 4.5,
+              "notes": "Short breakdown of constituent items"
+            }
+        """.trimIndent()
+
+        val jsonBody = JSONObject().apply {
+            put("model", model)
+            put("max_tokens", 600)
+            put("temperature", 0.2)
+            put("system", "You are a clinical macro calculator that always outputs strict JSON without markdown formatting.")
+            val messages = JSONArray().apply {
+                put(JSONObject().apply {
+                    put("role", "user")
+                    put("content", promptText)
+                })
+            }
+            put("messages", messages)
+        }
+
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("x-api-key", apiKey.trim())
+            .addHeader("anthropic-version", "2023-06-01")
+            .addHeader("content-type", "application/json")
+            .post(jsonBody.toString().toRequestBody(jsonMediaType))
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            val responseBody = response.body?.string() ?: ""
+            if (!response.isSuccessful) {
+                val errorMsg = parseErrorMessage(responseBody, response.code, "Claude")
+                return Result.failure(Exception(errorMsg))
+            }
+
+            return parseClaudeResponse(responseBody, description)
+        }
+    }
+
+    private fun parseClaudeResponse(jsonString: String, originalQuery: String): Result<NutritionAiResult> {
+        return try {
+            val root = JSONObject(jsonString)
+            val contentArray = root.getJSONArray("content")
+            if (contentArray.length() == 0) {
+                return Result.failure(Exception("Claude returned no response content."))
+            }
+            val text = contentArray.getJSONObject(0).getString("text")
+            parseNutritionJson(text, originalQuery)
+        } catch (e: Exception) {
+            Result.failure(Exception("Failed to parse Claude response: ${e.message}"))
         }
     }
 

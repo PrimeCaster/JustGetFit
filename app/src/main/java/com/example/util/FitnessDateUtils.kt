@@ -138,6 +138,68 @@ object FitnessDateUtils {
     }
 
     /**
+     * Dynamic date selector options based on the currently selected date:
+     * - By default when on Today: ONLY "Today" shows up!
+     * - When navigating to previous days (e.g. Yesterday, 2 Days Ago), past days up to Today are shown,
+     *   allowing the user to see the historical days and tap back to Today at any time.
+     */
+    fun getDynamicDateOptions(selectedDateStr: String): List<DateSelectorOption> {
+        val daysAgo = getDaysAgo(selectedDateStr).coerceAtLeast(0)
+        val list = mutableListOf<DateSelectorOption>()
+        val cal = Calendar.getInstance()
+
+        // From past day(s) up to Today (offset 0)
+        for (offset in -daysAgo..0) {
+            val c = cal.clone() as Calendar
+            c.add(Calendar.DAY_OF_YEAR, offset)
+            val d = c.time
+            val dateStr = standardDateFormat.format(d)
+            val isToday = offset == 0
+            val isYesterday = offset == -1
+
+            val label = when {
+                isToday -> "★ Today"
+                isYesterday -> "Yesterday"
+                else -> "${shortDayFormat.format(d)} ${dayNumFormat.format(d)}"
+            }
+
+            list.add(
+                DateSelectorOption(
+                    dateString = dateStr,
+                    displayLabel = label,
+                    shortDayLabel = shortDayFormat.format(d),
+                    dayNumber = dayNumFormat.format(d),
+                    daysAgo = -offset,
+                    isToday = isToday
+                )
+            )
+        }
+        return list
+    }
+
+    /**
+     * Calculates how many days ago a normalized date string is relative to Today.
+     */
+    fun getDaysAgo(dateStr: String): Int {
+        val normalized = getNormalizedDate(dateStr)
+        val today = getTodayDateString()
+        if (normalized == today) return 0
+        val yesterday = getDateDaysAgo(1)
+        if (normalized == yesterday) return 1
+        return try {
+            val d1 = standardDateFormat.parse(today)
+            val d2 = standardDateFormat.parse(normalized)
+            if (d1 != null && d2 != null) {
+                val diffMillis = d1.time - d2.time
+                val diffDays = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
+                diffDays
+            } else 0
+        } catch (_: Exception) {
+            0
+        }
+    }
+
+    /**
      * Generates a list of recent dates for quick horizontal pill selector.
      */
     fun getRecentDateOptions(count: Int = 14): List<DateSelectorOption> {

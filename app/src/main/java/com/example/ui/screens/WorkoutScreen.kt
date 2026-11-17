@@ -272,24 +272,34 @@ fun WorkoutScreen(
                         )
                     }
 
+                    val canGoForward = !FitnessDateUtils.isDateToday(selectedWorkoutDate)
+
                     IconButton(
                         onClick = {
-                            val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, 1)
-                            repository.selectWorkoutDate(newDate)
+                            if (canGoForward) {
+                                val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, 1)
+                                repository.selectWorkoutDate(newDate)
+                            }
                         },
+                        enabled = canGoForward,
                         modifier = Modifier
                             .size(38.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .background(
+                                if (canGoForward) MaterialTheme.colorScheme.surfaceVariant
+                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                            )
                             .bounceClick {
-                                val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, 1)
-                                repository.selectWorkoutDate(newDate)
+                                if (canGoForward) {
+                                    val newDate = FitnessDateUtils.shiftDate(selectedWorkoutDate, 1)
+                                    repository.selectWorkoutDate(newDate)
+                                }
                             }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = "Next Day",
-                            tint = CoralPrimary,
+                            tint = if (canGoForward) CoralPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -297,20 +307,20 @@ fun WorkoutScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Chronological Quick Date Pills with 'Today' centered in the middle
-                val dateOptions = remember { FitnessDateUtils.getCenteredDateOptions(pastDaysCount = 3, futureDaysCount = 3) }
+                // Dynamic Date Pills: By default ONLY Today shows up; navigating back reveals previous days up to Today
+                val dynamicDateOptions = FitnessDateUtils.getDynamicDateOptions(selectedWorkoutDate)
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    items(dateOptions) { option ->
+                    items(dynamicDateOptions) { option ->
                         val isSelected = FitnessDateUtils.getNormalizedDate(selectedWorkoutDate) == option.dateString
                         FilterChip(
                             selected = isSelected,
                             onClick = { repository.selectWorkoutDate(option.dateString) },
                             label = {
                                 Text(
-                                    text = if (option.isToday) "★ Today" else option.displayLabel,
+                                    text = option.displayLabel,
                                     fontSize = 11.sp,
                                     fontWeight = if (isSelected || option.isToday) FontWeight.Bold else FontWeight.Normal
                                 )
