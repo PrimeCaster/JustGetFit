@@ -707,6 +707,16 @@ class FitnessRepository(
 
         if (direct != null && direct > 0) return direct
 
+        val presetWater = PresetFitnessData.createInitialWaterIntake()
+        val presetMatch = presetWater[target]
+            ?: presetWater[dateStr]
+            ?: (if (isTargetToday) presetWater["Today"] else null)
+            ?: (if (isTargetYesterday) presetWater["Yesterday"] else null)
+            ?: presetWater["$targetDaysAgo Days Ago"]
+            ?: presetWater.entries.firstOrNull { FitnessDateUtils.getNormalizedDate(it.key) == target }?.value
+
+        if (presetMatch != null && presetMatch > 0) return presetMatch
+
         return when {
             isTargetToday -> 2800
             isTargetYesterday -> 3400
@@ -716,6 +726,13 @@ class FitnessRepository(
             targetDaysAgo == 5 -> 3600
             targetDaysAgo == 6 -> 3300
             targetDaysAgo == 7 -> 3450
+            targetDaysAgo == 8 -> 3200
+            targetDaysAgo == 9 -> 3500
+            targetDaysAgo == 10 -> 3300
+            targetDaysAgo == 11 -> 3650
+            targetDaysAgo == 12 -> 3150
+            targetDaysAgo == 13 -> 3400
+            targetDaysAgo == 14 -> 3300
             else -> 2500
         }
     }
