@@ -185,41 +185,42 @@ fun DashboardScreen(
                 shape = RoundedCornerShape(18.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
+                    // Title
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.TrendingDown,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Weight Tracking & Trend",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.TrendingDown,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Weight Tracking & Trend",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
 
-                        Button(
-                            onClick = { showWeighInDialog = true },
-                            modifier = Modifier
-                                .height(36.dp)
-                                .bounceClick { showWeighInDialog = true },
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text("+ Log Weight", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        }
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // + Log Weight Button (placed below title)
+                    Button(
+                        onClick = { showWeighInDialog = true },
+                        modifier = Modifier
+                            .height(34.dp)
+                            .bounceClick { showWeighInDialog = true },
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("+ Log Weight", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
@@ -246,41 +247,42 @@ fun DashboardScreen(
                 shape = RoundedCornerShape(18.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
+                    // Title
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Speed,
-                                contentDescription = null,
-                                tint = AquaAccent,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Endurance, Cardio & Running",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Speed,
+                            contentDescription = null,
+                            tint = AquaAccent,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Endurance, Cardio & Running",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
 
-                        Button(
-                            onClick = onNavigateToCardio,
-                            modifier = Modifier
-                                .height(36.dp)
-                                .bounceClick { onNavigateToCardio() },
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = AquaAccent.copy(alpha = 0.15f),
-                                contentColor = AquaAccent
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text("+ Log Cardio", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        }
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // + Log Cardio Button (placed below title)
+                    Button(
+                        onClick = onNavigateToCardio,
+                        modifier = Modifier
+                            .height(34.dp)
+                            .bounceClick { onNavigateToCardio() },
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AquaAccent.copy(alpha = 0.15f),
+                            contentColor = AquaAccent
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("+ Log Cardio", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
