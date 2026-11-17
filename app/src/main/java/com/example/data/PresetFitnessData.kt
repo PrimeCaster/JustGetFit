@@ -1347,46 +1347,64 @@ object PresetFitnessData {
     val upcomingScheduledWorkouts = listOf(
         ScheduledWorkout(
             dayOfWeek = "Mon",
-            date = "Nov 10",
+            date = "Today",
             title = "Push (Chest, Shoulders, Triceps)",
-            focusArea = "Flat DB Bench, Shoulder Press, Cable Pushdowns",
+            focusArea = "Flat DB Bench, Seated Machine Press, Cable Pushdowns",
             estimatedMinutes = 55,
-            isToday = false,
-            isCompleted = false
+            isToday = true,
+            isCompleted = true
         ),
         ScheduledWorkout(
             dayOfWeek = "Tue",
-            date = "Nov 11",
-            title = "Pull (Back, Biceps)",
-            focusArea = "Lat Pulldowns, Seated Cable Rows, Bicep Curls",
+            date = "Tomorrow",
+            title = "Pull (Back, Biceps & Lats)",
+            focusArea = "Lat Pulldowns, Seated Cable Rows, Preacher Curls",
             estimatedMinutes = 55,
             isToday = false,
             isCompleted = false
         ),
         ScheduledWorkout(
             dayOfWeek = "Wed",
-            date = "Nov 12",
-            title = "Legs (Quad & Calves)",
-            focusArea = "Leg Press, Leg Extensions, Calf Raises",
+            date = "Wed",
+            title = "Legs (Quad & Calves Hypertrophy)",
+            focusArea = "Leg Press, Hack Squats, Seated Calf Raises",
             estimatedMinutes = 60,
             isToday = false,
             isCompleted = false
         ),
         ScheduledWorkout(
             dayOfWeek = "Thu",
-            date = "Nov 13",
-            title = "Push Hypertrophy",
+            date = "Thu",
+            title = "Active Recovery & Cardio",
+            focusArea = "Incline Treadmill Walk, Mobility & Core Flow",
+            estimatedMinutes = 40,
+            isToday = false,
+            isCompleted = false
+        ),
+        ScheduledWorkout(
+            dayOfWeek = "Fri",
+            date = "Fri",
+            title = "Push Hypertrophy & Delts",
             focusArea = "Incline DB Press, Lateral Raises, Overhead Extensions",
             estimatedMinutes = 55,
             isToday = false,
             isCompleted = false
         ),
         ScheduledWorkout(
-            dayOfWeek = "Fri",
-            date = "Nov 14",
-            title = "Pull Density & Traps",
-            focusArea = "Dumbbell Rows, Face Pulls, Hammer Curls",
+            dayOfWeek = "Sat",
+            date = "Sat",
+            title = "Pull Density & Posterior Chain",
+            focusArea = "Dumbbell Rows, Face Pulls, Romanian Deadlifts",
             estimatedMinutes = 55,
+            isToday = false,
+            isCompleted = false
+        ),
+        ScheduledWorkout(
+            dayOfWeek = "Sun",
+            date = "Sun",
+            title = "Rest, Meal Prep & Recovery",
+            focusArea = "Full rest day, grocery prep & sauna recovery",
+            estimatedMinutes = 30,
             isToday = false,
             isCompleted = false
         )
@@ -1580,6 +1598,64 @@ object PresetFitnessData {
             carbsGrams = 45.0,
             fatGrams = 1.8,
             fiberGrams = 3.5
+        ),
+        FoodItem(
+            name = "Artisan Sourdough Toast",
+            brandOrCategory = "Complex Carbohydrates",
+            servingUnit = "1 slice (40g)",
+            caloriesPerServing = 105,
+            proteinGrams = 4.2,
+            carbsGrams = 20.5,
+            fatGrams = 0.6,
+            fiberGrams = 1.2
+        ),
+        FoodItem(
+            name = "Whey-Casein Blend Protein",
+            brandOrCategory = "Sustained Amino Release",
+            servingUnit = "1 level scoop (34g)",
+            caloriesPerServing = 130,
+            proteinGrams = 26.0,
+            carbsGrams = 2.0,
+            fatGrams = 1.5
+        ),
+        FoodItem(
+            name = "Crisp Honeycrisp Apple",
+            brandOrCategory = "Pre-Workout Fiber & Carbs",
+            servingUnit = "1 medium apple (180g)",
+            caloriesPerServing = 95,
+            proteinGrams = 0.5,
+            carbsGrams = 25.0,
+            fatGrams = 0.3,
+            fiberGrams = 4.4
+        ),
+        FoodItem(
+            name = "Extra Virgin Olive Oil",
+            brandOrCategory = "Monounsaturated Healthy Fats",
+            servingUnit = "1 tablespoon (14ml)",
+            caloriesPerServing = 119,
+            proteinGrams = 0.0,
+            carbsGrams = 0.0,
+            fatGrams = 14.0
+        ),
+        FoodItem(
+            name = "Baby Spinach Greens",
+            brandOrCategory = "Iron & Micronutrient Superfood",
+            servingUnit = "100g fresh leaves",
+            caloriesPerServing = 23,
+            proteinGrams = 2.9,
+            carbsGrams = 3.6,
+            fatGrams = 0.4,
+            fiberGrams = 2.2
+        ),
+        FoodItem(
+            name = "All-Natural Almond Butter",
+            brandOrCategory = "Dense Healthy Fats & Vitamin E",
+            servingUnit = "2 tbsp (32g)",
+            caloriesPerServing = 196,
+            proteinGrams = 7.0,
+            carbsGrams = 6.0,
+            fatGrams = 18.0,
+            fiberGrams = 3.3
         )
     )
 
@@ -1648,6 +1724,95 @@ object PresetFitnessData {
                 "Serve with steamed asparagus and fresh lemon."
             ),
             tags = listOf("Omega-3 Rich", "Dinner", "Recovery")
+        ),
+        Recipe(
+            title = "Flank Steak Fajita Protein Skillet",
+            description = "Tender marinated flank steak seared with tri-color bell peppers, sweet red onions, and lime crema.",
+            prepTimeMinutes = 18,
+            calories = 520,
+            proteinG = 48.0,
+            carbsG = 28.0,
+            fatG = 18.0,
+            ingredients = listOf(
+                "200g Lean Flank Steak sliced thin",
+                "1 Bell Pepper sliced",
+                "1/2 Red Onion sliced",
+                "1 tbsp Extra Virgin Olive Oil",
+                "1 tbsp Fajita spice seasoning",
+                "Lime wedges & fresh cilantro"
+            ),
+            instructions = listOf(
+                "Season flank steak strips with fajita blend.",
+                "Sear over smoking cast iron skillet for 4 minutes until medium-rare.",
+                "Sauté peppers and onions until caramelized and toss together with fresh lime juice."
+            ),
+            tags = listOf("High Iron", "Dinner", "Keto-Friendly")
+        ),
+        Recipe(
+            title = "Greek Lemon Garlic Turkey Meatballs & Quinoa",
+            description = "Lean baked turkey meatballs seasoned with oregano and garlic served over fluffy herb quinoa.",
+            prepTimeMinutes = 22,
+            calories = 490,
+            proteinG = 45.0,
+            carbsG = 48.0,
+            fatG = 11.0,
+            ingredients = listOf(
+                "180g Lean Ground Turkey 93/7",
+                "120g Cooked Tri-Color Quinoa",
+                "1 tbsp Minced Garlic & Greek Oregano",
+                "40g Reduced-fat Feta crumbles",
+                "Cucumbers and cherry tomatoes"
+            ),
+            instructions = listOf(
+                "Roll ground turkey with herbs into 5 golf-ball sized meatballs.",
+                "Bake at 200°C (400°F) for 15 minutes until golden.",
+                "Serve over fluffy warm quinoa with feta and crisp cucumber spears."
+            ),
+            tags = listOf("Lean Muscle", "Lunch", "Meal Prep")
+        ),
+        Recipe(
+            title = "Post-Workout Banana Whey Power Pancakes",
+            description = "Fluffy three-ingredient protein pancakes served with crushed walnuts and warm maple syrup drizzle.",
+            prepTimeMinutes = 12,
+            calories = 440,
+            proteinG = 36.0,
+            carbsG = 52.0,
+            fatG = 8.0,
+            ingredients = listOf(
+                "1 Scoop Whey Protein Isolate",
+                "1 Ripe Medium Banana",
+                "2 Whole Eggs or 4 Egg Whites",
+                "1/2 tsp Cinnamon",
+                "10g Crushed Walnuts"
+            ),
+            instructions = listOf(
+                "Mash banana thoroughly with a fork and whisk together with eggs and protein powder.",
+                "Pour 3 small circles onto non-stick skillet over medium-low heat.",
+                "Flip after 2 minutes when bubbles form and top with walnuts and cinnamon."
+            ),
+            tags = listOf("High Protein", "Breakfast", "Post-Workout")
+        ),
+        Recipe(
+            title = "Avocado & Egg White Power Wrap",
+            description = "Spinach tortilla loaded with scrambled egg whites, grilled chicken breast slices, and avocado mash.",
+            prepTimeMinutes = 10,
+            calories = 380,
+            proteinG = 34.0,
+            carbsG = 32.0,
+            fatG = 10.0,
+            ingredients = listOf(
+                "1 Whole Grain or Spinach Tortilla Wrap",
+                "150ml Liquid Egg Whites scrambled",
+                "75g Grilled Chicken Strips",
+                "1/4 Ripe Avocado mashed",
+                "Handful Fresh Baby Spinach"
+            ),
+            instructions = listOf(
+                "Scramble egg whites in skillet with a pinch of sea salt and pepper.",
+                "Spread mashed avocado over warm tortilla.",
+                "Layer baby spinach, scrambled egg whites, and warm chicken, wrap tightly and slice."
+            ),
+            tags = listOf("Quick Prep", "Lunch", "Clean Fuel")
         )
     )
 
@@ -2084,10 +2249,16 @@ object PresetFitnessData {
     }
 
     val historicalWeightData = listOf(
+        WeightRecord(dateString = "Aug 15", weightKg = 88.0, bodyFatPercentage = 24.2),
+        WeightRecord(dateString = "Aug 22", weightKg = 87.3, bodyFatPercentage = 23.9),
         WeightRecord(dateString = "Sep 1", weightKg = 86.5, bodyFatPercentage = 23.5),
+        WeightRecord(dateString = "Sep 8", weightKg = 85.8, bodyFatPercentage = 23.1),
         WeightRecord(dateString = "Sep 15", weightKg = 85.1, bodyFatPercentage = 22.8),
+        WeightRecord(dateString = "Sep 22", weightKg = 84.4, bodyFatPercentage = 22.3),
         WeightRecord(dateString = "Oct 1", weightKg = 83.7, bodyFatPercentage = 21.9),
+        WeightRecord(dateString = "Oct 8", weightKg = 83.0, bodyFatPercentage = 21.3),
         WeightRecord(dateString = "Oct 15", weightKg = 82.2, bodyFatPercentage = 20.8),
+        WeightRecord(dateString = "Oct 22", weightKg = 81.3, bodyFatPercentage = 20.3),
         WeightRecord(dateString = "Nov 1", weightKg = 80.4, bodyFatPercentage = 19.8),
         WeightRecord(dateString = "Nov 8", weightKg = 79.2, bodyFatPercentage = 19.1),
         WeightRecord(dateString = "Nov 12", weightKg = 78.8, bodyFatPercentage = 18.9),
@@ -2097,34 +2268,53 @@ object PresetFitnessData {
 
     val initialProgressPhotos = listOf(
         ProgressPhotoItem(
-            dateString = "Sep 1, 2026",
+            dateString = "Aug 15, 2026",
             pose = PhotoPoseType.FRONT,
-            weightKg = 86.5,
+            weightKg = 88.0,
             title = "Starting Baseline",
             notes = "Day 1 of body recomposition. Prioritizing strength and 500 kcal deficit.",
             accentHueSeed = 0
         ),
         ProgressPhotoItem(
-            dateString = "Oct 1, 2026",
+            dateString = "Sep 15, 2026",
             pose = PhotoPoseType.FRONT,
-            weightKg = 83.7,
+            weightKg = 85.1,
             title = "Month 1 Milestone",
             notes = "Waist down 3.5cm. Visible shoulder and quad definition emerging.",
             accentHueSeed = 1
         ),
         ProgressPhotoItem(
+            dateString = "Oct 15, 2026",
+            pose = PhotoPoseType.SIDE,
+            weightKg = 82.2,
+            title = "Mid-Cut Conditioning",
+            notes = "Side posture improved, upper abdominal wall flattening out nicely.",
+            accentHueSeed = 3
+        ),
+        ProgressPhotoItem(
             dateString = "Nov 8, 2026",
             pose = PhotoPoseType.FRONT,
             weightKg = 79.2,
-            title = "Current Progress (Week 10)",
+            title = "Week 10 Milestone",
             notes = "Abs clearly visible, bench 1RM reached 105kg.",
             accentHueSeed = 2
+        ),
+        ProgressPhotoItem(
+            dateString = "Nov 17, 2026",
+            pose = PhotoPoseType.BACK,
+            weightKg = 78.2,
+            title = "Current Peak V-Taper",
+            notes = "Lat spread width peaked, rear delts and lower back definition sharp.",
+            accentHueSeed = 4
         )
     )
 
     val initialCircumferences = listOf(
+        BodyCircumference(dateString = "Aug 15", waistCm = 96.0, chestCm = 103.0, armsCm = 36.5, thighsCm = 60.5),
         BodyCircumference(dateString = "Sep 1", waistCm = 94.0, chestCm = 104.0, armsCm = 37.0, thighsCm = 61.0),
+        BodyCircumference(dateString = "Sep 15", waistCm = 92.0, chestCm = 104.5, armsCm = 37.2, thighsCm = 61.2),
         BodyCircumference(dateString = "Oct 1", waistCm = 90.5, chestCm = 105.0, armsCm = 37.5, thighsCm = 61.5),
+        BodyCircumference(dateString = "Oct 15", waistCm = 88.5, chestCm = 105.5, armsCm = 37.8, thighsCm = 61.8),
         BodyCircumference(dateString = "Nov 1", waistCm = 87.0, chestCm = 106.0, armsCm = 38.0, thighsCm = 62.0),
         BodyCircumference(dateString = "Nov 8", waistCm = 85.0, chestCm = 106.5, armsCm = 38.5, thighsCm = 62.0),
         BodyCircumference(dateString = "Nov 15", waistCm = 84.5, chestCm = 107.0, armsCm = 38.8, thighsCm = 62.5),
@@ -2140,16 +2330,37 @@ object PresetFitnessData {
             isEnabled = true
         ),
         CustomReminder(
-            title = "Scheduled Workout Session",
+            title = "Pre-Workout Fuel & Warmup",
             category = ReminderCategory.WORKOUT,
-            timeLabel = "05:30 PM",
-            daysLabel = "Mon, Tue, Thu, Fri, Sat",
+            timeLabel = "05:00 PM",
+            daysLabel = "Mon, Tue, Wed, Fri, Sat",
             isEnabled = true
         ),
         CustomReminder(
-            title = "Dinner & Macro Review",
+            title = "Scheduled Workout Session",
+            category = ReminderCategory.WORKOUT,
+            timeLabel = "05:30 PM",
+            daysLabel = "Mon, Tue, Wed, Fri, Sat",
+            isEnabled = true
+        ),
+        CustomReminder(
+            title = "Post-Workout Protein & Creatine Shake",
+            category = ReminderCategory.WORKOUT,
+            timeLabel = "06:45 PM",
+            daysLabel = "Mon, Tue, Wed, Fri, Sat",
+            isEnabled = true
+        ),
+        CustomReminder(
+            title = "Dinner & Daily Macro Review",
             category = ReminderCategory.MEAL_LOG,
             timeLabel = "08:30 PM",
+            daysLabel = "Everyday",
+            isEnabled = true
+        ),
+        CustomReminder(
+            title = "Sleep & Recovery Wind Down",
+            category = ReminderCategory.RECOVERY,
+            timeLabel = "10:15 PM",
             daysLabel = "Everyday",
             isEnabled = true
         )
@@ -2234,6 +2445,45 @@ object PresetFitnessData {
             distanceKm = 7.8,
             caloriesBurned = 620,
             avgHeartRateBpm = 150
+        ),
+        CardioSession(
+            machineType = CardioMachineType.STAIR_CLIMBER,
+            dateString = FitnessDateUtils.getDateDaysAgo(8),
+            durationMinutes = 25,
+            distanceKm = 2.2,
+            caloriesBurned = 290,
+            avgHeartRateBpm = 148,
+            stairFloorsClimbed = 110
+        ),
+        CardioSession(
+            machineType = CardioMachineType.STATIONARY_BIKE,
+            dateString = FitnessDateUtils.getDateDaysAgo(10),
+            durationMinutes = 35,
+            distanceKm = 14.2,
+            caloriesBurned = 410,
+            avgHeartRateBpm = 158,
+            bikeCadenceRpm = 92,
+            bikeResistanceLevel = 10
+        ),
+        CardioSession(
+            machineType = CardioMachineType.OUTDOOR_RUN,
+            dateString = FitnessDateUtils.getDateDaysAgo(12),
+            durationMinutes = 45,
+            distanceKm = 6.8,
+            caloriesBurned = 540,
+            avgHeartRateBpm = 154
+        ),
+        CardioSession(
+            machineType = CardioMachineType.ROWING_MACHINE,
+            dateString = FitnessDateUtils.getDateDaysAgo(14),
+            durationMinutes = 22,
+            distanceKm = 5.0,
+            caloriesBurned = 285,
+            avgHeartRateBpm = 162,
+            rowingSplitSeconds500m = 108,
+            rowingStrokesPerMin = 30,
+            rowingDamperSetting = 7,
+            rowingWatts = 245
         )
     )
 
@@ -2626,22 +2876,36 @@ object PresetFitnessData {
             name = "Vitamin D3 + K2",
             dosage = "5000 IU",
             timing = SupplementTiming.MORNING,
-            isTaken = false,
+            isTaken = true,
             notes = "Fat-soluble, take with healthy fats"
         ),
         SupplementItem(
             name = "Creatine Monohydrate",
-            dosage = "5 g powder",
+            dosage = "5 g micronized powder",
+            timing = SupplementTiming.MORNING,
+            isTaken = true,
+            notes = "Mix with water or post-workout shake"
+        ),
+        SupplementItem(
+            name = "L-Citrulline Malate 2:1",
+            dosage = "6 g powder",
             timing = SupplementTiming.MORNING,
             isTaken = false,
-            notes = "Mix with water or post-workout shake"
+            notes = "30-45 mins pre-workout for nitric oxide pump & muscular endurance"
+        ),
+        SupplementItem(
+            name = "Electrolyte Hydration Salts",
+            dosage = "1 stick pack in 750ml",
+            timing = SupplementTiming.MORNING,
+            isTaken = false,
+            notes = "Sodium, Potassium, Magnesium for intra-workout hydration"
         ),
         SupplementItem(
             name = "Magnesium Glycinate",
             dosage = "400 mg",
             timing = SupplementTiming.EVENING,
             isTaken = false,
-            notes = "30-45 minutes before bedtime for muscle recovery"
+            notes = "30-45 minutes before bedtime for muscle recovery & sleep quality"
         ),
         SupplementItem(
             name = "Zinc Picolinate",

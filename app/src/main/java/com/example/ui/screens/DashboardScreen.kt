@@ -28,6 +28,7 @@ import com.example.data.FitnessRepository
 import com.example.model.ScheduledWorkout
 import com.example.ui.components.*
 import com.example.ui.theme.*
+import com.example.util.FitnessDateUtils
 
 @Composable
 fun DashboardScreen(
@@ -58,13 +59,14 @@ fun DashboardScreen(
 
     val upcomingWorkouts = scheduledWorkouts
 
-    val consumedCalories = loggedMeals.sumOf { it.totalCalories }
-    val consumedProtein = loggedMeals.sumOf { it.totalProtein }
-    val consumedCarbs = loggedMeals.sumOf { it.totalCarbs }
-    val consumedFat = loggedMeals.sumOf { it.totalFat }
+    val todayMeals = loggedMeals.filter { FitnessDateUtils.isDateToday(it.dateString) }
+    val consumedCalories = todayMeals.sumOf { it.totalCalories }
+    val consumedProtein = todayMeals.sumOf { it.totalProtein }
+    val consumedCarbs = todayMeals.sumOf { it.totalCarbs }
+    val consumedFat = todayMeals.sumOf { it.totalFat }
 
-    val weeklyCardioMinutes = cardioSessions.sumOf { it.durationMinutes } + 45
-    val weeklyRunningKm = cardioSessions.filter { it.distanceKm > 0 }.sumOf { it.distanceKm } + 12.0
+    val weeklyCardioMinutes = cardioSessions.sumOf { it.durationMinutes }
+    val weeklyRunningKm = cardioSessions.filter { it.distanceKm > 0 }.sumOf { it.distanceKm }
 
     LazyColumn(
         modifier = modifier

@@ -64,4 +64,40 @@ class FitnessRepositoryDateNavTest {
             currentDate = prevDate
         }
     }
+
+    @Test
+    fun testDemoDataCompletenessAcrossApp() {
+        // 1. Weight Records
+        val weights = repository.weightRecords.value
+        assertTrue("Weight records should be comprehensive (>= 10 entries)", weights.size >= 10)
+        assertTrue("Weight trend should show weight reduction", weights.first().weightKg > weights.last().weightKg)
+        println("Weight entries: ${weights.size}, from ${weights.first().weightKg}kg to ${weights.last().weightKg}kg")
+
+        // 2. Body Circumferences
+        val circumferences = repository.circumferences.value
+        assertTrue("Body measurements should have multiple milestones (>= 6)", circumferences.size >= 6)
+        assertTrue("Waist measurement should show decrease", circumferences.first().waistCm > circumferences.last().waistCm)
+        assertTrue("Chest measurement should show increase", circumferences.first().chestCm < circumferences.last().chestCm)
+        println("Circumference milestones: ${circumferences.size}, waist ${circumferences.first().waistCm}cm -> ${circumferences.last().waistCm}cm")
+
+        // 3. Progress Photos
+        val photos = repository.progressPhotos.value
+        assertTrue("Progress photos should have multiple milestone comparisons (>= 4)", photos.size >= 4)
+
+        // 4. Cardio Sessions
+        val cardio = repository.cardioSessions.value
+        assertTrue("Cardio sessions should span endurance machines (>= 8)", cardio.size >= 8)
+
+        // 5. Curated Recipes
+        val recipes = repository.recipes.value
+        assertTrue("Recipes catalog should have diverse high-protein meals (>= 5)", recipes.size >= 5)
+
+        // 6. Supplements Stack
+        val supplements = repository.supplements.value
+        assertTrue("Supplement stack should include morning and evening items (>= 7)", supplements.size >= 7)
+
+        // 7. Scheduled Weekly Workouts
+        val scheduled = repository.scheduledWorkouts.value
+        assertTrue("Scheduled split should cover weekly program (>= 5)", scheduled.size >= 5)
+    }
 }
