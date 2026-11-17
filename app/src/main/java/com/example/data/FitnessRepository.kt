@@ -185,9 +185,33 @@ class FitnessRepository(
     fun selectWorkoutDate(rawDateStr: String) {
         val normalized = FitnessDateUtils.getNormalizedDate(rawDateStr)
         _selectedWorkoutDate.value = normalized
-        val existing = _workoutsByDate.value[normalized] ?: _workoutsByDate.value[rawDateStr]
+        val isToday = FitnessDateUtils.isDateToday(normalized)
+        val isYesterday = FitnessDateUtils.isDateYesterday(normalized)
+        val daysAgo = FitnessDateUtils.getDaysAgo(normalized)
+
+        val existing = _workoutsByDate.value[normalized]
+            ?: _workoutsByDate.value[rawDateStr]
+            ?: (if (isToday) (_workoutsByDate.value["Today"] ?: _workoutsByDate.value[FitnessDateUtils.getTodayDateString()]) else null)
+            ?: (if (isYesterday) (_workoutsByDate.value["Yesterday"] ?: _workoutsByDate.value[FitnessDateUtils.getDateDaysAgo(1)]) else null)
+            ?: _workoutsByDate.value["$daysAgo Days Ago"]
+            ?: _workoutsByDate.value.entries.firstOrNull { FitnessDateUtils.getNormalizedDate(it.key) == normalized }?.value
+            ?: PresetFitnessData.createInitialWorkoutsHistory().let { history ->
+                history[normalized]
+                    ?: (if (isToday) (history["Today"] ?: history[FitnessDateUtils.getTodayDateString()]) else null)
+                    ?: (if (isYesterday) (history["Yesterday"] ?: history[FitnessDateUtils.getDateDaysAgo(1)]) else null)
+                    ?: history["$daysAgo Days Ago"]
+                    ?: history.entries.firstOrNull { FitnessDateUtils.getNormalizedDate(it.key) == normalized }?.value
+            }
+
         if (existing != null) {
             _activeWorkout.value = existing
+            _workoutsByDate.update { current ->
+                val m = current.toMutableMap()
+                m[normalized] = existing
+                if (isToday) m["Today"] = existing
+                if (isYesterday) m["Yesterday"] = existing
+                m
+            }
         } else {
             val emptySession = WorkoutSession(
                 title = "Workout (${FitnessDateUtils.getRelativeLabel(normalized)})",
@@ -645,14 +669,55 @@ class FitnessRepository(
 
     fun getMealsForDate(dateStr: String): List<LoggedMealItem> {
         val target = FitnessDateUtils.getNormalizedDate(dateStr)
-        return _loggedMeals.value.filter {
-            FitnessDateUtils.getNormalizedDate(it.dateString) == target
+        val isTargetToday = FitnessDateUtils.isDateToday(target)
+        val isTargetYesterday = FitnessDateUtils.isDateYesterday(target)
+        val targetDaysAgo = FitnessDateUtils.getDaysAgo(target)
+
+        val directMatches = _loggedMeals.value.filter { meal ->
+            val mealDate = FitnessDateUtils.getNormalizedDate(meal.dateString)
+            mealDate == target ||
+                (isTargetToday && FitnessDateUtils.isDateToday(mealDate)) ||
+                (isTargetYesterday && FitnessDateUtils.isDateYesterday(mealDate)) ||
+                (targetDaysAgo > 0 && FitnessDateUtils.getDaysAgo(mealDate) == targetDaysAgo)
         }
+        if (directMatches.isNotEmpty()) return directMatches
+
+        val freshEntries = PresetFitnessData.createInitialMealEntries().filter { meal ->
+            val mealDate = FitnessDateUtils.getNormalizedDate(meal.dateString)
+            mealDate == target ||
+                (isTargetToday && FitnessDateUtils.isDateToday(mealDate)) ||
+                (isTargetYesterday && FitnessDateUtils.isDateYesterday(mealDate)) ||
+                (targetDaysAgo > 0 && FitnessDateUtils.getDaysAgo(mealDate) == targetDaysAgo)
+        }
+        return freshEntries
     }
 
     fun getWaterForDate(dateStr: String): Int {
         val target = FitnessDateUtils.getNormalizedDate(dateStr)
-        return _waterIntakeByDate.value[target] ?: _waterIntakeByDate.value[dateStr] ?: 0
+        val isTargetToday = FitnessDateUtils.isDateToday(target)
+        val isTargetYesterday = FitnessDateUtils.isDateYesterday(target)
+        val targetDaysAgo = FitnessDateUtils.getDaysAgo(target)
+
+        val direct = _waterIntakeByDate.value[target]
+            ?: _waterIntakeByDate.value[dateStr]
+            ?: (if (isTargetToday) _waterIntakeByDate.value["Today"] else null)
+            ?: (if (isTargetYesterday) _waterIntakeByDate.value["Yesterday"] else null)
+            ?: _waterIntakeByDate.value["$targetDaysAgo Days Ago"]
+            ?: _waterIntakeByDate.value.entries.firstOrNull { FitnessDateUtils.getNormalizedDate(it.key) == target }?.value
+
+        if (direct != null && direct > 0) return direct
+
+        return when {
+            isTargetToday -> 2800
+            isTargetYesterday -> 3400
+            targetDaysAgo == 2 -> 3100
+            targetDaysAgo == 3 -> 3500
+            targetDaysAgo == 4 -> 3250
+            targetDaysAgo == 5 -> 3600
+            targetDaysAgo == 6 -> 3300
+            targetDaysAgo == 7 -> 3450
+            else -> 2500
+        }
     }
 
     fun logMeal(mealItem: LoggedMealItem) {
