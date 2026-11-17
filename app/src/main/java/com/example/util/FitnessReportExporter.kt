@@ -109,22 +109,32 @@ object FitnessReportExporter {
             writer.append("[1. STRENGTH WORKOUT SESSIONS & SETS]\n")
             writer.append("Workout Date,Workout Title,Focus Area,Duration (min),Total Volume (kg),Exercise Name,Equipment / Gym Machine,Target Muscle,Set Number,Weight (kg),Reps,Estimated 1RM (kg),RPE (1-10),Completed\n")
             workout.exercises.forEach { exLog ->
-                val machineName = exLog.gymMachine?.let { "${it.machineName} (${it.everydayAlias})" } ?: "Free Weight / Cable"
-                exLog.sets.forEach { s ->
-                    writer.append("\"${workout.dateString}\",")
-                    writer.append("\"${workout.title}\",")
-                    writer.append("\"${workout.splitCategory}\",")
-                    writer.append("${workout.durationMinutes},")
-                    writer.append("${"%.1f".format(workout.totalVolumeKg)},")
-                    writer.append("\"${exLog.exercise.name}\",")
-                    writer.append("\"$machineName\",")
-                    writer.append("\"${exLog.exercise.category.displayName}\",")
-                    writer.append("${s.setNumber},")
-                    writer.append("${s.weightKg},")
-                    writer.append("${s.reps},")
-                    writer.append("${"%.1f".format(s.estimated1RM)},")
-                    writer.append("${s.rpe},")
-                    writer.append("${if (s.isCompleted) "Yes" else "No"}\n")
+                val exName = exLog.exercise.name.ifBlank { "Exercise: Not Selected" }
+                val machineName = if (exLog.isMachineSelected) {
+                    exLog.gymMachine?.dropdownLabel ?: "${exLog.gymMachine?.machineName} (${exLog.gymMachine?.everydayAlias})"
+                } else {
+                    exLog.gymMachine?.let { "${it.machineName} (${it.everydayAlias})" } ?: "Free Weights"
+                }
+                val targetMuscle = exLog.exercise.category.displayName
+                if (exLog.sets.isNotEmpty()) {
+                    exLog.sets.forEach { s ->
+                        writer.append("\"${workout.dateString}\",")
+                        writer.append("\"${workout.title}\",")
+                        writer.append("\"${workout.splitCategory}\",")
+                        writer.append("${workout.durationMinutes},")
+                        writer.append("${"%.1f".format(workout.totalVolumeKg)},")
+                        writer.append("\"$exName\",")
+                        writer.append("\"$machineName\",")
+                        writer.append("\"$targetMuscle\",")
+                        writer.append("${s.setNumber},")
+                        writer.append("${s.weightKg},")
+                        writer.append("${s.reps},")
+                        writer.append("${"%.1f".format(s.estimated1RM)},")
+                        writer.append("${s.rpe},")
+                        writer.append("${if (s.isCompleted) "Yes" else "No"}\n")
+                    }
+                } else {
+                    writer.append("\"${workout.dateString}\",\"${workout.title}\",\"${workout.splitCategory}\",${workout.durationMinutes},0.0,\"$exName\",\"$machineName\",\"$targetMuscle\",1,0.0,0,0.0,8,No\n")
                 }
             }
             writer.append("\n")
@@ -330,7 +340,12 @@ object FitnessReportExporter {
                 .ifEmpty { "${exLog.sets.size} sets planned" }
             val exVol = exLog.sets.filter { it.isCompleted }.sumOf { it.weightKg * it.reps }
 
-            canvas.drawText(exLog.exercise.name.take(30), 30f, y, smallBoldPaint)
+            val exLabel = if (exLog.gymMachine != null) {
+                "${exLog.exercise.name} (${exLog.gymMachine.everydayAlias})"
+            } else {
+                exLog.exercise.name
+            }
+            canvas.drawText(exLabel.take(32), 30f, y, smallBoldPaint)
             canvas.drawText(exLog.exercise.category.displayName, 230f, y, bodyPaint)
             canvas.drawText(setDetails.take(28), 360f, y, bodyPaint)
             canvas.drawText("%.0f kg".format(exVol), 510f, y, smallBoldPaint)
@@ -501,11 +516,25 @@ object FitnessReportExporter {
             fos.write(byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte()))
             val writer = OutputStreamWriter(fos, StandardCharsets.UTF_8)
             writer.append("Date,Workout Title,Split Category,Duration (mins),Total Volume (kg),Exercise Name,Gym Machine / Equipment,Target Muscle,Set Number,Weight (kg),Reps,Estimated 1RM (kg),RPE,Completed\n")
-            workoutsHistory.values.forEach { w ->
+            // Deduplicate workouts to avoid duplicate rows from "Today" key
+            val uniqueWorkouts = workoutsHistory.entries
+                .filter { it.key != "Today" || !workoutsHistory.containsKey(FitnessDateUtils.getTodayDateString()) }
+                .map { it.value }
+            uniqueWorkouts.forEach { w ->
                 w.exercises.forEach { exLog ->
-                    val machineName = exLog.gymMachine?.let { "${it.machineName} (${it.everydayAlias} for ${it.targetMuscle})" } ?: "Free Weights"
-                    exLog.sets.forEach { s ->
-                        writer.append("\"${w.dateString}\",\"${w.title}\",\"${w.splitCategory}\",${w.durationMinutes},${"%.1f".format(w.totalVolumeKg)},\"${exLog.exercise.name}\",\"$machineName\",\"${exLog.exercise.category.displayName}\",${s.setNumber},${s.weightKg},${s.reps},${"%.1f".format(s.estimated1RM)},${s.rpe},${if (s.isCompleted) "Yes" else "No"}\n")
+                    val exName = exLog.exercise.name.ifBlank { "Exercise: Not Selected" }
+                    val machineName = if (exLog.isMachineSelected) {
+                        exLog.gymMachine?.dropdownLabel ?: "${exLog.gymMachine?.machineName} (${exLog.gymMachine?.everydayAlias} for ${exLog.gymMachine?.targetMuscle})"
+                    } else {
+                        exLog.gymMachine?.let { "${it.machineName} (${it.everydayAlias})" } ?: "Free Weights"
+                    }
+                    val targetMuscle = exLog.exercise.category.displayName
+                    if (exLog.sets.isNotEmpty()) {
+                        exLog.sets.forEach { s ->
+                            writer.append("\"${w.dateString}\",\"${w.title}\",\"${w.splitCategory}\",${w.durationMinutes},${"%.1f".format(w.totalVolumeKg)},\"$exName\",\"$machineName\",\"$targetMuscle\",${s.setNumber},${s.weightKg},${s.reps},${"%.1f".format(s.estimated1RM)},${s.rpe},${if (s.isCompleted) "Yes" else "No"}\n")
+                        }
+                    } else {
+                        writer.append("\"${w.dateString}\",\"${w.title}\",\"${w.splitCategory}\",${w.durationMinutes},${"%.1f".format(w.totalVolumeKg)},\"$exName\",\"$machineName\",\"$targetMuscle\",1,0.0,0,0.0,8,No\n")
                     }
                 }
             }
@@ -623,21 +652,44 @@ object FitnessReportExporter {
         if (includeWorkouts) {
             sb.append("\n💪 *WORKOUT SESSIONS & STRENGTH*\n")
             val targetWorkouts = if (range == ExportDateRange.TODAY) {
-                listOfNotNull(workout ?: workoutsHistory["Today"])
+                val todayW = workout?.takeIf { it.exercises.isNotEmpty() }
+                    ?: workoutsHistory["Today"]
+                    ?: workoutsHistory[FitnessDateUtils.getTodayDateString()]
+                    ?: workout
+                listOfNotNull(todayW)
             } else {
-                workoutsHistory.values.toList()
+                val allW = workoutsHistory.entries
+                    .filter { it.key != "Today" || !workoutsHistory.containsKey(FitnessDateUtils.getTodayDateString()) }
+                    .map { it.value }
+                    .toMutableList()
+                if (workout != null && allW.none { it.id == workout.id }) {
+                    allW.add(0, workout)
+                }
+                allW
             }
 
             if (targetWorkouts.isEmpty() || targetWorkouts.all { it.exercises.isEmpty() }) {
                 sb.append("• No strength exercises logged for this period.\n")
             } else {
                 targetWorkouts.forEach { w ->
-                    sb.append("• *${w.title}* (${w.dateString})\n")
+                    val relativeDate = FitnessDateUtils.getRelativeLabel(w.dateString)
+                    sb.append("• *${w.title}* ($relativeDate)\n")
                     sb.append("  Volume: ${"%.0f".format(w.totalVolumeKg)} kg | Duration: ${w.durationMinutes} mins\n")
                     w.exercises.forEach { ex ->
-                        val setsText = ex.sets.joinToString(", ") { "${it.weightKg.toInt()}kg×${it.reps}" }
-                        val mach = ex.gymMachine?.everydayAlias ?: "Weights"
-                        sb.append("  - ${ex.exercise.name} [$mach]: $setsText\n")
+                        val exName = ex.exercise.name.ifBlank { "Exercise: Not Selected" }
+                        val machName = if (ex.isMachineSelected) {
+                            ex.gymMachine?.dropdownLabel ?: "${ex.gymMachine?.machineName} (${ex.gymMachine?.everydayAlias})"
+                        } else {
+                            ex.gymMachine?.let { "${it.machineName} (${it.everydayAlias})" } ?: "Free Weights"
+                        }
+                        val setsText = if (ex.sets.isNotEmpty()) {
+                            ex.sets.joinToString(", ") { "${it.weightKg.toInt()}kg×${it.reps}" }
+                        } else {
+                            "No sets recorded"
+                        }
+                        sb.append("  - $exName\n")
+                        sb.append("    Equipment: $machName\n")
+                        sb.append("    Sets: $setsText\n")
                     }
                 }
             }
@@ -705,23 +757,55 @@ object FitnessReportExporter {
         val sb = StringBuilder()
         sb.append("JustGetFit Data Export - ${range.displayName}\n")
         if (includeWorkouts) {
-            sb.append("\n[WORKOUTS]\nDate,Workout,Exercise,Machine,Set,Weight_kg,Reps,Volume_kg\n")
-            workoutsHistory.values.forEach { w ->
+            sb.append("\n[WORKOUTS]\nDate,Workout Title,Exercise Name,Gym Machine / Equipment,Target Muscle,Set Number,Weight (kg),Reps,Total Volume (kg)\n")
+            val targetWorkouts = if (range == ExportDateRange.TODAY) {
+                val todayW = workout?.takeIf { it.exercises.isNotEmpty() }
+                    ?: workoutsHistory["Today"]
+                    ?: workoutsHistory[FitnessDateUtils.getTodayDateString()]
+                    ?: workout
+                listOfNotNull(todayW)
+            } else {
+                val allW = workoutsHistory.entries
+                    .filter { it.key != "Today" || !workoutsHistory.containsKey(FitnessDateUtils.getTodayDateString()) }
+                    .map { it.value }
+                    .toMutableList()
+                if (workout != null && allW.none { it.id == workout.id }) {
+                    allW.add(0, workout)
+                }
+                allW
+            }
+            targetWorkouts.forEach { w ->
                 w.exercises.forEach { ex ->
-                    val mach = ex.gymMachine?.machineName ?: "Free Weights"
-                    ex.sets.forEach { s ->
-                        sb.append("\"${w.dateString}\",\"${w.title}\",\"${ex.exercise.name}\",\"$mach\",${s.setNumber},${s.weightKg},${s.reps},${"%.1f".format(s.weightKg * s.reps)}\n")
+                    val exName = ex.exercise.name.ifBlank { "Exercise: Not Selected" }
+                    val machName = if (ex.isMachineSelected) {
+                        ex.gymMachine?.dropdownLabel ?: "${ex.gymMachine?.machineName} (${ex.gymMachine?.everydayAlias})"
+                    } else {
+                        ex.gymMachine?.let { "${it.machineName} (${it.everydayAlias})" } ?: "Free Weights"
+                    }
+                    val targetMuscle = ex.exercise.category.displayName
+                    if (ex.sets.isNotEmpty()) {
+                        ex.sets.forEach { s ->
+                            sb.append("\"${w.dateString}\",\"${w.title}\",\"$exName\",\"$machName\",\"$targetMuscle\",${s.setNumber},${s.weightKg},${s.reps},${"%.1f".format(s.weightKg * s.reps)}\n")
+                        }
+                    } else {
+                        sb.append("\"${w.dateString}\",\"${w.title}\",\"$exName\",\"$machName\",\"$targetMuscle\",1,0.0,0,0.0\n")
                     }
                 }
             }
-            sb.append("\n[CARDIO]\nDate,Machine,Duration_min,Distance_km,Calories_kcal,Avg_HR\n")
-            cardioSessions.forEach { c ->
+            sb.append("\n[CARDIO]\nDate,Machine Type,Duration (min),Distance (km),Calories (kcal),Avg HR (BPM)\n")
+            val cardioFiltered = if (range == ExportDateRange.TODAY) {
+                cardioSessions.filter { it.dateString == "Today" || it.dateString == FitnessDateUtils.getTodayDateString() }
+            } else cardioSessions
+            cardioFiltered.forEach { c ->
                 sb.append("\"${c.dateString}\",\"${c.machineType.displayName}\",${c.durationMinutes},${c.distanceKm},${c.caloriesBurned},${c.avgHeartRateBpm}\n")
             }
         }
         if (includeNutrition) {
-            sb.append("\n[NUTRITION]\nDate,Category,Food_Item,Calories_kcal,Protein_g,Carbs_g,Fat_g\n")
-            meals.forEach { m ->
+            sb.append("\n[NUTRITION]\nDate,Meal Category,Food Name,Calories (kcal),Protein (g),Carbs (g),Fat (g)\n")
+            val mealsFiltered = if (range == ExportDateRange.TODAY) {
+                meals.filter { it.dateString == "Today" || it.dateString == FitnessDateUtils.getTodayDateString() }
+            } else meals
+            mealsFiltered.forEach { m ->
                 sb.append("\"${m.dateString}\",\"${m.mealCategory.title}\",\"${m.foodItem.name}\",${m.totalCalories},${"%.1f".format(m.totalProtein)},${"%.1f".format(m.totalCarbs)},${"%.1f".format(m.totalFat)}\n")
             }
         }
